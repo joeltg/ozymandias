@@ -1,0 +1,24 @@
+{
+  "name": "scheme-repl",
+  "version": "1.0.0",
+  "description": "Scheme REPL for the Browser",
+  "main": "index.js",
+  "dependencies": {
+    "carbide-scheme-kernel": "^1.0.1",
+    "ws": "^1.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joeltg/repl.git"
+  },
+  "author": "Joel Gustafson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/joeltg/repl/issues"
+  },
+  "homepage": "https://github.com/joeltg/repl#readme"
+}
