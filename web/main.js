@@ -28,7 +28,7 @@ function make_repl_read_only() {
 
 write('connecting to server...\n');
 
-var webSocketServerUrl = 'ws://localhost:1947';
+var webSocketServerUrl = 'ws://104.196.113.76:1947';
 var webSocket = new WebSocket(webSocketServerUrl);
 
 webSocket.onopen = event => write('connected to server.\n');
