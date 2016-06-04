@@ -4,10 +4,6 @@ html, body {
     height: 100%;
 }
 
-pre {
-    margin: 0;
-    font-size: 16px;
-}
 #container {
     margin: 0;
     width: 100%;
@@ -19,8 +15,10 @@ pre {
 #output {
     font-family: monospace;
     flex: 1;
+    /*overflow: scroll;*/
 }
 #input {
     font-family: monospace;
     flex: 1;
+    /*overflow: scroll;*/
 }
