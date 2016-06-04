@@ -4,7 +4,6 @@
   "description": "Scheme REPL for the Browser",
   "main": "index.js",
   "dependencies": {
-    "carbide-scheme-kernel": "^1.0.1",
     "ws": "^1.1.0"
   },
   "devDependencies": {},
