@@ -5,3 +5,5 @@
 ROOT="${SCMUTILS_ROOT:-/usr/local/scmutils}"
 EDWIN_INFO_DIRECTORY="${ROOT}/mit-scheme/lib/edwin/info"
 SCHEME="${ROOT}/mit-scheme/bin/scheme --library ${ROOT}/mit-scheme/lib"
+
+exec ${SCHEME}
