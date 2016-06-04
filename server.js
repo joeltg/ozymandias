@@ -20,8 +20,8 @@ server.on('connection', function(socket)  {
     children.push(scheme);
 
     scheme.on('close', function(code, signal) {
-      console.log('scheme closed', signal));
-    }
+      console.log('scheme closed', signal);
+    });
 
     scheme.stdout.on('data', function(data) {
         process.stdout.write(data.toString());
