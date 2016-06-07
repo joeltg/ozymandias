@@ -15,7 +15,7 @@ console.log('listening on port 1947');
 const children  = [];
 server.on('connection', function(socket)  {
 
-    const scheme = spawn('mit-scheme');
+    const scheme = spawn('./start-scheme');
     scheme.stdout.setEncoding('utf8');
     children.push(scheme);
 

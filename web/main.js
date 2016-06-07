@@ -2,6 +2,11 @@
  * Created by joelg on 6/2/16.
  */
 
+// Replace with the URL of your server
+var webSocketServerUrl = 'ws://localhost:1947';
+var webSocket = new WebSocket(webSocketServerUrl);
+
+
 var lastLine = 0;
 var lastChar = 0;
 
@@ -28,12 +33,15 @@ function make_repl_read_only() {
 
 write('connecting to server...\n');
 
-var webSocketServerUrl = 'ws://104.196.113.76:1947';
-var webSocket = new WebSocket(webSocketServerUrl);
-
-webSocket.onopen = event => write('connected to server.\n');
-webSocket.onmessage = event => write(event.data);
-webSocket.onclose = event => write('lost connection to server, please reload\n');
+webSocket.onopen = function(event) {
+    write('connected to server.\n')
+};
+webSocket.onmessage = function(event) {
+    write(event.data);
+};
+webSocket.onclose = function(event) {
+    write('lost connection to server, please reload\n');
+};
 
 function evaluate_editor() {
     // value is the text of the editor
