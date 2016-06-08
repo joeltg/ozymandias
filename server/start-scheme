@@ -3,6 +3,6 @@
 # Set the environment variable SCMUTILS_ROOT to override the default
 # location for the scmutils root directory.
 ROOT="${SCMUTILS_ROOT:-/usr/local/scmutils}"
-SCHEME="${ROOT}/start-scheme/bin/scheme --library ${ROOT}/start-scheme/lib"
+SCHEME="${ROOT}/mit-scheme/bin/scheme --library ${ROOT}/mit-scheme/lib"
 
 exec ${SCHEME}
