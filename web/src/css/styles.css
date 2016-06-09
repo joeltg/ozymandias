@@ -1,0 +1,39 @@
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    font-family: monospace;
+}
+
+h4 {
+    margin-bottom: 4px;
+}
+
+canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#settings-icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 1000;
+    opacity: 0.5;
+}
+
+#settings-icon:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
+#container {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+
+
+.ui-dialog-content {
+    padding: 0 !important;
+}

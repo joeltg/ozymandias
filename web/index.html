@@ -2,19 +2,88 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Scheme</title>
-    <link rel="stylesheet" type="text/css" href="styles.css"/>
-    <link rel="stylesheet" type="text/css" href="codemirror/codemirror.css"/>
-    <link rel="stylesheet" type="text/css" href="codemirror/monokai.css"/>
-    <link rel="icon" href="favicon.ico" type="image/x-icon"/>
+    <title>Web Scheme</title>
+    <link rel="icon" href="src/images/favicon.ico" type="image/x-icon"/>
+
+    <link rel="stylesheet" type="text/css" href="src/css/styles.css"/>
+
+    <link rel="stylesheet" type="text/css" href="lib/codemirror/codemirror.css"/>
+    <link rel="stylesheet" type="text/css" href="lib/codemirror/monokai.css"/>
+    <script src="lib/codemirror/codemirror.min.js" type="text/javascript"></script>
+
+    <script src="lib/paper/paper-core.min.js" type="text/javascript"></script>
+
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>-->
+    <script src="lib/jquery-ui/jquery.min.js" type="text/javascript"></script>
+    <link href="lib/jquery-ui/jquery-ui.min.css" rel="stylesheet">
+    <script src="lib/jquery-ui/jquery-ui.min.js"></script>
+
 </head>
 <body>
+    <img height="32" width="32" id="settings-icon" src="src/images/settings_icon.svg"
+         onclick="var a = $(settings); a.dialog(a.dialog('isOpen') ? 'close' : 'open');"/>
     <div id="container">
         <div id="input"></div>
         <div id="output"></div>
     </div>
-    <script src="codemirror/codemirror.min.js" type="text/javascript"></script>
-    <script src="editor.js" type="text/javascript"></script>
-    <script src="main.js" type="text/javascript"></script>
+    <div id="dialogs">
+        <div id="settings-dialog">
+            <h4>Layout</h4>
+            <form>
+                <div class="setting">
+                    <input type="radio" id="split" name="radio" checked="checked"
+                           onclick="set_layout('split')">
+                    <label for="split">Split</label>
+
+                    <input type="radio" id="editor" name="radio"
+                           onclick="set_layout('editor')">
+                    <label for="editor">Editor only</label>
+
+                    <input type="radio" id="repl" name="radio"
+                           onclick="set_layout('repl')">
+                    <label for="repl">REPL only</label>
+                </div>
+            </form>
+            <h4>Editor Theme</h4>
+            <form>
+                <div class="setting">
+                    <input type="radio" id="editor-monokai" name="radio" checked="checked"
+                           onclick="set_theme(editor, 'monokai')">
+                    <label for="editor-monokai">Dark</label>
+
+                    <input type="radio" id="editor-classic" name="radio"
+                           onclick="set_theme(editor, 'default')">
+                    <label for="editor-classic">Light</label>
+                </div>
+            </form>
+            <h4>REPL Theme</h4>
+            <form>
+                <div class="setting">
+                    <input type="radio" id="repl-monokai" name="radio"
+                           onclick="set_theme(repl, 'monokai')">
+                    <label for="repl-monokai">Dark</label>
+
+                    <input type="radio" id="repl-classic" name="radio" checked="checked"
+                           onclick="set_theme(repl, 'default')">
+                    <label for="repl-classic">Light</label>
+                </div>
+            </form>
+            <h4>Keyboard Shortcuts</h4>
+            <form>
+                <div class="setting">
+                    <input type="radio" id="emacs" name="radio" checked="checked"
+                           onclick="set_keymap('emacs')">
+                    <label for="emacs">Emacs</label>
+
+                    <input type="radio" id="sublime" name="radio"
+                           onclick="set_keymap('sublime')">
+                    <label for="sublime">Sublime</label>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="src/js/main.js" type="text/javascript"></script>
+    <script src="src/js/dialogs.js" type="text/javascript"></script>
 </body>
 </html>
