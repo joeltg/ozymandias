@@ -3,7 +3,8 @@
  */
 
 // Replace with the URL of your server
-var websocket_url = 'ws://localhost:1947';
+//var websocket_url = 'ws://localhost:1947';
+var websocket_url = 'ws://maharal.csail.mit.edu:1947';
 var socket = new WebSocket(websocket_url);
 
 var repl_history = [];

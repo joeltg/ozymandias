@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-"use strict";
+/*"use strict";*/
 /**
  * Created by joelg on 6/2/16.
  * Forked from carbide-scheme-kernel by Kevin Kwok and Guillermo Webster
@@ -19,7 +19,9 @@ const children  = [];
 
 server.on('connection', function(socket)  {
 
-    const scheme = spawn('./start-scheme');
+/*    const scheme = spawn('./start-mechanics-on-maharal'); */
+/*    const scheme = spawn('./start-mechanics-from-distribution'); */
+    const scheme = spawn('./start-mechanics-in-chroot-jail');
     children.push(scheme);
     console.log('scheme opened ' + children.length);
 
@@ -27,8 +29,8 @@ server.on('connection', function(socket)  {
         console.log('scheme closed ' + children.length);
     });
 
-    let consuming = false;
-    let buffer = '';
+    var consuming = false;
+    var buffer = '';
 
     function consume(string) {
         const start_index = string.indexOf(start);
@@ -60,7 +62,7 @@ server.on('connection', function(socket)  {
 
     scheme.stdout.on('data', function(data) {
         process.stdout.write(data);
-        let value = data.toString();
+        var value = data.toString();
         consume(value);
     });
 
