@@ -3,8 +3,8 @@
  */
 
 // Replace with the URL of your server
-//var websocket_url = 'ws://localhost:1947';
-var websocket_url = 'ws://maharal.csail.mit.edu:1947';
+var websocket_url = 'ws://localhost:1947';
+// var websocket_url = 'ws://maharal.csail.mit.edu:1947';
 var socket = new WebSocket(websocket_url);
 
 var repl_history = [];
@@ -30,7 +30,7 @@ var repl = CodeMirror(output, {
     'extraKeys': {
         "Tab": "indentMore",
         "Enter": evaluate_repl,
-        "Ctrl-C": interrupt,
+        "Ctrl-G": interrupt,
         "Ctrl-Z": kill,
         "Up": move_up_repl_history,
         "Down": move_down_repl_history
@@ -70,7 +70,7 @@ function set_layout(layout) {
     var height = window.innerHeight;
     switch (layout) {
         case 'split':
-            editor_height = repl_height = height / 2.0;
+            editor_height = repl_height = Math.floor(height / 2.0) - 1;
             break;
         case 'repl':
             editor_height = 0;
@@ -132,62 +132,67 @@ socket.onmessage = function(event) {
                 editor.replaceRange('\n; ' + result.split('\n').join('\n; '), editor_position, editor_position);
             }
         });
-    } else {
+    } else if (value instanceof Object) {
+        // if (value.type === 'plot' && value.name && value.data instanceof Array) {
+        //     var xscale = 1, yscale = 1, xmin = 0, ymin = 0, xmax = 0, ymax = 0;
+        //
+        //     if (value.range) {
+        //         xmin = value.range.x[0]; xmax = value.range.x[1];
+        //         ymin = value.range.y[0]; ymax = value.range.y[1];
+        //     }
+        //
+        //     var ratio = (ymax - ymin) / (xmax - xmin);
+        //
+        //     var width = 400, height = 400 * ratio;
+        //
+        //     xscale = width / (xmax - xmin);
+        //     yscale = height / (ymax - ymin);
+        //
+        //     var canvas = document.createElement('canvas');
+        //     canvas.width = width; canvas.height = height;
+        //
+        //     paper.setup(canvas);
+        //
+        //
+        //     var points = value.data.map(function(datum) {
+        //         var x = datum.x * xscale;
+        //         var y = (ymax - datum.y) * yscale;
+        //         return new paper.Path.Circle({
+        //             center: [x, y],
+        //             radius: 3,
+        //             fillColor: '#000000',
+        //             opacity: 1.0
+        //         });
+        //     });
+        //     paper.view.draw();
+        //
+        //     // Draw the view now:
+        //     var dialog = makeDialog(value.name, function(event, ui) {
+        //         // var size = ui.size;
+        //         // var original_size = ui.originalSize;
+        //         // canvas.width = size.width; canvas.height = size.height - 36;
+        //         // xscale = size.width / original_size.width;
+        //         // yscale = size.height - 36 / original_size.height - 36;
+        //         // points.forEach(function(point) {
+        //         //     point.position = new paper.Point(point.position.x * xscale, point.position.y * yscale);
+        //         // });
+        //         // console.log(size);
+        //     });
+        //     dialog.appendChild(canvas);
+        //
+        //     function draw(width, height) {
+        //
+        //     }
+        // }
         console.log(value);
-        if (value instanceof Object) {
-            if (value.type === 'plot' && value.name && value.data instanceof Array) {
-                var xscale = 1, yscale = 1, xmin = 0, ymin = 0, xmax = 0, ymax = 0;
 
-                if (value.range) {
-                    xmin = value.range.x[0]; xmax = value.range.x[1];
-                    ymin = value.range.y[0]; ymax = value.range.y[1];
-                }
-
-                var ratio = (ymax - ymin) / (xmax - xmin);
-
-                var width = 400, height = 400 * ratio;
-
-                xscale = width / (xmax - xmin);
-                yscale = height / (ymax - ymin);
-
-                var canvas = document.createElement('canvas');
-                canvas.width = width; canvas.height = height;
-
-                paper.setup(canvas);
-
-
-                var points = value.data.map(function(datum) {
-                    var x = datum.x * xscale;
-                    var y = (ymax - datum.y) * yscale;
-                    return new paper.Path.Circle({
-                        center: [x, y],
-                        radius: 3,
-                        fillColor: '#000000',
-                        opacity: 1.0
-                    });
-                });
-                paper.view.draw();
-
-                // Draw the view now:
-                var dialog = makeDialog(value.name, function(event, ui) {
-                    // var size = ui.size;
-                    // var original_size = ui.originalSize;
-                    // canvas.width = size.width; canvas.height = size.height - 36;
-                    // xscale = size.width / original_size.width;
-                    // yscale = size.height - 36 / original_size.height - 36;
-                    // points.forEach(function(point) {
-                    //     point.position = new paper.Point(point.position.x * xscale, point.position.y * yscale);
-                    // });
-                    // console.log(size);
-                });
-                dialog.appendChild(canvas);
-
-                function draw(width, height) {
-
-                }
-            }
+        switch (value.action) {
+            case 'plot':
+                plot(value.name, value.data);
+                break;
         }
-    }
+
+    } else console.error('panic at the disco');
 };
 
 socket.onclose = function(event) {

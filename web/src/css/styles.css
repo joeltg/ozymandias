@@ -14,6 +14,10 @@ canvas {
     height: 100% !important;
 }
 
+#input, #output {
+    overflow: auto;
+}
+
 #settings-icon {
     position: absolute;
     top: 8px;

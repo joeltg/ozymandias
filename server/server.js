@@ -1,78 +1,60 @@
 #!/usr/bin/env node
-/*"use strict";*/
 /**
  * Created by joelg on 6/2/16.
  * Forked from carbide-scheme-kernel by Kevin Kwok and Guillermo Webster
  * Debugging and editing by gjs
  */
 
-const WebSocketServer = require('ws').Server;
+var scheme_path = '/usr/local/mit-scheme/bin/mit-scheme';
+process.argv.forEach(function(arg, index) {
+    if ((arg === '--scheme' || arg === '-s') && process.argv.length > index + 1)
+        scheme_path = process.argv[index + 1];
+});
+
+// const scheme_path = './start-mechanics-on-maharal';
+// const scheme_path = './start-mechanics-from-distribution';
+// const scheme_path = './start-mechanics-in-chroot-jail';
+// const scheme_path = '/usr/local/mit-scheme/bin/mit-scheme';
+
+const port = 1947;
+const log_delimiter = '\n';
+
+const fs = require('fs');
 const spawn = require('child_process').spawn;
-const server = new WebSocketServer({ port: 1947 });
+const WebSocketServer = require('ws').Server;
+const server = new WebSocketServer({ port: port });
+console.log(`listening on port ${port}`);
 
-const start = '<';
-const end = '>';
-
-console.log('listening on port 1947');
-
+var log_id = 0;
 const children  = [];
 
 server.on('connection', function(socket)  {
 
-/*    const scheme = spawn('./start-mechanics-on-maharal'); */
-/*    const scheme = spawn('./start-mechanics-from-distribution'); */
-    const scheme = spawn('./start-mechanics-in-chroot-jail');
+    // create empty log file
+    const log_path = `logs\/${log_id++}`;
+    fs.closeSync(fs.openSync(log_path, 'w'));
+
+    // spawn scheme process
+    const scheme = spawn(scheme_path, ['-eval', `(define out-file-name "${log_path}")`]);
+
     children.push(scheme);
     console.log('scheme opened ' + children.length);
+
+
+    // pipe stdout from the scheme process to the client
+    scheme.stdout.on('data', function(data) {
+        socket.send(JSON.stringify(data.toString()));
+    });
 
     scheme.on('close', function(code, signal) {
         console.log('scheme closed ' + children.length);
     });
 
-    var consuming = false;
-    var buffer = '';
 
-    function consume(string) {
-        const start_index = string.indexOf(start);
-        const end_index = string.indexOf(end);
-
-        if (consuming) {
-            if (end_index > -1) {
-                consuming = false;
-                buffer += string.substring(0, end_index);
-                socket.send(buffer);
-                buffer = '';
-                if (end_index < string.length - 1) consume(string.substring(end_index + 1));
-            }
-            else {
-                buffer += string;
-            }
-        }
-        else {
-            if (start_index > -1) {
-                if (start_index > 0) consume(string.substring(0, start_index));
-                consuming = true;
-                consume(string.substring(start_index + 1));
-            }
-            else {
-                socket.send(JSON.stringify(string));
-            }
-        }
-    }
-
-    scheme.stdout.on('data', function(data) {
-        process.stdout.write(data);
-        var value = data.toString();
-        consume(value);
-    });
-
+    // piping code from the client to the scheme process
     socket.on('message', function(message) {
-        if (message === "\<INTERRUPT\>")
-            scheme.kill("SIGINT");
-        else if (message === "\<KILL\>") {
-            console.log('user killed one child process');
-            scheme.kill("SIGTERM");
-        }
+        if (message === "\<INTERRUPT\>") scheme.kill("SIGINT");
+        else if (message === "\<KILL\>") scheme.kill("SIGTERM");
         else scheme.stdin.write(message);
     });
 
@@ -80,6 +62,19 @@ server.on('connection', function(socket)  {
         children.splice(children.indexOf(scheme), 1);
         scheme.kill();
     });
+
+
+    // reading graphics output from the log file
+    const log = spawn('tail', ['-f', log_path]);
+    var log_buffer = '';
+    log.stdout.on('data', function(data) {
+        const values = (log_buffer + data.toString()).split(log_delimiter);
+        values.slice(0, values.length - 1).forEach(function(value) {
+            socket.send(value);
+        });
+        log_buffer = values[values.length - 1];
+    });
+
 });
 
 function cleanExit() { process.exit() }
