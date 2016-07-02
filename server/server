@@ -1,0 +1,3 @@
+#! /bin/sh
+ROOT=/home/joel/dev/scheme/repl/server
+nodejs $ROOT/server.js $ROOT/scheme $ROOT/logs/ $ROOT/utils/load.scm

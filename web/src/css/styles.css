@@ -9,11 +9,6 @@ h4 {
     margin-bottom: 4px;
 }
 
-canvas {
-    width: 100% !important;
-    height: 100% !important;
-}
-
 #input, #output {
     overflow: auto;
 }
@@ -37,7 +32,47 @@ canvas {
     height: 100%;
 }
 
+.ui-widget {
+    font-family: monospace !important;
+}
 
-.ui-dialog-content {
+.ui-dialog-title {
+    font-size: 16px;
+}
+
+.ui-dialog-content, .ui-dialog {
     padding: 0 !important;
+}
+
+#settings-dialog {
+    padding: 0 8px 0 8px !important;
+}
+
+.axis path, .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.point {
+    stroke: #000;
+}
+
+.line {
+    fill: none;
+    stroke: black;
+    stroke-width: 2px;
+}
+
+.tick line {
+    opacity: 0.2;
+}
+
+.tick text {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+
+    font-size: 12px;
+    font-family: monospace;
 }

@@ -3,41 +3,28 @@
  */
 
 // Replace with the URL of your server
-var websocket_url = 'ws://localhost:1947';
-// var websocket_url = 'ws://maharal.csail.mit.edu:1947';
-var socket = new WebSocket(websocket_url);
+const websocket_url = 'ws://localhost:1947';
+// const websocket_url = 'ws://maharal.csail.mit.edu:1947';
+const socket = new WebSocket(websocket_url);
 
-var repl_history = [];
-var lastLine = 0;
-var lastChar = 0;
-var repl_height, editor_height;
-var editor_position;
+const console_delimiter = /\s*\n\d+ (?:(?:]=)|(?:error))> /;
+const graphics_delimiter = '\n';
+let console_buffer = '';
+let graphics_buffer = '';
 
-var buffer = '';
+// for moving up/down the repl history with the arrow keys
+const repl_history = [];
+let repl_history_pointer = 0;
 
-var output = document.getElementById('output'),
+let lastLine = 0;
+let lastChar = 0;
+let editor_position = false;
+let repl_height, editor_height;
+
+const output = document.getElementById('output'),
     input = document.getElementById('input');
 
-var repl = CodeMirror(output, {
-    mode:  "scheme",
-    theme: 'default',
-    autoCloseBrackets: true,
-    autoMatchParens: true,
-    matchBrackets: true,
-    indentUnit: 2,
-    indentWithTabs: false,
-    keyMap: 'sublime',
-    'extraKeys': {
-        "Tab": "indentMore",
-        "Enter": evaluate_repl,
-        "Ctrl-G": interrupt,
-        "Ctrl-Z": kill,
-        "Up": move_up_repl_history,
-        "Down": move_down_repl_history
-    }
-});
-
-var editor = CodeMirror(input, {
+const repl = CodeMirror(output, {
     mode:  "scheme",
     theme: 'monokai',
     autoCloseBrackets: true,
@@ -48,6 +35,26 @@ var editor = CodeMirror(input, {
     keyMap: 'sublime',
     'extraKeys': {
         "Tab": "indentMore",
+        "Enter": evaluate_repl,
+        "Ctrl-G": () => socket.send("\<SIGINT\>"),
+        "Up": move_up_repl_history,
+        "Down": move_down_repl_history
+    }
+});
+
+const editor = CodeMirror(input, {
+    mode:  "scheme",
+    theme: 'monokai',
+    autoCloseBrackets: true,
+    autoMatchParens: true,
+    matchBrackets: true,
+    indentUnit: 2,
+    indentWithTabs: false,
+    keyMap: 'sublime',
+    'extraKeys': {
+        "Tab": "indentMore",
+        "Ctrl-E": evaluate_editor,
+        "Cmd-E": evaluate_editor,
         "Cmd-Enter": evaluate_editor,
         "Ctrl-Enter": evaluate_editor,
         "Shift-Enter": evaluate_editor
@@ -67,7 +74,7 @@ function set_keymap(value) {
 }
 
 function set_layout(layout) {
-    var height = window.innerHeight;
+    const height = window.innerHeight;
     switch (layout) {
         case 'split':
             editor_height = repl_height = Math.floor(height / 2.0) - 1;
@@ -80,163 +87,155 @@ function set_layout(layout) {
             editor_height = height;
             repl_height = 0;
             break;
-        default:
-            break;
     }
+    resize();
+}
+
+function resize() {
     editor.setSize(null, editor_height);
     repl.setSize(null, repl_height);
 }
 
-set_layout('split');
+window.addEventListener('resize', resize);
+set_layout('repl');
 
 // Printing
-
 function write(string) {
     // append
     repl.replaceRange(string, CodeMirror.Pos(repl.lastLine()));
 
-    // freeze
+    // move line and char pointers to the new end
     lastLine = repl.lastLine();
     lastChar = repl.getLine(lastLine).length;
 
+    // freeze the repl as read-only
     repl.markText(
         {line: -1, ch: -1},
         {line: lastLine, ch: lastChar},
         {readOnly: true, inclusiveLeft: true}
     );
 
-    // scroll
+    // scroll to the end
     repl.setCursor({line: lastLine, ch: lastChar});
     repl.scrollIntoView();
 }
 
 write('connecting to server...\n');
+socket.onopen = event => write('connected to server.\n');
 
-socket.onopen = function(event) {
-    write('connected to server.\n')
-};
-
-socket.onmessage = function(event) {
-    // console.log(event.data);
-    var value = JSON.parse(event.data);
-    if (value instanceof String || typeof value === 'string') {
-        write(value);
-
-        // write to buffer
-        var data = (buffer + value).split(/\s*\n\d+ (?:(?:]=)|(?:error))> /);
-        buffer = data[data.length - 1];
-
-        data.slice(0, -1).forEach(function(result) {
-            // console.log(result);
-            if (editor_position) {
-                editor.replaceRange('\n; ' + result.split('\n').join('\n; '), editor_position, editor_position);
-            }
+socket.onmessage = event => {
+    const {content, source} = JSON.parse(event.data);
+    let values;
+    if (source === 'console') {
+        write(content);
+        values = (console_buffer + content).split(console_delimiter);
+        console_buffer = values.pop();
+        if (editor_position) values.forEach(value => {
+            editor_position = editor.getCursor();
+            editor.replaceRange(value, editor_position, editor_position);
         });
-    } else if (value instanceof Object) {
-        // if (value.type === 'plot' && value.name && value.data instanceof Array) {
-        //     var xscale = 1, yscale = 1, xmin = 0, ymin = 0, xmax = 0, ymax = 0;
-        //
-        //     if (value.range) {
-        //         xmin = value.range.x[0]; xmax = value.range.x[1];
-        //         ymin = value.range.y[0]; ymax = value.range.y[1];
-        //     }
-        //
-        //     var ratio = (ymax - ymin) / (xmax - xmin);
-        //
-        //     var width = 400, height = 400 * ratio;
-        //
-        //     xscale = width / (xmax - xmin);
-        //     yscale = height / (ymax - ymin);
-        //
-        //     var canvas = document.createElement('canvas');
-        //     canvas.width = width; canvas.height = height;
-        //
-        //     paper.setup(canvas);
-        //
-        //
-        //     var points = value.data.map(function(datum) {
-        //         var x = datum.x * xscale;
-        //         var y = (ymax - datum.y) * yscale;
-        //         return new paper.Path.Circle({
-        //             center: [x, y],
-        //             radius: 3,
-        //             fillColor: '#000000',
-        //             opacity: 1.0
-        //         });
-        //     });
-        //     paper.view.draw();
-        //
-        //     // Draw the view now:
-        //     var dialog = makeDialog(value.name, function(event, ui) {
-        //         // var size = ui.size;
-        //         // var original_size = ui.originalSize;
-        //         // canvas.width = size.width; canvas.height = size.height - 36;
-        //         // xscale = size.width / original_size.width;
-        //         // yscale = size.height - 36 / original_size.height - 36;
-        //         // points.forEach(function(point) {
-        //         //     point.position = new paper.Point(point.position.x * xscale, point.position.y * yscale);
-        //         // });
-        //         // console.log(size);
-        //     });
-        //     dialog.appendChild(canvas);
-        //
-        //     function draw(width, height) {
-        //
-        //     }
-        // }
-        console.log(value);
-
-        switch (value.action) {
-            case 'plot':
-                plot(value.name, value.data);
-                break;
-        }
-
-    } else console.error('panic at the disco');
+    } else if (source === 'graphics') {
+        values = (graphics_buffer + content).split(graphics_delimiter);
+        graphics_buffer = values.pop();
+        values.forEach(value => handle_graphics_message(JSON.parse(value)));
+    } else console.error('message type not recognized');
 };
 
-socket.onclose = function(event) {
-    write('lost connection to server, please reload\n');
-};
+socket.onclose = event => write('lost connection to server, please reload\n');
 
 function evaluate_editor() {
-    // value is the text of the editor
-    var value;
-    if (editor.somethingSelected()) {
-        value = editor.getSelection('\n');
-        editor_position = editor.getCursor('to');
-    } else {
-        value = editor.getValue();
-        editor_position = null;
-    }
-    socket.send(value + '\n');
-}
+    let value = '';
+    const parens = editor.findMatchingBracket(editor.getCursor());
 
-function evaluate_repl() {
-    var value = repl.getRange(
-        {line: lastLine, ch: lastChar},
-        {line: repl.lastLine(), ch: repl.getLine(repl.lastLine()).length}
-    ) + '\n';
-    // repl_history.push(value);
-    write('\n');
-    editor_position = null;
+    if (editor.somethingSelected()) {
+        // if there's something selected, evaluate only the selection
+
+        value = editor.getSelection();
+        editor_position = editor.getCursor('to');
+
+        // if the selection dangles by 0 characters onto a new line,
+        // trim it to only extend to the last character of the previous line.
+        if (editor_position.ch === 0) editor_position = {
+            line: editor_position.line - 1,
+            ch: editor.getLine(editor_position.line - 1).length
+        };
+
+        editor.setCursor(editor_position);
+        editor.scrollIntoView();
+
+    } else if (parens && parens.match) {
+        // else if there cursor is adjacent to a parenthesis that has
+        // a valid match, evaluate just the paren'd expression
+
+        const start = parens.forward ? parens.from : parens.to;
+        const end = parens.forward ? parens.to : parens.from;
+        end.ch += 1;
+        value = editor.getRange(start, end);
+        editor_position = end;
+
+        // the cursor might have been on the left of a closing parenthesis,
+        // or near an opening one, so we move it to the end of what we
+        // evaluated, and scroll that position into view if necessary
+        editor.setCursor(end);
+        editor.scrollIntoView();
+    } else {
+        // if all else fails, just evaluate the whole document.
+        // TODO: be smarter about this
+
+        value = editor.getValue();
+        editor_position = false;
+    }
+    const length = value.length;
+    if (value.substring(length - 1, length) !== '\n') value += '\n';
     socket.send(value);
 }
 
-function interrupt() {
-    socket.send("\<INTERRUPT\>");
-}
-function kill() {
-    socket.send("\<KILL\>");
+function evaluate_repl() {
+    const line = repl.lastLine();
+    const ch = repl.getLine(line).length;
+    const value = repl.getRange(
+        {line: lastLine, ch: lastChar},
+        {line: line, ch: ch}
+    );
+    if (value) repl_history_pointer = repl_history.push(value);
+    write('\n');
+    editor_position = false;
+    socket.send(value + '\n');
 }
 
 function move_up_repl_history() {
+    if (repl_history_pointer < 1) return;
 
+    const line = repl.lastLine();
+    const ch = repl.getLine(line).length;
+
+    const string = repl_history[--repl_history_pointer];
+
+    repl.replaceRange(string, {line: lastLine, ch: lastChar}, {line: line, ch: ch});
 }
 
 function move_down_repl_history() {
+    if (repl_history_pointer > repl_history.length - 1) return;
 
+    const line = repl.lastLine();
+    const ch = repl.getLine(line).length;
+    const string = ++repl_history_pointer < repl_history.length ?
+        repl_history[repl_history_pointer] : '';
+
+    repl.replaceRange(string, {line: lastLine, ch: lastChar}, {line: line, ch: ch});
 }
+
+const settings = document.getElementById('settings-dialog');
+settings.paddingLeft = 8;
+$(settings).dialog({
+    title: 'Settings',
+    autoOpen: false,
+    width: 303,
+    resizable: false,
+    buttons: {Close: () => $(settings).dialog( "close" )}
+});
+
+$('.setting').buttonset();
 
 // override Ctrl+S and Cmd+S to not try to save the page
 document.addEventListener("keydown", function(e) {

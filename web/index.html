@@ -16,8 +16,23 @@
     <link href="lib/jquery-ui/jquery-ui.min.css" rel="stylesheet">
     <script src="lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
 
-    <script src="lib/plotly/plotly-latest.min.js" type="text/javascript"></script>
+    <!--<script src="lib/d3/d3.v3.min.js" type="text/javascript" charset="UTF-8"></script>-->
 
+    <script src="lib/d3/d3-array.v1.min.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="lib/d3/d3-collection.v1.min.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="lib/d3/d3-color.v1.min.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="lib/d3/d3-format.v1.min.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="lib/d3/d3-interpolate.v1.min.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="lib/d3/d3-selection.v1.min.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="lib/d3/d3-axis.v1.min.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="lib/d3/d3-scale.v1.min.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="lib/d3/d3-path.v1.min.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="lib/d3/d3-shape.v1.min.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="lib/d3/d3-dispatch.v1.min.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="lib/d3/d3-ease.v1.min.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="lib/d3/d3-timer.v1.min.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="lib/d3/d3-transition.v1.min.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="lib/d3/d3-drag.v1.min.js" type="text/javascript" charset="UTF-8"></script>
 </head>
 <body>
     <img height="32" width="32" id="settings-icon" src="src/images/settings_icon.svg"
@@ -31,7 +46,7 @@
             <h4>Layout</h4>
             <form>
                 <div class="setting">
-                    <input type="radio" id="split" name="radio" checked="checked"
+                    <input type="radio" id="split" name="radio"
                            onclick="set_layout('split')">
                     <label for="split">Split</label>
 
@@ -39,7 +54,7 @@
                            onclick="set_layout('editor')">
                     <label for="editor">Editor only</label>
 
-                    <input type="radio" id="repl" name="radio"
+                    <input type="radio" id="repl" name="radio" checked="checked"
                            onclick="set_layout('repl')">
                     <label for="repl">REPL only</label>
                 </div>
@@ -59,11 +74,11 @@
             <h4>REPL Theme</h4>
             <form>
                 <div class="setting">
-                    <input type="radio" id="repl-monokai" name="radio"
+                    <input type="radio" id="repl-monokai" name="radio" checked="checked"
                            onclick="set_theme(repl, 'monokai')">
                     <label for="repl-monokai">Dark</label>
 
-                    <input type="radio" id="repl-classic" name="radio" checked="checked"
+                    <input type="radio" id="repl-classic" name="radio"
                            onclick="set_theme(repl, 'default')">
                     <label for="repl-classic">Light</label>
                 </div>
@@ -84,7 +99,6 @@
     </div>
 
     <script src="src/js/main.js" type="text/javascript"></script>
-    <!--<script src="src/js/dialogs.js" type="text/javascript"></script>-->
     <script src="src/js/graphics.js" type="text/javascript"></script>
 </body>
 </html>
