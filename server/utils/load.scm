@@ -1,7 +1,7 @@
-(load "/home/joel/dev/scheme/repl/server/utils/output.scm")
-(load "/home/joel/dev/scheme/repl/server/utils/json.scm")
-(load "/home/joel/dev/scheme/repl/server/utils/point.scm")
-(load "/home/joel/dev/scheme/repl/server/utils/path.scm")
-(load "/home/joel/dev/scheme/repl/server/utils/window.scm")
+(load "./utils/output.scm")
+(load "./utils/json.scm")
+(load "./utils/point.scm")
+(load "./utils/path.scm")
+(load "./utils/window.scm")
 
-(load "/home/joel/dev/scheme/repl/server/utils/graphics.scm")
+(load "./utils/graphics.scm")

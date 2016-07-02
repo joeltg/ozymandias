@@ -187,7 +187,7 @@ function evaluate_editor() {
     }
     const length = value.length;
     if (value.substring(length - 1, length) !== '\n') value += '\n';
-    socket.send(value);
+    socket.send(JSON.stringify({source: 'console', content: value}));
 }
 
 function evaluate_repl() {
@@ -200,7 +200,7 @@ function evaluate_repl() {
     if (value) repl_history_pointer = repl_history.push(value);
     write('\n');
     editor_position = false;
-    socket.send(value + '\n');
+    socket.send(JSON.stringify({source: 'console', content: value + '\n'}));
 }
 
 function move_up_repl_history() {

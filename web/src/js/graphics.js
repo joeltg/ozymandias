@@ -32,13 +32,13 @@ class Window {
         this.callbacks = [(x, y) => console.log(x, y)];
         dialogs.appendChild(this.dialog);
 
-        this.margin = {top: 20, right: 20, bottom: 40, left: 40};
+        this.margin = {top: 20, right: 20, bottom: 40, left: 40, slider: 0};
 
         this.width = default_width - this.margin.left - this.margin.right;
-        this.height = default_height - this.margin.top - this.margin.bottom;
+        this.height = default_height - this.margin.top - this.margin.bottom - this.margin.slider;
 
-        this.xScale = d3.scaleLinear().range([0, this.width]).domain(default_domain);
-        this.yScale = d3.scaleLinear().range([this.height, 0]).domain(default_domain);
+        this.xScale = d3.scaleLinear().range([0, this.width]).domain(default_domain).clamp(true);
+        this.yScale = d3.scaleLinear().range([this.height, 0]).domain(default_domain).clamp(true);
 
         this.xAxis = d3.axisBottom(this.xScale)
             .ticks(Math.floor(this.width / 50))
@@ -105,11 +105,19 @@ class Window {
     }
     update_axes(points, paths) {
         const x = [], y = [];
-        if (points) points.forEach(p => {x.push(p.x); y.push(p.y)});
-        if (paths) paths.forEach(path => path.points.forEach(p => {x.push(p[0]); y.push(p[1])}));
+        if (points) points.forEach(p => {
+            if (isFinite(p.x)) x.push(p.x);
+            if (isFinite(p.y)) y.push(p.y);
+        });
+        if (paths) paths.forEach(path => path.points.forEach(p => {
+            if (isFinite(p[0])) x.push(p[0]);
+            if (isFinite(p[1])) y.push(p[1]);
+        }));
 
-        this.xScale.domain(Window.clamp(d3.extent(x))).nice();
-        this.yScale.domain(Window.clamp(d3.extent(y))).nice();
+        const x_domain = Window.clamp(d3.extent(x));
+        const y_domain = Window.clamp(d3.extent(y));
+        this.xScale.domain(x_domain).nice();
+        this.yScale.domain(y_domain).nice();
 
         this.xAxis.scale(this.xScale);
         this.content.select('.x.axis').call(this.xAxis);
@@ -122,8 +130,18 @@ class Window {
             .attr('transform', d => this.translateScale(d));
     }
     translateScale(point) {
-        const x = this.xScale(point.x), y = this.yScale(point.y);
-        return `translate(${x},${y})`;
+        let x = point.x, y = point.y;
+        if (!isFinite(x)) {
+            if (!point.symbols) point.symbols = {[x]: true};
+            else point.symbols[x] = true;
+            x = this.symbols.hasOwnProperty(x) ? this.symbols[x] : this.add_symbol(x);
+        }
+        if (!isFinite(y)) {
+            if (!point.symbols) point.symbols = {[y]: true};
+            else point.symbols[y] = true;
+            y = this.symbols.hasOwnProperty(y) ? this.symbols[y] : this.add_symbol(y);
+        }
+        return `translate(${this.xScale(x)},${this.yScale(y)})`;
     }
     translate_along_path(path_id) {
         const path = d3.select(`[uuid='${path_id}']`);
@@ -164,7 +182,7 @@ class Window {
             .attr('transform', d => this.translateScale(d))
             .style('fill', d => d.color);
 
-        points.filter(p => !!p.path).merge(new_points.filter(p => !!p.path))
+        points.merge(new_points).filter(p => !!p.path)
             .transition('animate')
             .duration(p => p.path.duration)
             .ease(d3.easeLinear)
@@ -174,7 +192,6 @@ class Window {
             });
 
         const old_points = points.exit().remove();
-
     }
     paths(data) {
         const paths = this.content.selectAll('.path')
@@ -196,9 +213,9 @@ class Window {
     }
     resize(width, height) {
         this.width = width - this.margin.left - this.margin.right;
-        this.height = height - this.margin.top - this.margin.bottom;
+        this.height = height - this.margin.top - this.margin.bottom - this.margin.slider;
 
-        this.svg.attr('width', width).attr('height', height);
+        this.svg.attr('width', width).attr('height', height - this.margin.slider);
 
         this.xScale.range([0, this.width]);
         this.yScale.range([this.height, 0]);
@@ -224,6 +241,11 @@ class Window {
             .attr('d', d => this.line(d.points));
         this.svg.selectAll('.point')
             .attr('transform', d => this.translateScale(d));
+
+        d3.select(this.dialog).selectAll('.slider-tray')
+            .style('width', this.width + 'px');
+        d3.select(this.dialog).selectAll('.slider')
+            .style('width', this.width + 'px');
     }
     scale() {
         const d_x = this.xScale.domain(), d_y = this.yScale.domain();
@@ -236,7 +258,7 @@ class Window {
         if (d_scale > r_scale) height = width / d_scale;
         else width = height * d_scale;
         width = Math.max(width, min_window_width) + this.margin.left + this.margin.right;
-        height = Math.max(height, min_window_height) + this.margin.top + this.margin.bottom;
+        height = Math.max(height, min_window_height) + this.margin.top + this.margin.bottom + this.margin.slider;
         this.dialog.parentNode.style.width = width + 2 + 'px';
         this.dialog.parentNode.style.height = height + 42 + 'px';
         this.resize(width, height);
@@ -248,5 +270,55 @@ class Window {
         a = Window.normalize(a);
         b = Window.normalize(b);
         return [Math.min(a[0], b[0]), Math.max(a[1], b[1])];
+    }
+    add_symbol(symbol) {
+        const domain = this.xScale.domain();
+        this.symbols[symbol] = domain[0];
+        this.margin.slider += 40;
+        this.resize(this.width + this.margin.left + this.margin.right,
+                    this.height + this.margin.top + this.margin.bottom + this.margin.slider);
+
+        const dialog = d3.select(this.dialog);
+        const label = dialog.append('div')
+            .attr('class', 'label')
+            .style('margin-left', this.margin.left + 'px')
+            .text(symbol + (': ' + domain[0]).substring(0, 7));
+        const slider = dialog.append('div')
+            .attr('class', 'slider')
+            .style('width', this.width + 'px');
+        const sliderTray = slider.append("div")
+            .attr("class", "slider-tray")
+            .style('width', this.width + 'px')
+            .style('margin-left', this.margin.left + 'px');
+        const sliderHandle = slider.append("div")
+            .attr("class", "slider-handle")
+            .style('left', this.margin.left + 'px');
+        sliderHandle.append("div")
+            .attr("class", "slider-handle-icon");
+
+        const scale = this.xScale;
+
+        slider.call(d3.drag()
+            .on("start", () => {
+                const value = scale.invert(d3.mouse(sliderTray.node())[0]);
+                label.text(symbol + (': ' + value).substring(0, 7));
+                this.symbols[symbol] = value;
+                sliderHandle.style('left', scale(value) + this.margin.left + 'px');
+                this.content.selectAll('.point')
+                    // .filter(p => p.symbols && p.symbols[symbol])
+                    .attr('transform', p => this.translateScale(p));
+            })
+            .on("drag", () => {
+                const value = scale.invert(d3.mouse(sliderTray.node())[0]);
+                label.text(symbol + (': ' + value).substring(0, 7));
+                this.symbols[symbol] = value;
+                sliderHandle.style('left', scale(value) + this.margin.left + 'px');
+                this.content.selectAll('.point')
+                    // .filter(p => p.symbols && p.symbols[symbol])
+                    .attr('transform', d => this.translateScale(d));
+            })
+        );
+
+        return domain[0];
     }
 }

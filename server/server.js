@@ -52,7 +52,14 @@ server.on('connection', socket => {
     // pipe console input from the client to the scheme process
     socket.on('message', message => {
         if (message === "\<SIGINT\>") scheme.kill("SIGINT");
-        else scheme.stdin.write(message);
+        else {
+            message = JSON.parse(message);
+            const source = message.source, content = message.content;
+            if (source === 'console') scheme.stdin.write(content);
+            else if (source === 'graphics') {
+
+            } else console.error('invalid message type');
+        }
     });
 
     socket.on('close', event => scheme.kill('SIGKILL'));
