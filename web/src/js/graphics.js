@@ -28,9 +28,9 @@ class Window {
         this.id = name.split(' ').join('-');
         this.dialog = document.createElement('div');
         this.dialog.id = 'dialog-' + this.id;
-        this.symbols = {};
-        this.callbacks = [(x, y) => console.log(x, y)];
         dialogs.appendChild(this.dialog);
+
+        this.symbols = {};
 
         this.margin = {top: 20, right: 20, bottom: 40, left: 40, slider: 0};
 
@@ -55,6 +55,15 @@ class Window {
         this.svg = d3.select(this.dialog).append('svg')
             .attr('width', default_width)
             .attr('height', default_height);
+
+        this.svg.on('click', svg => socket.send(JSON.stringify({
+            source: 'graphics',
+            content: {
+                name: name,
+                x: this.xScale.invert(d3.event.offsetX - this.margin.left),
+                y: this.yScale.invert(d3.event.offsetY - this.margin.top)
+            }
+        })));
 
         this.content = this.svg.append('g')
             .attr('transform', `translate(${this.margin.left},${this.margin.top})`);

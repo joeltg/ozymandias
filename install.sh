@@ -7,4 +7,5 @@ sudo wget http://groups.csail.mit.edu/mac/users/gjs/6946/scmutils-tarballs/scmut
 sudo tar -xvzf scmutils-20150730-x86-64-gnu-linux.tar.gz
 cd ./repl/server
 sudo npm install
+sudo mkdir logs
 sudo ./server

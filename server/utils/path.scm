@@ -13,7 +13,7 @@
   (if push (update window))
   path)
 
-(define (path-append! path point #!optional push)
+(define (path-append! path x y #!optional push)
   (set-path-points! path (cons point (path-points path)))
   (if push (update (path-window path))))
 

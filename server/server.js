@@ -56,9 +56,9 @@ server.on('connection', socket => {
             message = JSON.parse(message);
             const source = message.source, content = message.content;
             if (source === 'console') scheme.stdin.write(content);
-            else if (source === 'graphics') {
-
-            } else console.error('invalid message type');
+            else if (source === 'graphics')
+                scheme.stdin.write(`(click "${content.name}" ${content.x} ${content.y})\n`);
+            else console.error('invalid message type');
         }
     });
 

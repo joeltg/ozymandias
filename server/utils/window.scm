@@ -15,6 +15,10 @@
 (define (window-add-path! window path)
   (set-window-paths! window (cons path (window-paths window))))
 
+(define (window-attach-click-listener! window continuation)
+  (defhandler 'click (lambda (name x y) (continuation x y))
+    (lambda (name) (string=? name (window-name window)))))
+
 (define (window->json window #!optional actions)
   (dict->json `((name ,(window-name window))
                 (points ,(window-points window))
