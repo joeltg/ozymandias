@@ -4,7 +4,7 @@
   (id (get-id) read-only #t)
   (x 0)
   (y 0)
-  (radius "3px")
+  (radius 3)
   (color "black")
   (animation '()))
 
@@ -18,6 +18,13 @@
   (set-point-x! point x)
   (set-point-y! point y)
   (if push (update (point-window point))))
+
+(define (point-evaluate point variables)
+  `((id ,(point-id point))
+    (x ,(evaluate-expr (point-x point) variables))
+    (y ,(evaluate-expr (point-y point) variables))
+    (path ,(point-animation point))
+    (radius ,(evaluate-expr (point-radius point) variables))))
 
 (define (point->json point)
   (dict->json `((id ,(point-id point))

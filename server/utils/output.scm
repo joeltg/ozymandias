@@ -13,6 +13,3 @@
   (write-string data output-port)
   (write-string delimiter output-port)
   (if push (flush-output output-port)))
-
-(define (do-nothing name x y) (if #f #f))
-(define click (make-generic-operator 3 'click do-nothing))

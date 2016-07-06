@@ -3,7 +3,7 @@
   (window '() read-only #t)
   (id (get-id) read-only #t)
   (points '())
-  (width "2px")
+  (width 2)
   (color "black")
   (fill "none"))
 
@@ -12,6 +12,15 @@
   (window-add-path! window path)
   (if push (update window))
   path)
+
+(define (path-evaluate path variables)
+  `((id ,(path-id path))
+    (points ,(map (lambda (point) (list (evaluate-expr (car point) variables)
+                                        (evaluate-expr (cadr point) variables)))
+                  (path-points path)))
+    (width ,(evaluate-expr (path-width path) variables))
+    (color ,(path-color path))
+    (fill ,(path-fill path))))
 
 (define (path-append! path x y #!optional push)
   (set-path-points! path (cons point (path-points path)))

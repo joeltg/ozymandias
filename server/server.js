@@ -57,7 +57,7 @@ server.on('connection', socket => {
             const source = message.source, content = message.content;
             if (source === 'console') scheme.stdin.write(content);
             else if (source === 'graphics')
-                scheme.stdin.write(`(click "${content.name}" ${content.x} ${content.y})\n`);
+                scheme.stdin.write(content);
             else console.error('invalid message type');
         }
     });

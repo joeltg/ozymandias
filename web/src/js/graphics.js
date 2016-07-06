@@ -24,6 +24,7 @@ function handle_graphics_message(message) {
 class Window {
     constructor(name) {
         windows[name] = this;
+        const source = editor.hasFocus() ? editor : repl;
         this.name = name;
         this.id = name.split(' ').join('-');
         this.dialog = document.createElement('div');
@@ -56,14 +57,18 @@ class Window {
             .attr('width', default_width)
             .attr('height', default_height);
 
-        this.svg.on('click', svg => socket.send(JSON.stringify({
-            source: 'graphics',
-            content: {
-                name: name,
-                x: this.xScale.invert(d3.event.offsetX - this.margin.left),
-                y: this.yScale.invert(d3.event.offsetY - this.margin.top)
-            }
-        })));
+        this.svg.on('click', svg => {
+            const x = this.xScale.invert(d3.event.offsetX - this.margin.left);
+            const y = this.yScale.invert(d3.event.offsetY - this.margin.top);
+            const button = d3.event.button;
+            const command = `(window-click "${name}" ${x} ${y} ${button})\n`;
+            write(command);
+            socket.send(JSON.stringify({
+                source: 'graphics',
+                content: command
+            }));
+            d3.event.stopPropagation();
+        });
 
         this.content = this.svg.append('g')
             .attr('transform', `translate(${this.margin.left},${this.margin.top})`);
@@ -94,6 +99,7 @@ class Window {
                 this.resize(width, height);
             }
         });
+        source.focus();
     }
     close() {
         if (windows[this.name]) delete windows[this.name];
@@ -143,12 +149,12 @@ class Window {
         if (!isFinite(x)) {
             if (!point.symbols) point.symbols = {[x]: true};
             else point.symbols[x] = true;
-            x = this.symbols.hasOwnProperty(x) ? this.symbols[x] : this.add_symbol(x);
+            x = this.symbols.hasOwnProperty(x) ? (this.symbols[x] || 0) : this.add_symbol(x);
         }
         if (!isFinite(y)) {
             if (!point.symbols) point.symbols = {[y]: true};
             else point.symbols[y] = true;
-            y = this.symbols.hasOwnProperty(y) ? this.symbols[y] : this.add_symbol(y);
+            y = this.symbols.hasOwnProperty(y) ? (this.symbols[y] || 0) : this.add_symbol(y);
         }
         return `translate(${this.xScale(x)},${this.yScale(y)})`;
     }
@@ -180,14 +186,14 @@ class Window {
     points(data) {
         const points = this.content.selectAll('.point')
             .data(data, d => d.id)
-            .attr('r', d => d.radius)
+            .attr('r', d => d.radius + 'px')
             .attr('transform', d => this.translateScale(d))
             .style('fill', d => d.color);
 
         const new_points = points.enter().append('circle')
             .attr('class', 'point')
             .attr('uuid', d => d.id)
-            .attr('r', d => d.radius)
+            .attr('r', d => d.radius + 'px')
             .attr('transform', d => this.translateScale(d))
             .style('fill', d => d.color);
 
@@ -207,7 +213,7 @@ class Window {
             .data(data, d => d.id)
             .attr('d', d => this.line(d.points))
             .style('fill', d => d.fill)
-            .style('stroke-width', d => d.width)
+            .style('stroke-width', d => d.width + 'px')
             .style('stroke', d => d.color);
 
         const new_paths = paths.enter().append('path')
@@ -215,7 +221,7 @@ class Window {
             .attr('uuid', d => d.id)
             .attr('d', d => this.line(d.points))
             .style('fill', d => d.fill)
-            .style('stroke-width', d => d.width)
+            .style('stroke-width', d => d.width + 'px')
             .style('stroke', d => d.color);
 
         const old_paths = paths.exit().remove();
@@ -280,8 +286,32 @@ class Window {
         b = Window.normalize(b);
         return [Math.min(a[0], b[0]), Math.max(a[1], b[1])];
     }
+    static walk(tree, callback) {
+        tree.slice(1).forEach(arg => {
+            if (arg) switch (typeof(arg)) {
+                case 'string':
+                    callback(arg);
+                    return;
+                case 'number':
+                    return;
+                case 'object':
+                    Window.walk(arg, callback);
+                    return;
+                default:
+                    console.error('unrecognized tree node');
+            }
+        })
+    }
     add_symbol(symbol) {
         const domain = this.xScale.domain();
+        if (symbol instanceof Array) {
+            if (symbol[0] === '*number*' && symbol[1] instanceof Array && symbol[1][0] === 'expression') {
+                console.log('walking on', symbol[1][1]);
+                Window.walk(symbol[1][1], arg => this.add_symbol(arg));
+                return this.symbols[symbol] = domain[0];
+            } else return console.error('variable not recognized');
+        }
+        if (this.symbols.hasOwnProperty(symbol)) return this.symbols[symbol];
         this.symbols[symbol] = domain[0];
         this.margin.slider += 40;
         this.resize(this.width + this.margin.left + this.margin.right,
@@ -313,18 +343,39 @@ class Window {
                 label.text(symbol + (': ' + value).substring(0, 7));
                 this.symbols[symbol] = value;
                 sliderHandle.style('left', scale(value) + this.margin.left + 'px');
-                this.content.selectAll('.point')
-                    // .filter(p => p.symbols && p.symbols[symbol])
-                    .attr('transform', p => this.translateScale(p));
+                // this.content.selectAll('.point')
+                //     // .filter(p => p.symbols && p.symbols[symbol])
+                //     .attr('transform', p => this.translateScale(p));
             })
             .on("drag", () => {
                 const value = scale.invert(d3.mouse(sliderTray.node())[0]);
                 label.text(symbol + (': ' + value).substring(0, 7));
                 this.symbols[symbol] = value;
                 sliderHandle.style('left', scale(value) + this.margin.left + 'px');
-                this.content.selectAll('.point')
-                    // .filter(p => p.symbols && p.symbols[symbol])
-                    .attr('transform', d => this.translateScale(d));
+                // this.content.selectAll('.point')
+                //     // .filter(p => p.symbols && p.symbols[symbol])
+                //     .attr('transform', d => this.translateScale(d));
+
+                const variables = Object.keys(this.symbols)
+                    .filter(key => key.substring(0, 19) !== "*number*,expression")
+                    .map(key => `(${key} ${this.symbols[key]})`).join(' ');
+                const command = `(window-evaluate "${this.name}" '(${variables}))\n`;
+                write(command);
+                socket.send(JSON.stringify({
+                    source: 'graphics',
+                    content: command
+                }));
+            })
+            .on("end", () => {
+                const variables = Object.keys(this.symbols)
+                    .filter(key => key.substring(0, 19) !== "*number*,expression")
+                    .map(key => `(${key} ${this.symbols[key]})`).join(' ');
+                const command = `(window-evaluate "${this.name}" '(${variables}))\n`;
+                write(command);
+                socket.send(JSON.stringify({
+                    source: 'graphics',
+                    content: command
+                }));
             })
         );
 

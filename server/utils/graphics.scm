@@ -16,3 +16,21 @@
         (list (* radius (sin theta))
               (* radius (cos theta))))
       0 (* 2 pi) step)))
+
+
+;; Legacy compatibility
+(define (frame . args)
+  (make-window))
+(define (plot-function win f start stop step)
+  (make-path win (plot f start stop step))
+  (do-nothing))
+(define (plot-point win x y)
+  (make-point win x y)
+  (do-nothing))
+(define (plot-parametric win f start stop step)
+  (make-path win (parametrize f start stop step))
+  (do-nothing))
+(define (plot-line win x0 y0 x1 y1)
+  (make-path win `((,x0 ,y0) (,x1 ,y1)))
+  (do-nothing))
+(define get-pointer-coordinates set-window-click-handler!)
