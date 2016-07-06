@@ -97,7 +97,7 @@ function resize() {
 }
 
 window.addEventListener('resize', resize);
-set_layout('repl');
+set_layout('editor');
 
 // Printing
 function write(string) {
@@ -132,7 +132,9 @@ socket.onmessage = event => {
         console_buffer = values.pop();
         if (editor_position) values.forEach(value => {
             editor_position = editor.getCursor();
+            if (value[0] === '\n') value = value.substring(1);
             editor.replaceRange(value, editor_position, editor_position);
+            editor_position = false;
         });
     } else if (source === 'graphics') {
         values = (graphics_buffer + content).split(graphics_delimiter);
@@ -152,50 +154,52 @@ function evaluate_editor() {
     //
     // }
 
-    // let value = '';
-    // const parens = editor.findMatchingBracket(editor.getCursor());
-    //
-    // if (editor.somethingSelected()) {
-    //     // if there's something selected, evaluate only the selection
-    //
-    //     value = editor.getSelection();
-    //     editor_position = editor.getCursor('to');
-    //
-    //     // if the selection dangles by 0 characters onto a new line,
-    //     // trim it to only extend to the last character of the previous line.
-    //     if (editor_position.ch === 0) editor_position = {
-    //         line: editor_position.line - 1,
-    //         ch: editor.getLine(editor_position.line - 1).length
-    //     };
-    //
-    //     editor.setCursor(editor_position);
-    //     editor.scrollIntoView();
-    //
-    // } else if (parens && parens.match) {
-    //     // else if there cursor is adjacent to a parenthesis that has
-    //     // a valid match, evaluate just the paren'd expression
-    //
-    //     const start = parens.forward ? parens.from : parens.to;
-    //     const end = parens.forward ? parens.to : parens.from;
-    //     end.ch += 1;
-    //     value = editor.getRange(start, end);
-    //     editor_position = end;
-    //
-    //     // the cursor might have been on the left of a closing parenthesis,
-    //     // or near an opening one, so we move it to the end of what we
-    //     // evaluated, and scroll that position into view if necessary
-    //     editor.setCursor(end);
-    //     editor.scrollIntoView();
-    // } else {
+    let value = '';
+    const parens = editor.findMatchingBracket(editor.getCursor());
+
+    if (editor.somethingSelected()) {
+        // if there's something selected, evaluate only the selection
+
+        value = editor.getSelection();
+        editor_position = editor.getCursor('to');
+
+        // if the selection dangles by 0 characters onto a new line,
+        // trim it to only extend to the last character of the previous line.
+        if (editor_position.ch === 0) editor_position = {
+            line: editor_position.line - 1,
+            ch: editor.getLine(editor_position.line - 1).length
+        };
+
+        editor.setCursor(editor_position);
+        editor.scrollIntoView();
+
+    } else if (parens && parens.match) {
+        // else if there cursor is adjacent to a parenthesis that has
+        // a valid match, evaluate just the paren'd expression
+
+        const start = parens.forward ? parens.from : parens.to;
+        const end = parens.forward ? parens.to : parens.from;
+        end.ch += 1;
+        value = editor.getRange(start, end);
+        editor_position = {line: end.line + 1, ch: 0};
+
+        // the cursor might have been on the left of a closing parenthesis,
+        // or near an opening one, so we move it to the end of what we
+        // evaluated, and scroll that position into view if necessary
+        if (editor_position.line >= editor.lineCount()) editor.replaceRange('\n', end, end);
+        editor.setCursor(editor_position);
+        editor.scrollIntoView();
+    }
+    // else {
     //     // if all else fails, just evaluate the whole document.
     //     // TODO: be smarter about this
     //
     //     value = editor.getValue();
     //     editor_position = false;
     // }
-    // const length = value.length;
-    // if (value.substring(length - 1, length) !== '\n') value += '\n';
-    // socket.send(JSON.stringify({source: 'console', content: value}));
+    const length = value.length;
+    if (value.substring(length - 1, length) !== '\n') value += '\n';
+    socket.send(JSON.stringify({source: 'console', content: value}));
 }
 
 function evaluate_repl() {

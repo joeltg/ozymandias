@@ -24,7 +24,8 @@
     (x ,(evaluate-expr (point-x point) variables))
     (y ,(evaluate-expr (point-y point) variables))
     (path ,(point-animation point))
-    (radius ,(evaluate-expr (point-radius point) variables))))
+    (radius ,(evaluate-expr (point-radius point) variables))
+    (color ,(point-color point))))
 
 (define (point->json point)
   (dict->json `((id ,(point-id point))
@@ -37,10 +38,13 @@
 ;; translate is one of 'along or 'over
 ;; loop is #t or #f
 ;; duration is in milliseconds
-(define (point-animate! point path #!optional duration translate push)
-  (set-point-animation! point `((id ,(path-id path))
-                                (duration ,duration)
-                                (translate ,translate)))
+(define (point-animate! point #!optional path duration translate push)
+  (set-point-animation! point
+    (if (or (default-object? path) (not path) (null? path))
+      '()
+      `((id ,(path-id path))
+        (duration ,duration)
+        (translate ,translate))))
   (if push (update (point-window point))))
 
 (defhandler json point->json point?)
