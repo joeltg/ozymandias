@@ -2,8 +2,6 @@
 (define (default-evaluate name vars) #f)
 (define env (the-environment))
 
-
-
 (define-structure
   (window (constructor silently-make-window (#!optional name)))
   (name (string-append "window-" (number->string (get-id))) read-only #t)
@@ -41,7 +39,6 @@
   (set-window-paths! window (cons path (window-paths window))))
 
 (define (window->json window #!optional actions)
-  (let ((points (map (lambda (point) ) (window-points window)))))
   (dict->json `((name ,(window-name window))
                 (points ,(window-points window))
                 (paths ,(window-paths window))
