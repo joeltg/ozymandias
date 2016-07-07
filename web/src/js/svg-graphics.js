@@ -8,20 +8,20 @@ const dialogs = document.getElementById('dialogs');
 
 const min_window_height = 108, min_window_width = 148;
 const default_width = 400, default_height = 300;
-const default_domain = [0, 1];
+const default_domain = [-1, 1];
 const windows = {};
 
 function handle_graphics_message(message) {
     console.log(message);
     const {name, actions, points, paths} = message;
-    const window = windows[name] || new Window(name);
+    const window = windows[name] || new SVGWindow(name);
     window.paths(paths || []);
     window.points(points || []);
     window.update_axes(points, paths);
     if (actions) actions.forEach(action => window[action]());
 }
 
-class Window {
+class SVGWindow {
     constructor(name) {
         windows[name] = this;
         const source = editor.hasFocus() ? editor : repl;

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# $1 is the output log file path
+# $2 is the entry load scheme file
+# $3 is the path of the scheme file to be to be started
+
+rm -f $1
+touch $1
+tail -f $1 --pid=$$ 1>&2 & exec $3 --load $2 --args $1

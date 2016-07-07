@@ -9,8 +9,8 @@ const spawn = require('child_process').spawn;
 const WebSocketServer = require('ws').Server;
 
 // argv[0] and argv[1] are 'node' and 'server.js', respectively.
-const default_scheme_path = './start-scheme';
-const scheme_path = process.argv[2] || default_scheme_path;
+const default_load_with_logs_path = './load-with-logs';
+const load_with_logs_path = process.argv[2] || default_load_with_logs_path;
 
 const default_log_directory = './logs/';
 const log_directory = process.argv[3] || default_log_directory;
@@ -18,7 +18,11 @@ let log_id = 0;
 
 const default_utils_directory = './utils/';
 const utils_directory = process.argv[4] || default_utils_directory;
-console.log(scheme_path, log_directory, utils_directory);
+
+const default_scheme_path = '/usr/local/scmutils/mit-scheme/bin/scheme --library /usr/local/scmutils/mit-scheme/lib';
+const scheme_path = process.argv[5] || default_scheme_path;
+
+console.log(load_with_logs_path, log_directory, utils_directory, scheme_path);
 
 const port = 1947;
 const server = new WebSocketServer({port: port});
@@ -31,7 +35,7 @@ server.on('connection', socket => {
     const log_path = log_directory + log_id++;
 
     // spawn scheme process
-    const scheme = spawn(scheme_path, [log_path, utils_directory]);
+    const scheme = spawn(load_with_logs_path, [log_path, utils_directory, scheme_path]);
     children.push(scheme);
     console.log('scheme opened ' + children.length);
 

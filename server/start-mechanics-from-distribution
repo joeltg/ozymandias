@@ -5,4 +5,4 @@
 ROOT="${SCMUTILS_ROOT:-/usr/local/scmutils}"
 SCHEME="${ROOT}/mit-scheme/bin/scheme --library ${ROOT}/mit-scheme/lib"
 
-exec ${SCHEME}
+exec ${SCHEME} "$@"
