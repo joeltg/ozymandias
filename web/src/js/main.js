@@ -32,7 +32,7 @@ const repl = CodeMirror(output, {
     matchBrackets: true,
     indentUnit: 2,
     indentWithTabs: false,
-    keyMap: 'sublime',
+    keyMap: 'emacs',
     'extraKeys': {
         "Tab": "indentMore",
         "Enter": evaluate_repl,
@@ -50,11 +50,9 @@ const editor = CodeMirror(input, {
     matchBrackets: true,
     indentUnit: 2,
     indentWithTabs: false,
-    keyMap: 'sublime',
+    keyMap: 'emacs',
     'extraKeys': {
-        "Tab": "indentMore",
-        "Ctrl-E": evaluate_editor,
-        "Cmd-E": evaluate_editor,
+//        "Tab": "indentMore",
         "Cmd-Enter": evaluate_editor,
         "Ctrl-Enter": evaluate_editor,
         "Shift-Enter": evaluate_editor
@@ -126,7 +124,7 @@ socket.onopen = event => write('connected to server.\n');
 socket.onmessage = event => {
     const {content, source} = JSON.parse(event.data);
     let values;
-    if (source === 'console') {
+    if (source === 'client_repl') {
         write(content);
         values = (console_buffer + content).split(console_delimiter);
         console_buffer = values.pop();
@@ -204,7 +202,7 @@ function evaluate_editor() {
     // }
     const length = value.length;
     if (value.substring(length - 1, length) !== '\n') value += '\n';
-    socket.send(JSON.stringify({source: 'console', content: value}));
+    socket.send(JSON.stringify({source: 'client_repl', content: value}));
 }
 
 function evaluate_repl() {
@@ -217,7 +215,7 @@ function evaluate_repl() {
     if (value) repl_history_pointer = repl_history.push(value);
     write('\n');
     editor_position = false;
-    socket.send(JSON.stringify({source: 'console', content: value + '\n'}));
+    socket.send(JSON.stringify({source: 'client_repl', content: value + '\n'}));
 }
 
 function move_up_repl_history() {
