@@ -140,7 +140,7 @@ socket.onmessage = event => {
         values = (graphics_buffer + content).split(graphics_delimiter);
         console.log(values);
         graphics_buffer = values.pop();
-        values.forEach(value => handle_svg_graphics_message(JSON.parse(value)));
+        values.forEach(value => handle_graphics_message(JSON.parse(value)));
     } else if (source === 'canvas-graphics') {
         values = (graphics_buffer + content).split(graphics_delimiter);
         graphics_buffer = values.pop();

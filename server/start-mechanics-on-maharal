@@ -6,4 +6,4 @@ ROOT="/usr/local"
 SCMUTILS_ROOT="${ROOT}/scmutils"
 SCHEME="${ROOT}/bin/mit-scheme-x86-64"
 CMD="${SCHEME} --stack 256 --heap 300000 --edwin --band ${SCMUTILS_ROOT}/scheme-x86-64/mechanics.com"
-exec ${CMD}
+exec ${CMD} $@

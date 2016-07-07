@@ -1,0 +1,10 @@
+#!/bin/sh
+
+ROOT=./
+
+SCHEME=./start-mechanics-in-chroot-jail
+
+JAIL_ROOT=/home/scheme-user/
+
+
+node $ROOT/server.js $ROOT/to-load-with-logs $JAIL_ROOT/logs/ $JAIL_ROOT/utils/load.scm $SCHEME
