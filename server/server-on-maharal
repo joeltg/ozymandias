@@ -1,0 +1,7 @@
+#!/bin/sh
+
+ROOT=./
+
+SCHEME=./start-mechanics-on-maharal
+
+node $ROOT/server.js $ROOT/to-load-with-logs $ROOT/logs/ $ROOT/utils/load.scm $SCHEME

@@ -1,7 +1,1 @@
-#!/bin/sh
-
-ROOT=./
-
-SCHEME=./start-mechanics-from-distribution
-
-nodejs $ROOT/server.js $ROOT/to-load-with-logs $ROOT/logs/ $ROOT/utils/load.scm $SCHEME
+server-in-jail

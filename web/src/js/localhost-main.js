@@ -32,7 +32,7 @@ const repl = CodeMirror(output, {
     matchBrackets: true,
     indentUnit: 2,
     indentWithTabs: false,
-    keyMap: 'emacs',
+    keyMap: 'sublime',
     'extraKeys': {
         "Tab": "indentMore",
         "Enter": evaluate_repl,
@@ -50,18 +50,14 @@ const editor = CodeMirror(input, {
     matchBrackets: true,
     indentUnit: 2,
     indentWithTabs: false,
-    keyMap: 'emacs',
+    keyMap: 'sublime',
     'extraKeys': {
         "Tab": "indentMore",
-        "Alt-Z": e => evaluate_editor('current'),
-        "Alt-O": e => evaluate_editor('everything'),
-        "Cmd-Enter": e => evaluate_editor('adjacent'),
-        "Ctrl-Enter": e => evaluate_editor('adjacent'),
-        "Shift-Enter": e => evaluate_editor('adjacent'),
-        "Ctrl+S+Enter": e => evaluate_editor('selection'),
-        "Shift+S+Enter": e => evaluate_editor('selection'),
-        "Cmd+S+Enter": e => evaluate_editor('selection'),
-        "Ctrl+X Ctrl+E": e => evaluate_editor('previous')
+        "Ctrl-E": evaluate_editor,
+        "Cmd-E": evaluate_editor,
+        "Cmd-Enter": evaluate_editor,
+        "Ctrl-Enter": evaluate_editor,
+        "Shift-Enter": evaluate_editor
     }
 });
 
@@ -130,7 +126,7 @@ socket.onopen = event => write('connected to server.\n');
 socket.onmessage = event => {
     const {content, source} = JSON.parse(event.data);
     let values;
-    if (source === 'client_repl') {
+    if (source === 'console') {
         write(content);
         values = (console_buffer + content).split(console_delimiter);
         console_buffer = values.pop();
@@ -142,49 +138,47 @@ socket.onmessage = event => {
         });
     } else if (source === 'graphics') {
         values = (graphics_buffer + content).split(graphics_delimiter);
+        console.log(values);
         graphics_buffer = values.pop();
         values.forEach(value => handle_graphics_message(JSON.parse(value)));
+    } else if (source === 'canvas-graphics') {
+        values = (graphics_buffer + content).split(graphics_delimiter);
+        graphics_buffer = values.pop();
+        values.forEach(value => handle_canvas_graphics_message(JSON.parse(value)));
     } else console.error('message type not recognized');
 };
 
 socket.onclose = event => write('lost connection to server, please reload\n');
 
-function toEnclosingExpr(cm) {
-    var pos = cm.getCursor(), line = pos.line, ch = pos.ch;
-    console.log(pos);
-    var stack = [];
-    while (line >= cm.firstLine()) {
-        var text = cm.getLine(line);
-        for (var i = ch == null ? text.length : ch; i > 0;) {
-            var ch = text.charAt(--i);
-            if (ch == ")")
-                stack.push("(");
-            else if (ch == "]")
-                stack.push("[");
-            else if (ch == "}")
-                stack.push("{");
-            else if (/[\(\{\[]/.test(ch) && (!stack.length || stack.pop() != ch))
-            {
-                console.log('yay', line, i);
-                var pos = CodeMirror.Pos(line, i);
-                cm.extendSelection(pos);
-                return pos;
-            }
-        }
-        --line; ch = null;
-    }
-}
+function evaluate_editor() {
 
-function repeated(f, last) {
-    var val = f();
-    if (val) return repeated(f, val);
-    else return last;
-}
+    // const elements = [];
+    //
+    // for (let line = 0; line < editor.lineCount(); line++) {
+    //     const tokens = editor.getLineTokens(line, true);
+    //
+    // }
 
-function evaluate_editor_paren_block(position) {
-    const parens = editor.findMatchingBracket(position);
     let value = '';
-    if (parens && parens.match) {
+    const parens = editor.findMatchingBracket(editor.getCursor());
+
+    if (editor.somethingSelected()) {
+        // if there's something selected, evaluate only the selection
+
+        value = editor.getSelection();
+        editor_position = editor.getCursor('to');
+
+        // if the selection dangles by 0 characters onto a new line,
+        // trim it to only extend to the last character of the previous line.
+        if (editor_position.ch === 0) editor_position = {
+            line: editor_position.line - 1,
+            ch: editor.getLine(editor_position.line - 1).length
+        };
+
+        editor.setCursor(editor_position);
+        editor.scrollIntoView();
+
+    } else if (parens && parens.match) {
         // else if there cursor is adjacent to a parenthesis that has
         // a valid match, evaluate just the paren'd expression
 
@@ -193,54 +187,24 @@ function evaluate_editor_paren_block(position) {
         end.ch += 1;
         value = editor.getRange(start, end);
         editor_position = {line: end.line + 1, ch: 0};
+
+        // the cursor might have been on the left of a closing parenthesis,
+        // or near an opening one, so we move it to the end of what we
+        // evaluated, and scroll that position into view if necessary
         if (editor_position.line >= editor.lineCount()) editor.replaceRange('\n', end, end);
         editor.setCursor(editor_position);
         editor.scrollIntoView();
     }
-    return value;
-}
-
-function evaluate_editor(code) {
-    let value = '';
-    switch(code) {
-        case 'everything':
-            value = editor.getValue();
-            editor_position = {line: editor.lineCount(), ch: 0};
-            break;
-        case 'adjacent':
-            value = evaluate_editor_paren_block(editor.getCursor());
-            break;
-        case 'current':
-            let pos = repeated(() => toEnclosingExpr(editor));
-            value = evaluate_editor_paren_block(pos);
-            break;
-        case 'previous':
-            break;
-        case 'selection':
-            if (editor.somethingSelected()) {
-                // if there's something selected, evaluate only the selection
-
-                value = editor.getSelection();
-                editor_position = editor.getCursor('to');
-
-                // if the selection dangles by 0 characters onto a new line,
-                // trim it to only extend to the last character of the previous line.
-                if (editor_position.ch === 0) editor_position = {
-                    line: editor_position.line - 1,
-                    ch: editor.getLine(editor_position.line - 1).length
-                };
-
-                editor.setCursor(editor_position);
-                editor.scrollIntoView();
-            }
-            break;
-        default:
-            return;
-    }
-
+    // else {
+    //     // if all else fails, just evaluate the whole document.
+    //     // TODO: be smarter about this
+    //
+    //     value = editor.getValue();
+    //     editor_position = false;
+    // }
     const length = value.length;
     if (value.substring(length - 1, length) !== '\n') value += '\n';
-    socket.send(JSON.stringify({source: 'client_repl', content: value}));
+    socket.send(JSON.stringify({source: 'console', content: value}));
 }
 
 function evaluate_repl() {
@@ -253,7 +217,7 @@ function evaluate_repl() {
     if (value) repl_history_pointer = repl_history.push(value);
     write('\n');
     editor_position = false;
-    socket.send(JSON.stringify({source: 'client_repl', content: value + '\n'}));
+    socket.send(JSON.stringify({source: 'console', content: value + '\n'}));
 }
 
 function move_up_repl_history() {
