@@ -3,9 +3,9 @@
  */
 
 // Replace with the URL of your server
-// const websocket_url = 'ws://localhost:1947';
+const websocket_url = 'ws://localhost:1947';
 const websocket_url = 'ws://maharal.csail.mit.edu:1947';
-const socket = new WebSocket(websocket_url);
+// const socket = new WebSocket(websocket_url);
 
 const console_delimiter = /\s*\n\d+ (?:(?:]=)|(?:error))> /;
 const graphics_delimiter = '\n';
@@ -140,16 +140,18 @@ socket.onmessage = event => {
             editor.replaceRange(value, editor_position, editor_position);
             editor_position = false;
         });
-    } else if (source === 'svg-graphics') {
+    } else if (source === 'graphics') {
         values = (graphics_buffer + content).split(graphics_delimiter);
         graphics_buffer = values.pop();
-        values.forEach(value => handle_svg_graphics_message(JSON.parse(value)));
-    } else if (source === 'canvas-graphics') {
-        values = (graphics_buffer + content).split(graphics_delimiter);
-        graphics_buffer = values.pop();
-        values.forEach(value => handle_canvas_graphics_message(JSON.parse(value)));
+        values.forEach(value => handle_graphics_message(JSON.parse(value)));
     } else console.error('message type not recognized');
 };
+
+function handle_graphics_message(message) {
+    if (message.type === 'canvas') handle_canvas_graphics_message(message);
+    else if (message.type === 'svg') handle_svg_graphics_message(message);
+    else console.error('graphics window type not recognized');
+}
 
 socket.onclose = event => write('lost connection to server, please reload\n');
 
