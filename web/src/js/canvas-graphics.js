@@ -2,8 +2,6 @@
  * Created by joel on 7/6/16.
  */
 
-const default_x_domain = [-1, 1];
-const default_y_domain = [-1, 1];
 
 const point_x = 3, point_y = 3;
 
@@ -11,95 +9,85 @@ const drawing_modes = {};
 const line_styles = {};
 
 function handle_canvas_graphics_message(message) {
+    console.log(message);
     const {name, action, value} = message;
     if (windows.hasOwnProperty(name)) {
         windows[name][action](value);
-    } else {
-        const window = new CanvasWindow(name, value.width, value.height);
-        if (action) window[action](value);
-    }
+    } else if (action === 'create') {
+        new CanvasWindow(name, value);
+    } else console.error('invalid canvas graphics message');
 }
 
 class CanvasWindow extends Window {
-    constructor(name, width, height) {
-        super(name, false, width, height);
-        width = width || default_width;
-        height = height || default_height;
+    constructor(name, value) {
+        const {xmin, xmax, ymin, ymax, frame_width, frame_height, frame_x_position, frame_y_position} = value;
+        super(name, false, frame_width, frame_height);
+        if (frame_x_position >= 0) this.dialog.parentNode.style.left = frame_x_position;
+        if (frame_y_position >= 0) this.dialog.parentNode.style.top = frame_y_position;
         this.canvas = document.createElement('canvas');
-        this.canvas.width = width;
-        this.canvas.height = height;
+        this.canvas.width = frame_width;
+        this.canvas.height = frame_height;
         this.dialog.appendChild(this.canvas);
-        console.log(width, height);
-        this.x = d3.scaleLinear().range([0, width]).domain(default_x_domain);
-        this.y = d3.scaleLinear().range([height, 0]).domain(default_y_domain);
+        this.x = d3.scaleLinear().range([0, frame_width]).domain([xmin, xmax]);
+        this.y = d3.scaleLinear().range([frame_height, 0]).domain([ymin, ymax]);
 
         this.context = this.canvas.getContext('2d');
     }
-    set_domain(x_domain, y_domain) {
-        if (x_domain) this.x.domain(x_domain);
-        if (y_domain) this.y.domain(y_domain);
-    }
-    plot_point(value) {
-        const device_x = this.x(value[0]), device_y = this.y(value[1]);
-        this.context.fillRect(device_x, device_y, point_x, point_y);
-    }
-    plot_points(value) {
-        value.forEach(this.plot_point);
-    }
     set_coordinate_limits(value) {
-        if (value.hasOwnProperty('x-left') && value.hasOwnProperty('x-right'))
-            this.x.domain([value['x-left'], value['x-right']]);
-        if (value.hasOwnProperty('y-top') && value.hasOwnProperty('y-bottom'))
-            this.y.domain([value['y-bottom'], value['y-top']]);
+        if (value.hasOwnProperty('x_left') && value.hasOwnProperty('x_right'))
+            this.x.domain([value['x_left'], value['x_right']]);
+        if (value.hasOwnProperty('y_top') && value.hasOwnProperty('y_bottom'))
+            this.y.domain([value['y_bottom'], value['y_top']]);
     }
     clear(value) {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
     draw_point(value) {
-        if (value.hasOwnProperty('x') && value.hasOwnProperty('y'))
-            this.context.fillRect(value.x, value.y, point_x, point_y);
+        if (value.hasOwnProperty('x') && value.hasOwnProperty('y')) {
+            const x = this.x(value.x) - point_x / 2;
+            const y = this.y(value.y) - point_y / 2;
+            this.context.fillRect(x, y, point_x, point_y);
+        }
+    }
+    draw_points(value) {
+        if (value.hasOwnProperty('points')) {
+            value.points.forEach(point => {
+                const x = this.x(point[0]) - point_x / 2;
+                const y = this.y(point[1]) - point_y / 2;
+                this.context.fillRect(x, y, point_x, point_y)
+            });
+        }
     }
     erase_point(value) {
-        if (value.hasOwnProperty('x') && value.hasOwnProperty('y'))
-            this.context.clearRect(value.x, value.y, point_x, point_y);
+        if (value.hasOwnProperty('x') && value.hasOwnProperty('y')) {
+            const x = this.x(value.x) - point_x;
+            const y = this.y(value.y) - point_y;
+            this.context.clearRect(x, y, point_x * 2, point_y * 2);
+        }
     }
     draw_line(value) {
-        if (value.hasOwnProperty('x-start') && value.hasOwnProperty('x-end') &&
-            value.hasOwnProperty('y-start') && value.hasOwnProperty('y-end')) {
+        if (value.hasOwnProperty('x_start') && value.hasOwnProperty('x_end') &&
+            value.hasOwnProperty('y_start') && value.hasOwnProperty('y_end')) {
             this.context.beginPath();
-            this.context.moveTo(value['x-start'], value['y-start']);
-            this.context.lineTo(value['x-end'], value['y-end']);
+            const x_start = this.x(value['x_start']) - point_x / 2;
+            const y_start = this.y(value['y_start']) - point_y / 2;
+            const x_end = this.x(value['x_end']) - point_x / 2;
+            const y_end = this.y(value['y_end']) - point_y / 2;
+            this.context.moveTo(x_start, y_start);
+            this.context.lineTo(x_end, y_end);
             this.context.stroke();
         }
     }
     draw_text(value) {
-        if (value.hasOwnProperty('string') && value.hasOwnProperty('x') && value.hasOwnProperty('y'))
-            this.context.fillText(value.string, value.x, value.y);
-    }
-    move_cursor(value) {
-        if (value.hasOwnProperty('x') && value.hasOwnProperty('y'))
-            this.context.moveTo(value.x, value.y);
-    }
-    drag_cursor(value) {
-        if (value.hasOwnProperty('x') && value.hasOwnProperty('y'))
-            this.context.lineTo(value.x, value.y);
-    }
-    set_drawing_mode(value) {
-        if (value.hasOwnProperty('drawing-mode') &&
-            drawing_modes.hasOwnProperty(value['drawing-mode']))
-            this.context.fillStyle = drawing_modes[value['drawing-mode']];
-    }
-    set_line_style(value) {
-        if (value.hasOwnProperty('line-style') &&
-            line_styles.hasOwnProperty(value['line-style']))
-            this.context.strokeStyle = line_styles[value['line-style']];
-    }
-    flush(value) {
-        this.context.stroke();
+        if (value.hasOwnProperty('string') && value.hasOwnProperty('x') && value.hasOwnProperty('y')) {
+            const x = this.x(value.x) - point_x / 2;
+            const y = this.y(value.y) - point_y / 2;
+            this.context.fillText(value.string, x, y);
+        }
     }
     set_font(value) {
-        if (value.hasOwnProperty('font-name'))
-            this.context.font = value['font-name'];
+        if (value.hasOwnProperty('font_name'))
+            this.context.font = value['font_name'];
     }
     resize(value) {
         if (value.hasOwnProperty('width') && value.hasOwnProperty('height')) {
@@ -109,6 +97,14 @@ class CanvasWindow extends Window {
             this.canvas.height = value.height;
             this.x.range([0, width]);
             this.y.range([height, 0]);
+        }
+    }
+    rename(value) {
+        if (value.hasOwnProperty('name')) {
+            delete windows[this.name];
+            this.name = value.name;
+            windows[this.name] = this;
+            $(this.dialog).dialog({title: this.name});
         }
     }
 }

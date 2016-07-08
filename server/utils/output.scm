@@ -9,7 +9,7 @@
   (set! id-counter (+ id-counter 1))
   id-counter)
 
-(define (send data #!optional push)
+(define (send-json data #!optional push)
   (write-string data output-port)
   (write-string delimiter output-port)
   (if push (flush-output output-port)))

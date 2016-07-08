@@ -7,6 +7,12 @@ const default_width = 400, default_height = 300;
 const windows = {};
 const dialogs = document.getElementById('dialogs');
 
+function handle_graphics_message(message) {
+    if (message.type === 'canvas') handle_canvas_graphics_message(message);
+    else if (message.type === 'svg') handle_svg_graphics_message(message);
+    else console.error('graphics window type not recognized');
+}
+
 class Window {
     constructor(name, resizable, width, height) {
         windows[name] = this;

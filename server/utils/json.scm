@@ -2,6 +2,10 @@
 ;; Valid JSON numbers have to start with a digit (".04" and "-.1" are invalid),
 ;; and also have to end with a digit ("50." is invalid).
 
+
+((record-modifier (record-type-descriptor flonum-unparser-cutoff) 'value)
+  flonum-unparser-cutoff '(relative 5))
+
 (define (number->json number)
   (define string (number->string (exact->inexact number)))
   (define length-of-string (string-length string))

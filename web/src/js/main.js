@@ -142,16 +142,11 @@ socket.onmessage = event => {
         });
     } else if (source === 'graphics') {
         values = (graphics_buffer + content).split(graphics_delimiter);
+        console.log(values);
         graphics_buffer = values.pop();
         values.forEach(value => handle_graphics_message(JSON.parse(value)));
     } else console.error('message type not recognized');
 };
-
-function handle_graphics_message(message) {
-    if (message.type === 'canvas') handle_canvas_graphics_message(message);
-    else if (message.type === 'svg') handle_svg_graphics_message(message);
-    else console.error('graphics window type not recognized');
-}
 
 socket.onclose = event => write('lost connection to server, please reload\n');
 
