@@ -3,9 +3,9 @@
  */
 
 // Replace with the URL of your server
-const websocket_url = 'ws://localhost:1947';
+// const websocket_url = 'ws://localhost:1947';
 const websocket_url = 'ws://maharal.csail.mit.edu:1947';
-// const socket = new WebSocket(websocket_url);
+const socket = new WebSocket(websocket_url);
 
 const console_delimiter = /\s*\n\d+ (?:(?:]=)|(?:error))> /;
 const graphics_delimiter = '\n';
