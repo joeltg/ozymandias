@@ -40,7 +40,7 @@
 
 (define (window->json window #!optional actions)
   (dict->json `((name ,(window-name window))
-                (type ,svg)
+                (type svg)
                 (points ,(window-points window))
                 (paths ,(window-paths window))
                 (actions ,actions))))
