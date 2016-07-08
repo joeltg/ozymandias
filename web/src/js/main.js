@@ -140,10 +140,14 @@ socket.onmessage = event => {
             editor.replaceRange(value, editor_position, editor_position);
             editor_position = false;
         });
-    } else if (source === 'graphics') {
+    } else if (source === 'svg-graphics') {
         values = (graphics_buffer + content).split(graphics_delimiter);
         graphics_buffer = values.pop();
-        values.forEach(value => handle_graphics_message(JSON.parse(value)));
+        values.forEach(value => handle_svg_graphics_message(JSON.parse(value)));
+    } else if (source === 'canvas-graphics') {
+        values = (graphics_buffer + content).split(graphics_delimiter);
+        graphics_buffer = values.pop();
+        values.forEach(value => handle_canvas_graphics_message(JSON.parse(value)));
     } else console.error('message type not recognized');
 };
 

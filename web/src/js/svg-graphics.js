@@ -4,15 +4,11 @@
 
 "use strict";
 
-const dialogs = document.getElementById('dialogs');
-
 const min_window_height = 108, min_window_width = 148;
-const default_width = 400, default_height = 300;
-const default_domain = [-1, 1];
-const windows = {};
 
-function handle_graphics_message(message) {
-    console.log(message);
+const default_domain = [-1, 1];
+
+function handle_svg_graphics_message(message) {
     const {name, actions, points, paths} = message;
     const window = windows[name] || new SVGWindow(name);
     window.paths(paths || []);
@@ -21,42 +17,28 @@ function handle_graphics_message(message) {
     if (actions) actions.forEach(action => window[action]());
 }
 
-class SVGWindow {
+class SVGWindow extends Window {
     constructor(name) {
-        windows[name] = this;
-        const source = editor.hasFocus() ? editor : repl;
-        this.name = name;
-        this.id = name.split(' ').join('-');
-        this.dialog = document.createElement('div');
-        this.dialog.id = 'dialog-' + this.id;
-        dialogs.appendChild(this.dialog);
-
+        super(name, true);
         this.symbols = {};
-
         this.margin = {top: 20, right: 20, bottom: 40, left: 40, slider: 0};
-
         this.width = default_width - this.margin.left - this.margin.right;
         this.height = default_height - this.margin.top - this.margin.bottom - this.margin.slider;
-
         this.xScale = d3.scaleLinear().range([0, this.width]).domain(default_domain).clamp(true);
         this.yScale = d3.scaleLinear().range([this.height, 0]).domain(default_domain).clamp(true);
-
         this.xAxis = d3.axisBottom(this.xScale)
             .ticks(Math.floor(this.width / 50))
             .tickSizeInner(-this.height)
             .tickSizeOuter(0)
             .tickPadding(10);
-
         this.yAxis = d3.axisLeft(this.yScale)
             .ticks(Math.floor(this.height / 50))
             .tickSizeInner(-this.width)
             .tickSizeOuter(0)
             .tickPadding(10);
-
         this.svg = d3.select(this.dialog).append('svg')
             .attr('width', default_width)
             .attr('height', default_height);
-
         this.svg.on('click', svg => {
             const x = this.xScale.invert(d3.event.offsetX - this.margin.left);
             const y = this.yScale.invert(d3.event.offsetY - this.margin.top);
@@ -69,42 +51,18 @@ class SVGWindow {
             }));
             d3.event.stopPropagation();
         });
-
         this.content = this.svg.append('g')
             .attr('transform', `translate(${this.margin.left},${this.margin.top})`);
-
         this.content.append('g')
             .attr('class', 'x axis x-axis')
             .attr('transform', `translate(0,${this.height})`)
             .call(this.xAxis);
-
         this.content.append('g')
             .attr('class', 'y axis y-axis')
             .call(this.yAxis);
-
         this.line = d3.line()
             .x(d => this.xScale(d[0]))
             .y(d => this.yScale(d[1]));
-
-        $(this.dialog).dialog({
-            title: name,
-            autoOpen: true,
-            width: default_width,
-            close: () => this.close(),
-            resizable: true,
-            resize: (event, ui) => {
-                const size = ui.size;
-                const width = size.width - 2;
-                const height = size.height - 42;
-                this.resize(width, height);
-            }
-        });
-        source.focus();
-    }
-    close() {
-        if (windows[this.name]) delete windows[this.name];
-        $(this.dialog).dialog('destroy');
-        this.dialog.parentNode.removeChild(this.dialog);
     }
     clear() {
         this.svg.selectAll('.path').remove();
@@ -129,8 +87,8 @@ class SVGWindow {
             if (isFinite(p[1])) y.push(p[1]);
         }));
 
-        const x_domain = Window.clamp(d3.extent(x));
-        const y_domain = Window.clamp(d3.extent(y));
+        const x_domain = SVGWindow.clamp(d3.extent(x));
+        const y_domain = SVGWindow.clamp(d3.extent(y));
         this.xScale.domain(x_domain).nice();
         this.yScale.domain(y_domain).nice();
 
@@ -282,8 +240,8 @@ class SVGWindow {
         return a ? [a[0] || default_domain[0], a[1] || default_domain[1]] : default_domain;
     }
     static clamp(a, b) {
-        a = Window.normalize(a);
-        b = Window.normalize(b);
+        a = SVGWindow.normalize(a);
+        b = SVGWindow.normalize(b);
         return [Math.min(a[0], b[0]), Math.max(a[1], b[1])];
     }
     static walk(tree, callback) {
@@ -295,7 +253,7 @@ class SVGWindow {
                 case 'number':
                     return;
                 case 'object':
-                    Window.walk(arg, callback);
+                    SVGWindow.walk(arg, callback);
                     return;
                 default:
                     console.error('unrecognized tree node');
@@ -306,8 +264,7 @@ class SVGWindow {
         const domain = this.xScale.domain();
         if (symbol instanceof Array) {
             if (symbol[0] === '*number*' && symbol[1] instanceof Array && symbol[1][0] === 'expression') {
-                console.log('walking on', symbol[1][1]);
-                Window.walk(symbol[1][1], arg => this.add_symbol(arg));
+                SVGWindow.walk(symbol[1][1], arg => this.add_symbol(arg));
                 return this.symbols[symbol] = domain[0];
             } else return console.error('variable not recognized');
         }
