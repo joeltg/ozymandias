@@ -31,7 +31,7 @@ console.log(`listening on port ${port}`);
 const children = [];
 
 server.on('connection', socket => {
-    var alive = true;
+    let alive = true;
     const id = log_id++;
     const log_path = log_directory + id;
 
@@ -41,20 +41,18 @@ server.on('connection', socket => {
 
     // pipe stdout from the scheme process to the client as console output
     scheme.stdout.on('data', data => {
-	if (alive && socket.readyState === 1) 
-	    socket.send(JSON.stringify({
-		source: 'client_repl',
-		content: data.toString()
-	    }));
+	if (alive && socket.readyState === 1) socket.send(JSON.stringify({
+	    source: 'client_repl',
+	    content: data.toString()
+	}));
     });
 
     // pipe stderr from the scheme process to the client as graphics output
     scheme.stderr.on('data', data => {
-	if (alive && socket.readyState === 1) 
-	    socket.send(JSON.stringify({
-		source: 'graphics',
-		content: data.toString()
-	    }));
+	if (alive && socket.readyState === 1) socket.send(JSON.stringify({
+	    source: 'graphics',
+	    content: data.toString()
+	}));
     });
 
     scheme.on('close', event => {
@@ -71,15 +69,13 @@ server.on('connection', socket => {
 		message = JSON.parse(message);
 		const source = message.source, content = message.content;
 		if (source === 'client_repl') scheme.stdin.write(content);
-		else if (source === 'graphics')
-                    scheme.stdin.write(content);
+		else if (source === 'graphics') scheme.stdin.write(content);
 		else console.error('invalid message type');
             }
 	}});
 
     socket.on('close', event => {
 	if (alive) scheme.kill('SIGKILL')
-
     });
 
     console.log('scheme opened with id#' + id);
