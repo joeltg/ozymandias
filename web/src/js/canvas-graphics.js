@@ -9,7 +9,7 @@ const drawing_modes = {};
 const line_styles = {};
 
 function handle_canvas_graphics_message(message) {
-    console.log(message);
+    // console.log(message);
     const {name, action, value} = message;
     if (windows.hasOwnProperty(name)) {
         windows[name][action](value);
