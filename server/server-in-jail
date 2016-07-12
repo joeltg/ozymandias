@@ -6,5 +6,7 @@ SCHEME=./start-mechanics-in-chroot-jail
 
 JAIL_ROOT=/home/scheme-user/
 
+JAIL_POSITION=/home/scmutils-server-root/
 
-node $ROOT/server.js $ROOT/to-load-with-logs $JAIL_ROOT/logs/ $JAIL_ROOT/utils/load.scm $SCHEME
+node $ROOT/server.js $ROOT/to-load-with-logs $JAIL_ROOT/logs/ $JAIL_ROOT/utils/load.scm $SCHEME $JAIL_POSITION
+

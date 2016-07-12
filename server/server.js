@@ -22,6 +22,9 @@ const utils_directory = process.argv[4] || default_utils_directory;
 const default_scheme_path = '/usr/local/scmutils/mit-scheme/bin/scheme --library /usr/local/scmutils/mit-scheme/lib';
 const scheme_path = process.argv[5] || default_scheme_path;
 
+const default_jail_position = '';
+const jail_position = process.argv[6] || default_jail_position;
+
 console.log(load_with_logs_path, log_directory, utils_directory, scheme_path);
 
 const port = 1947;
@@ -35,7 +38,7 @@ server.on('connection', socket => {
     const log_path = log_directory + id;
 
     // spawn scheme process
-    const scheme = spawn(load_with_logs_path, [log_path, utils_directory, scheme_path]);
+    const scheme = spawn(load_with_logs_path, [log_path, utils_directory, scheme_path, jail_position]);
 	let alive = true;
     children.push(scheme);
 

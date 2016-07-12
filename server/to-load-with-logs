@@ -3,7 +3,8 @@
 # $1 is the output log file path
 # $2 is the entry load scheme file
 # $3 is the path of the scheme file to be to be started
+# $4 is the absolute position of the jail, if there is one
 
-rm -f $1
-touch $1
-tail -f $1 --pid=$$ 1>&2 & exec $3 --load $2 --args $1
+rm -f $4$1
+touch $4$1
+tail -f $4$1 --pid=$$ 1>&2 & exec $3 --load $2 --args $1
