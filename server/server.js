@@ -36,10 +36,7 @@ webSocketServer.on('connection', socket => {
         kill: s => scheme.kill(s)
     };
     socket.on('close', event => scheme.closed || scheme.kill('SIGKILL'));
-    socket.on('message', message => (data => {
-        const source = data.source, content = data.content;
-        sources[source](content);
-    })(JSON.parse(message)));
+    socket.on('message', message => (data => sources[data.source](data.content))(JSON.parse(message)));
 });
 
 process.on('SIGINT', e => process.exit()).on('SIGTERM', e => process.exit());
