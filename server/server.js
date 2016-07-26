@@ -22,8 +22,8 @@ webSocketServer.on('connection', socket => {
     process.stdout.write('OK. Starting scheme... ');
 
     const scheme = cp.spawn(scheme_path, ['--load', load_path, '--args', pipe_path]);
-    schemes[scheme.pid] = true;
-    scheme.on('exit', e => (schemes[scheme.pid] = false) && process.stdout.write(`ID ${id} closed.\n`));
+    schemes[scheme.pid] = scheme;
+    scheme.on('exit', e => (delete schemes[scheme.pid]) && process.stdout.write(`ID ${id} closed.\n`));
     scheme.stdout.on('data', data => send_data('repl', data.toString()));
     process.stdout.write('OK. Opening pipes... ');
 
@@ -42,4 +42,4 @@ webSocketServer.on('connection', socket => {
 });
 
 process.on('SIGINT', e => process.exit()).on('SIGTERM', e => process.exit());
-process.on('exit', e => cp.spawnSync('kill', ['-s', 'KILL'].concat(Object.keys(schemes).filter(key => schemes[key]))));
+process.on('exit', e => Object.keys(schemes).forEach(pid => schemes[pid].kill('SIGKILL')));
