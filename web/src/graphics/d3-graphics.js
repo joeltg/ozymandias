@@ -8,16 +8,16 @@ const min_window_height = 108, min_window_width = 148;
 
 const default_domain = [-1, 1];
 
-function handle_svg_graphics_message(message) {
+function handle_d3_graphics_message(message) {
     const {name, actions, points, paths} = message;
-    const window = windows[name] || new SVGWindow(name);
+    const window = windows[name] || new D3Window(name);
     window.paths(paths || []);
     window.points(points || []);
     window.update_axes(points, paths);
     if (actions) actions.forEach(action => window[action]());
 }
 
-class SVGWindow extends Window {
+class D3Window extends Window {
     constructor(name) {
         super(name, true);
         this.symbols = {};
@@ -87,8 +87,8 @@ class SVGWindow extends Window {
             if (isFinite(p[1])) y.push(p[1]);
         }));
 
-        const x_domain = SVGWindow.clamp(d3.extent(x));
-        const y_domain = SVGWindow.clamp(d3.extent(y));
+        const x_domain = D3Window.clamp(d3.extent(x));
+        const y_domain = D3Window.clamp(d3.extent(y));
         this.xScale.domain(x_domain).nice();
         this.yScale.domain(y_domain).nice();
 
@@ -240,8 +240,8 @@ class SVGWindow extends Window {
         return a ? [a[0] || default_domain[0], a[1] || default_domain[1]] : default_domain;
     }
     static clamp(a, b) {
-        a = SVGWindow.normalize(a);
-        b = SVGWindow.normalize(b);
+        a = D3Window.normalize(a);
+        b = D3Window.normalize(b);
         return [Math.min(a[0], b[0]), Math.max(a[1], b[1])];
     }
     static walk(tree, callback) {
@@ -253,7 +253,7 @@ class SVGWindow extends Window {
                 case 'number':
                     return;
                 case 'object':
-                    SVGWindow.walk(arg, callback);
+                    D3Window.walk(arg, callback);
                     return;
                 default:
                     console.error('unrecognized tree node');
@@ -264,7 +264,7 @@ class SVGWindow extends Window {
         const domain = this.xScale.domain();
         if (symbol instanceof Array) {
             if (symbol[0] === '*number*' && symbol[1] instanceof Array && symbol[1][0] === 'expression') {
-                SVGWindow.walk(symbol[1][1], arg => this.add_symbol(arg));
+                D3Window.walk(symbol[1][1], arg => this.add_symbol(arg));
                 return this.symbols[symbol] = domain[0];
             } else return console.error('variable not recognized');
         }
@@ -302,7 +302,7 @@ class SVGWindow extends Window {
                 sliderHandle.style('left', scale(value) + this.margin.left + 'px');
                 // this.content.selectAll('.point')
                 //     // .filter(p => p.symbols && p.symbols[symbol])
-                //     .attr('transform', p => this.translateScale(p));
+                //     .attr('transform', p => this.translate_point(p));
             })
             .on("drag", () => {
                 const value = scale.invert(d3.mouse(sliderTray.node())[0]);
@@ -311,7 +311,7 @@ class SVGWindow extends Window {
                 sliderHandle.style('left', scale(value) + this.margin.left + 'px');
                 // this.content.selectAll('.point')
                 //     // .filter(p => p.symbols && p.symbols[symbol])
-                //     .attr('transform', d => this.translateScale(d));
+                //     .attr('transform', d => this.translate_point(d));
 
                 const variables = Object.keys(this.symbols)
                     .filter(key => key.substring(0, 19) !== "*number*,expression")

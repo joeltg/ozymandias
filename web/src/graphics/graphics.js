@@ -10,7 +10,7 @@ const dialogs = document.getElementById('dialogs');
 function handle_graphics_message(message) {
     if (message.type === 'canvas') handle_canvas_graphics_message(message);
     else if (message.type === 'svg') handle_svg_graphics_message(message);
-    else console.error('graphics window type not recognized');
+    else console.error('graphics type not recognized');
 }
 
 class Window {
@@ -27,7 +27,7 @@ class Window {
             autoOpen: true,
             width: width || default_width,
             height: (height || default_height) + 40,
-            close: () => this.close(),
+            close: e => this.close(),
             resizable: resizable,
             resize: (event, ui) => {
                 const size = ui.size;
@@ -37,6 +37,9 @@ class Window {
             }
         });
         source.focus();
+    }
+    resize() {
+        
     }
     close() {
         if (windows[this.name]) delete windows[this.name];

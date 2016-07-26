@@ -1,9 +1,14 @@
 (define arguments (command-line))
-(define output-path (if (pair? arguments) (car arguments) "log"))
-(define output-port (open-output-file output-path))
+(assert (pair? arguments))
+(define pipe-path (car arguments))
+(define input-path (string-append pipe-path ".in"))
+(define input-port (open-i/o-file input-path))
+(define output-path (string-append pipe-path ".out"))
+(define output-port (open-i/o-file output-path))
 (define id-counter 0)
 
-(define delimiter "\n")
+(define delimiter #\newline)
+(define delimiter-char-set (char-set delimiter))
 
 (define (get-id)
   (set! id-counter (+ id-counter 1))
@@ -11,5 +16,12 @@
 
 (define (send-json data #!optional push)
   (write-string data output-port)
-  (write-string delimiter output-port)
+  (write-char delimiter output-port)
   (if push (flush-output output-port)))
+
+(define (read-data)
+  (if (char-ready? input-port)
+    (let ((data (read-string delimiter-char-set input-port)))
+      (assert (char=? delimiter (read-char input-port)))
+      data)
+    #f))

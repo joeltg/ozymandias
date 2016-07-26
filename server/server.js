@@ -4,88 +4,43 @@
  * Debugging and editing by gjs
  */
 "use strict";
-
-const spawn = require('child_process').spawn;
-const WebSocketServer = require('ws').Server;
-
-// argv[0] and argv[1] are 'node' and 'server.js', respectively.
-const default_load_with_logs_path = './load-with-logs';
-const load_with_logs_path = process.argv[2] || default_load_with_logs_path;
-
-const default_log_directory = './logs/';
-const log_directory = process.argv[3] || default_log_directory;
-let log_id = 0;
-
-const default_utils_directory = './utils/';
-const utils_directory = process.argv[4] || default_utils_directory;
-
-const default_scheme_path = '/usr/local/scmutils/mit-scheme/bin/scheme --library /usr/local/scmutils/mit-scheme/lib';
-const scheme_path = process.argv[5] || default_scheme_path;
-
-const default_jail_position = '';
-const jail_position = process.argv[6] || default_jail_position;
-
-console.log(load_with_logs_path, log_directory, utils_directory, scheme_path);
-
 const port = 1947;
-const server = new WebSocketServer({port: port});
-console.log(`listening on port ${port}`);
+const fs = require('fs'), cp = require('child_process');
+const webSocketServer = new require('ws').Server({port});
+const scheme_path = process.argv[2], scheme_root = process.argv[3],
+    load_path = process.argv[4], pipe_directory = process.argv[5];
+let pipe_id = 0;
+console.log(`server running at port ${port}`);
+webSocketServer.on('connection', socket => {
+    const id = pipe_id++, pipe_path = pipe_directory + id;
+    const send_data = (source, content) => socket.readyState === 1 && socket.send(JSON.stringify({source, content}));
+    process.stdout.write(`ID ${id} connected. Creating pipes... `);
 
-const children = [];
+    cp.spawnSync('rm', ['-f', pipe_path + '.in', pipe_path + '.out'], {cwd: scheme_root});
+    cp.spawnSync('mkfifo', [pipe_path + '.in', pipe_path + '.out'], {cwd: scheme_root});
+    process.stdout.write('OK. Starting scheme... ');
 
-server.on('connection', socket => {
-    const id = log_id++;
-    const log_path = log_directory + id;
+    const scheme = cp.spawn(scheme_path, ['--load', load_path, '--args', pipe_path]);
+    scheme.on('exit', e => (scheme.closed = true) && process.stdout.write(`ID ${id} closed.\n`));
+    scheme.stdout.on('data', data => send_data('repl', data.toString()));
+    process.stdout.write('OK. Opening pipes... ');
 
-    // spawn scheme process
-    const scheme = spawn(load_with_logs_path, [log_path, utils_directory, scheme_path, jail_position]);
-	let alive = true;
-    children.push(scheme);
+    const write_in_pipe = fs.createWriteStream(scheme_root + pipe_path + '.in');
+    const read_out_pipe = fs.createReadStream(scheme_root + pipe_path + '.out');
+    read_out_pipe.on('data', data => send_data('pipe', data.toString()));
+    process.stdout.write('OK.\n');
 
-    // pipe stdout from the scheme process to the client as console output
-    scheme.stdout.on('data', data => {
-		if (alive && socket.readyState === 1) socket.send(JSON.stringify({
-			source: 'client_repl',
-			content: data.toString()
-		}));
-    });
-
-    // pipe stderr from the scheme process to the client as graphics output
-    scheme.stderr.on('data', data => {
-		if (alive && socket.readyState === 1) socket.send(JSON.stringify({
-			source: 'graphics',
-			content: data.toString()
-		}));
-    });
-
-    scheme.on('exit', event => {
-		alive = false;
-		children.splice(children.indexOf(scheme), 1);
-		console.log('scheme closed with id#' + id);
-    });
-
-    // pipe console input from the client to the scheme process
-    socket.on('message', message => {
-		if (alive) {
-			if (message === "\<SIGINT\>") scheme.kill("SIGINT");
-			else {
-				message = JSON.parse(message);
-				const source = message.source, content = message.content;
-				if (source === 'client_repl') scheme.stdin.write(content);
-				else if (source === 'graphics') scheme.stdin.write(content);
-				else console.error('invalid message type');
-			}
-		}
-	});
-
-    socket.on('close', event => {
-		if (alive) scheme.kill('SIGKILL')
-    });
-
-    console.log('scheme opened with id#' + id);
+    const sources = {
+        repl: s => scheme.stdin.write(s),
+        pipe: s => write_in_pipe.write(s),
+        kill: s => scheme.kill(s)
+    };
+    socket.on('close', event => scheme.closed || scheme.kill('SIGKILL'));
+    socket.on('message', message => (data => {
+        const source = data.source, content = data.content;
+        sources[source](content);
+    })(JSON.parse(message)));
 });
 
-process.on('SIGINT', e => process.exit());
-process.on('SIGTERM', e => process.exit());
-process.on('exit', e => children.forEach(child => child.kill('SIGTERM')));
-
+process.on('SIGINT', e => process.exit()).on('SIGTERM', e => process.exit());
+process.on('exit', e => cp.spawnSync('killall', ['-s', 'KILL', 'scheme']));

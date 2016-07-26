@@ -9,14 +9,13 @@
 
     <link rel="stylesheet" type="text/css" href="lib/codemirror/codemirror.css"/>
     <link rel="stylesheet" type="text/css" href="lib/codemirror/monokai.css"/>
+    <!--<script src="lib/codemirror/codemirror.min.graphics" type="text/javascript"></script>-->
     <script src="lib/codemirror/codemirror.min.js" type="text/javascript"></script>
+    <script src="lib/codemirror/scheme.js" type="text/javascript" charset="UTF-8"></script>
 
-    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>-->
     <script src="lib/jquery-ui/jquery.min.js" type="text/javascript"></script>
     <link href="lib/jquery-ui/jquery-ui.min.css" rel="stylesheet">
     <script src="lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
-
-    <!--<script src="lib/d3/d3.v3.min.js" type="text/javascript" charset="UTF-8"></script>-->
 
     <script src="lib/d3/d3-array.v1.min.js" type="text/javascript" charset="UTF-8"></script>
     <script src="lib/d3/d3-collection.v1.min.js" type="text/javascript" charset="UTF-8"></script>
@@ -38,8 +37,8 @@
     <img height="32" width="32" id="settings-icon" src="src/images/settings_icon.svg"
          onclick="var a = $(settings); a.dialog(a.dialog('isOpen') ? 'close' : 'open');"/>
     <div id="container">
-        <div id="input"></div>
-        <div id="output"></div>
+        <div id="editor"></div>
+        <div id="repl"></div>
     </div>
     <div id="dialogs">
         <div id="settings-dialog">
@@ -50,13 +49,13 @@
                            onclick="set_layout('split')">
                     <label for="split">Split</label>
 
-                    <input type="radio" id="editor" name="radio"
-                           onclick="set_layout('editor')">
-                    <label for="editor">Editor only</label>
+                    <input type="radio" id="editor_only" name="radio" checked="checked"
+                           onclick="set_layout('editor_only')">
+                    <label for="editor_only">Editor only</label>
 
-                    <input type="radio" id="repl" name="radio" checked="checked"
-                           onclick="set_layout('repl')">
-                    <label for="repl">REPL only</label>
+                    <input type="radio" id="repl_only" name="radio"
+                           onclick="set_layout('repl_only')">
+                    <label for="repl_only">REPL only</label>
                 </div>
             </form>
             <h4>Editor Theme</h4>
@@ -97,9 +96,13 @@
             </form>
         </div>
     </div>
-    <script src="src/js/main.js" type="text/javascript" charset="UTF-8"></script>
-    <script src="src/js/graphics.js" type="text/javascript" charset="UTF-8"></script>
-    <script src="src/js/svg-graphics.js" type="text/javascript" charset="UTF-8"></script>
-    <script src="src/js/canvas-graphics.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="src/connect-to-server.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="src/editor.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="src/repl.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="src/config.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="src/main.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="src/graphics/graphics.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="src/graphics/svg-graphics.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="src/graphics/canvas-graphics.js" type="text/javascript" charset="UTF-8"></script>
 </body>
 </html>

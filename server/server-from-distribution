@@ -1,7 +1,8 @@
 #!/bin/sh
 
-ROOT=./
-
-SCHEME=./start-mechanics-from-distribution
-
-node $ROOT/server.js $ROOT/to-load-with-logs $ROOT/logs/ $ROOT/utils/load.scm $SCHEME
+SERVER=./server.js
+SCHEME_PATH=./start-mechanics-from-distribution
+SCHEME_ROOT=./
+LOAD_PATH=./utils/load.scm
+PIPE_DIRECTORY=./pipes/
+node ${SERVER} ${SCHEME_PATH} ${SCHEME_ROOT} ${LOAD_PATH} ${PIPE_DIRECTORY}

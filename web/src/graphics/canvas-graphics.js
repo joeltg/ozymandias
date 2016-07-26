@@ -20,6 +20,7 @@ function handle_canvas_graphics_message(message) {
 
 class CanvasWindow extends Window {
     constructor(name, value) {
+        ['xmin', 'xmax', 'ymin', 'ymax', 'frame_width', 'frame_height', 'frame_x_position', 'frame_y_position'].forEach(key => value[key] = parseFloat(value[key]));
         const {xmin, xmax, ymin, ymax, frame_width, frame_height, frame_x_position, frame_y_position} = value;
         super(name, false, frame_width, frame_height);
         if (frame_x_position >= 0) this.dialog.parentNode.style.left = frame_x_position;
@@ -35,33 +36,33 @@ class CanvasWindow extends Window {
     }
     set_coordinate_limits(value) {
         if (value.hasOwnProperty('x_left') && value.hasOwnProperty('x_right'))
-            this.x.domain([value['x_left'], value['x_right']]);
+            this.x.domain([parseFloat(value['x_left']), parseFloat(value['x_right'])]);
         if (value.hasOwnProperty('y_top') && value.hasOwnProperty('y_bottom'))
-            this.y.domain([value['y_bottom'], value['y_top']]);
+            this.y.domain([parseFloat(value['y_bottom']), parseFloat(value['y_top'])]);
     }
     clear(value) {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
     draw_point(value) {
         if (value.hasOwnProperty('x') && value.hasOwnProperty('y')) {
-            const x = this.x(value.x) - point_x / 2;
-            const y = this.y(value.y) - point_y / 2;
+            const x = this.x(parseFloat(value.x)) - point_x / 2;
+            const y = this.y(parseFloat(value.y)) - point_y / 2;
             this.context.fillRect(x, y, point_x, point_y);
         }
     }
     draw_points(value) {
         if (value.hasOwnProperty('points')) {
-            value.points.forEach(point => {
-                const x = this.x(point[0]) - point_x / 2;
-                const y = this.y(point[1]) - point_y / 2;
+            value.points.forEach(([px, py]) => {
+                const x = this.x(parseFloat(px)) - point_x / 2;
+                const y = this.y(parseFloat(py)) - point_y / 2;
                 this.context.fillRect(x, y, point_x, point_y)
             });
         }
     }
     erase_point(value) {
         if (value.hasOwnProperty('x') && value.hasOwnProperty('y')) {
-            const x = this.x(value.x) - point_x;
-            const y = this.y(value.y) - point_y;
+            const x = this.x(parseFloat(value.x)) - point_x;
+            const y = this.y(parseFloat(value.y)) - point_y;
             this.context.clearRect(x, y, point_x * 2, point_y * 2);
         }
     }
@@ -91,10 +92,11 @@ class CanvasWindow extends Window {
     }
     resize(value) {
         if (value.hasOwnProperty('width') && value.hasOwnProperty('height')) {
-            this.dialog.parentNode.style.width = value.width + 2 + 'px';
-            this.dialog.parentNode.style.height = value.height + 42 + 'px';
-            this.canvas.width = value.width;
-            this.canvas.height = value.height;
+            const width = parseFloat(value.width), height = parseFloat(value.height);
+            this.dialog.parentNode.style.width = width + 2 + 'px';
+            this.dialog.parentNode.style.height = height + 42 + 'px';
+            this.canvas.width = width;
+            this.canvas.height = height;
             this.x.range([0, width]);
             this.y.range([height, 0]);
         }

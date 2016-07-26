@@ -1,12 +1,13 @@
 #!/bin/sh
 
-ROOT=./
+SERVER=./server.js
 
-SCHEME=./start-mechanics-in-chroot-jail
+SCHEME_PATH=./start-mechanics-in-chroot-jail
 
-JAIL_ROOT=/home/scheme-user/
+ABSOLUTE_JAIL_ROOT=/hom/scmutils-server-root/
+RELATIVE_JAIL_ROOT=/home/scheme-user/
 
-JAIL_POSITION=/home/scmutils-server-root/
+LOAD_PATH=${RELATIVE_JAIL_ROOT}/utils/load.scm
+PIPE_DIRECTORY=${RELATIVE_JAIL_ROOT}/pipes/
 
-node $ROOT/server.js $ROOT/to-load-with-logs $JAIL_ROOT/logs/ $JAIL_ROOT/utils/load.scm $SCHEME $JAIL_POSITION
-
+node ${SERVER} ${SCHEME_PATH} ${ABSOLUTE_JAIL_ROOT} ${LOAD_PATH} ${PIPE_DIRECTORY}

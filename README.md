@@ -43,7 +43,7 @@ sudo ./server
 ### Client
 
 Clone this repo into a directory of your choice.
-In `web/src/js/main.js`, replace `webSocketServerUrl` with the url of your
+In `web/src/connect-to-server.js`, replace `webSocketServerUrl` with the url of your
 server (prefixed with `ws://`).
 
 ## Usage

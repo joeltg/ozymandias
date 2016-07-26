@@ -8,33 +8,15 @@ html, body {
 .label {
     margin-bottom: 4px;
 }
-
-.slider-tray {
-    /*position: absolute;*/
-    margin-bottom: 12px;
-    height: 6px;
-    border: solid 1px #ccc;
-    border-top-color: #aaa;
-    border-radius: 4px;
-    background-color: #f0f0f0;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+.track {
+    'stroke-width': 3;
+    stroke: #ddd
 }
-
-.slider-handle {
-    position: relative;
-    top: 3px;
+.handle {
+    fill: black
 }
-
-.slider-handle-icon {
-    width: 14px;
-    height: 14px;
-    border: solid 1px #aaa;
-    position: absolute;
-    border-radius: 10px;
-    background-color: #fff;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-    top: -27px;
-    left: -7px;
+.point {
+    fill: black;
 }
 
 h4 {

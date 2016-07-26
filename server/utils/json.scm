@@ -1,22 +1,28 @@
-;; JavaScript is picky about parsing numbers.
+;; JSON is very strict about numbers.
 ;; Valid JSON numbers have to start with a digit (".04" and "-.1" are invalid),
 ;; and also have to end with a digit ("50." is invalid).
 
-
+(define digit-cutoff 5)
 ((record-modifier (record-type-descriptor flonum-unparser-cutoff) 'value)
-  flonum-unparser-cutoff '(relative 5))
+  flonum-unparser-cutoff `(relative ,digit-cutoff))
+
+;(define (number->json number)
+;  (if (integer? number) (number->string number)
+;    (let* ((string (number->string (exact->inexact number)))
+;           (length-of-string (string-length string)))
+;      (cond ((string=? "." (substring string 0 1))
+;              (string-append "0" string))
+;            ((and (> length-of-string 2)(string=? "-." (substring string 0 2)))
+;              (string-append "-0." (substring string 2 length-of-string)))
+;            ((string=? "." (substring string (- length-of-string 1) length-of-string))
+;              (string-append string "0"))
+;            (else string)))))
 
 (define (number->json number)
-  (define string (number->string (exact->inexact number)))
-  (define length-of-string (string-length string))
-  (cond ((equal? "." (substring string 0 1))
-          (string-append "0" string))
-        ((and (> length-of-string 2)
-              (equal? "-." (substring string 0 2)))
-          (string-append "-0." (substring string 2 length-of-string)))
-        ((equal? "." (substring string (- length-of-string 1) length-of-string))
-          (string-append string "0"))
-        (else string)))
+  (string-append
+    "\""
+    (number->string (if (integer? number) number (exact->inexact number)))
+    "\""))
 
 (define (string->json string)
   (string-append "\"" string "\""))

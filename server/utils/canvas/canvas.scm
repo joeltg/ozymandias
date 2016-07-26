@@ -23,14 +23,8 @@
 (define (send-canvas canvas #!optional action value)
   (send-json (canvas->json canvas action value)))
 
-(define (make-canvas #!optional xmin xmax ymin ymax
-                                frame-width frame-height
-                                frame-x-position frame-y-position
-                                name)
-  (define canvas (silently-make-canvas xmin xmax ymin ymax
-                                       frame-width frame-height
-                                       frame-x-position frame-y-position
-                                       name))
+(define (make-canvas . args)
+  (define canvas (apply silently-make-canvas args))
   (send-canvas canvas 'create
     `((xmin ,(canvas-xmin canvas)) (xmax ,(canvas-xmax canvas))
       (ymin ,(canvas-ymin canvas)) (ymax ,(canvas-ymax canvas))
@@ -39,6 +33,13 @@
       (frame_x_position ,(canvas-frame-x-position canvas))
       (frame_y_position ,(canvas-frame-y-position canvas))))
   canvas)
+
+(define (canvas-coordinate-limits canvas)
+  (list (canvas-xmin canvas) (canvas-xmax canvas)
+        (canvas-ymin canvas) (canvas-ymax canvas)))
+
+(define (canvas-device-coordinate-limits canvas)
+  (list (canvas-frame-width canvas) (canvas-frame-height canvas)))
 
 (define (canvas-set-coordinate-limits canvas x-left y-bottom x-right y-top)
   (send-canvas canvas 'set_coordinate_limits
