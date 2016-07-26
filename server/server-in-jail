@@ -4,7 +4,7 @@ SERVER=./server.js
 
 SCHEME_PATH=./start-mechanics-in-chroot-jail
 
-ABSOLUTE_JAIL_ROOT=/hom/scmutils-server-root/
+ABSOLUTE_JAIL_ROOT=/home/scmutils-server-root/
 RELATIVE_JAIL_ROOT=/home/scheme-user/
 
 LOAD_PATH=${RELATIVE_JAIL_ROOT}/utils/load.scm
