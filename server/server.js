@@ -11,7 +11,7 @@ const scheme_path = process.argv[2], scheme_root = process.argv[3],
     load_path = process.argv[4], pipe_directory = process.argv[5];
 let pipe_id = 0;
 console.log(`server running at port ${port}`);
-const schemes = [];
+const schemes = {};
 webSocketServer.on('connection', socket => {
     const id = pipe_id++, pipe_path = pipe_directory + id;
     const send_data = (source, content) => socket.readyState === 1 && socket.send(JSON.stringify({source, content}));
@@ -22,8 +22,8 @@ webSocketServer.on('connection', socket => {
     process.stdout.write('OK. Starting scheme... ');
 
     const scheme = cp.spawn(scheme_path, ['--load', load_path, '--args', pipe_path]);
-    schemes.push(scheme);
-    scheme.on('exit', e => (schemes.indexOf(scheme) > -1) && process.stdout.write(`ID ${id} closed.\n`));
+    schemes[scheme.pid] = scheme;
+    scheme.on('exit', e => schemes.hasOwnProperty(scheme.pid) && (delete schemes[scheme.pid]) && process.stdout.write(`ID ${id} closed.\n`));
     scheme.stdout.on('data', data => send_data('repl', data.toString()));
     process.stdout.write('OK. Opening pipes... ');
 
@@ -37,9 +37,9 @@ webSocketServer.on('connection', socket => {
         pipe: s => write_in_pipe.write(s),
         kill: s => scheme.kill(s)
     };
-    socket.on('close', event => (schemes.indexOf(scheme) > -1) && scheme.kill('SIGKILL'));
+    socket.on('close', event => schemes.hasOwnProperty(scheme.pid) && scheme.kill('SIGKILL'));
     socket.on('message', message => (data => sources[data.source](data.content))(JSON.parse(message)));
 });
 
 process.on('SIGINT', e => process.exit()).on('SIGTERM', e => process.exit());
-process.on('exit', e => schemes.forEach(scheme => scheme.kill('SIGKILL')));
+process.on('exit', e => Object.keys(schemes).forEach(pid => schemes[pid].kill('SIGKILL')));

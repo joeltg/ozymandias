@@ -20,10 +20,10 @@
                 (action ,action)
                 (value ,value))))
 
-(define (send-canvas canvas #!optional action value)
-  (send-json (canvas->json canvas action value)))
+(define (send-canvas canvas #!optional action value push)
+  (send-json (canvas->json canvas action value) push))
 
-(define (make-canvas . args)
+(define (make-canvas  . args)
   (define canvas (apply silently-make-canvas args))
   (send-canvas canvas 'create
     `((xmin ,(canvas-xmin canvas)) (xmax ,(canvas-xmax canvas))
@@ -33,6 +33,8 @@
       (frame_x_position ,(canvas-frame-x-position canvas))
       (frame_y_position ,(canvas-frame-y-position canvas))))
   canvas)
+
+(define (canvas-available? . args) #t)
 
 (define (canvas-coordinate-limits canvas)
   (list (canvas-xmin canvas) (canvas-xmax canvas)
@@ -48,8 +50,36 @@
       (x_right ,x-right)
       (y_top ,y-top))))
 
+(define (canvas-drag-cursor canvas x y)
+  (send-canvas canvas 'drag_cursor `((x ,x) (y ,y))))
+
+(define (canvas-move-cursor canvas x y)
+  (send-canvas canvas 'move_cursor `((x ,x) (y ,y))))
+
+(define (canvas-reset-clip-rectangle canvas)
+  (send-canvas canvas 'reset_clip_rectangle))
+
+(define (canvas-set-clip-rectangle canvas x-left y-bottom x-right y-top)
+  (send-canvas canvas 'set_clip_rectangle
+    `((x_left ,x-left)
+      (y_bottom ,y-bottom)
+      (x_right ,x-right)
+      (y_top ,y-top))))
+
+(define (canvas-set-drawing-mode canvas mode)
+  (send-canvas canvas 'set_drawing_mode `((mode ,mode))))
+
+(define (canvas-set-line-style canvas style)
+  (send-canvas canvas 'set_line_style `((style ,style))))
+
 (define (canvas-clear canvas)
   (send-canvas canvas 'clear))
+
+(define (canvas-close canvas)
+  (send-canvas canvas 'close))
+
+(define (canvas-flush canvas)
+  (flush-output output-port))
 
 (define (canvas-draw-point canvas x y)
   (send-canvas canvas 'draw_point `((x ,x) (y ,y))))
