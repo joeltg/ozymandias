@@ -33,13 +33,25 @@ webSocketServer.on('connection', socket => {
     process.stdout.write('OK.\n');
 
     const sources = {
-        repl: s => scheme.stdin.write(s),
+        repl: s => {
+            if (schemes[scheme.pid]){
+                scheme.stdin.write(s);
+            }
+        },
         pipe: s => write_in_pipe.write(s),
-        kill: s => scheme.kill(s)
+        kill: s => {
+            if (schemes[scheme.pid]) {
+                scheme.kill(s);
+                cp.spawnSync('pkill', ['--signal', s, '-P', scheme.pid]);
+            }
+        }
     };
     socket.on('close', event => schemes.hasOwnProperty(scheme.pid) && scheme.kill('SIGKILL'));
     socket.on('message', message => (data => sources[data.source](data.content))(JSON.parse(message)));
 });
 
 process.on('SIGINT', e => process.exit()).on('SIGTERM', e => process.exit());
-process.on('exit', e => Object.keys(schemes).forEach(pid => schemes[pid].kill('SIGKILL')));
+process.on('exit', e => Object.keys(schemes).forEach(pid => {
+    cp.spawnSync('pkill', ['--signal', 'KILL', '-P', pid]);
+    schemes[pid].kill('SIGKILL');
+}));
