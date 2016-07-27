@@ -13,13 +13,14 @@ const editor = CodeMirror(document.getElementById('editor'), {
     indentUnit: 2,
     indentWithTabs: false,
     keyMap: 'emacs',
-    'extraKeys': CodeMirror.normalizeKeyMap({
+    extraKeys: CodeMirror.normalizeKeyMap({
         "Tab": cm => cm.indentLine(cm.getCursor().line),
         "Ctrl-G": cm => send_data('kill', 'SIGINT'),
         "Alt-Z": cm => highlight_expr() || eval_selection(),
         "Alt-O": eval_everything,
         "Ctrl-X": highlight_expr,
-        "Ctrl-E": eval_selection
+        "Ctrl-E": eval_selection,
+        "Ctrl-C": cm => send_data('kill', 'SIGQUIT')
     })
 });
 
