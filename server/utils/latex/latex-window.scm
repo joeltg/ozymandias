@@ -14,7 +14,9 @@
 
 (define (re expression #!optional latex-window)
   (let ((latex-window (if (latex-window? latex-window) latex-window (silently-make-latex-window)))
-        (expression (if (literal-number? expression) (simplify expression) expression)))
+        (expression (cond ((literal-number? expression) (simplify expression))
+                           ((literal-function? expression) (simplify expression))
+                           (else expression))))
     (send-latex-window latex-window (expression->tex-string expression) #t)
     latex-window))
 
