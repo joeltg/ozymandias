@@ -5,6 +5,17 @@ html, body {
     font-family: monospace;
 }
 
+.hint {
+    width: 200px;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    height: 200px;
+    background: white;
+    opacity: 0.3;
+    border-radius: 5px;
+}
+
 .label {
     margin-bottom: 4px;
 }

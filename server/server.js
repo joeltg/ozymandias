@@ -11,7 +11,8 @@ const scheme_path = process.argv[2], scheme_root = process.argv[3],
     load_path = process.argv[4], pipe_directory = process.argv[5];
 let pipe_id = 0;
 console.log(`server running at port ${port}`);
-const schemes = {};
+const children = {};
+
 webSocketServer.on('connection', socket => {
     const id = pipe_id++, pipe_path = pipe_directory + id;
     const send_data = (source, content) => socket.readyState === 1 && socket.send(JSON.stringify({source, content}));
@@ -21,9 +22,10 @@ webSocketServer.on('connection', socket => {
     cp.spawnSync('mkfifo', [pipe_path + '.in', pipe_path + '.out'], {cwd: scheme_root});
     process.stdout.write('OK. Starting scheme... ');
 
-    const scheme = cp.spawn(scheme_path, ['--load', load_path, '--args', pipe_path]);
-    schemes[scheme.pid] = scheme;
-    scheme.on('exit', e => schemes.hasOwnProperty(scheme.pid) && (delete schemes[scheme.pid]) && process.stdout.write(`ID ${id} closed.\n`));
+    const scheme = cp.spawn(scheme_path, ['--load', load_path, '--args', pipe_path], {cwd: scheme_root});
+    const pid = scheme.pid;
+    children[pid] = scheme;
+    scheme.on('exit', e => children.hasOwnProperty(pid) && (delete children[pid]) && process.stdout.write(`ID ${id} closed.\n`));
     scheme.stdout.on('data', data => send_data('repl', data.toString()));
     process.stdout.write('OK. Opening pipes... ');
 
@@ -34,24 +36,24 @@ webSocketServer.on('connection', socket => {
 
     const sources = {
         repl: s => {
-            if (schemes[scheme.pid]){
+            if (children[scheme.pid]) {
                 scheme.stdin.write(s);
             }
         },
         pipe: s => write_in_pipe.write(s),
         kill: s => {
-            if (schemes[scheme.pid]) {
-                scheme.kill(s);
+            if (children[scheme.pid]) {
                 cp.spawnSync('pkill', ['--signal', s, '-P', scheme.pid]);
+                scheme.kill(s);
             }
         }
     };
-    socket.on('close', event => schemes.hasOwnProperty(scheme.pid) && scheme.kill('SIGKILL'));
+    socket.on('close', event => children.hasOwnProperty(pid) && scheme.kill('SIGKILL'));
     socket.on('message', message => (data => sources[data.source](data.content))(JSON.parse(message)));
 });
 
 process.on('SIGINT', e => process.exit()).on('SIGTERM', e => process.exit());
-process.on('exit', e => Object.keys(schemes).forEach(pid => {
+process.on('exit', e => Object.keys(children).forEach(pid => {
     cp.spawnSync('pkill', ['--signal', 'KILL', '-P', pid]);
-    schemes[pid].kill('SIGKILL');
+    children[pid].kill('SIGKILL');
 }));

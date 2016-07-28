@@ -18,7 +18,7 @@ const repl = CodeMirror(document.getElementById('repl'), {
         "Tab": "indentMore",
         "Enter": eval_repl,
         "Ctrl-G": e => send_data('kill', 'SIGINT'),
-        "Ctrl-C": cm => send_data('kill', 'SIGQUIT'),
+        // "Ctrl-C": cm => send_data('kill', 'SIGQUIT'),
         "Up": move_up_repl_history,
         "Down": move_down_repl_history
     }

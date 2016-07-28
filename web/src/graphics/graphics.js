@@ -8,8 +8,10 @@ const windows = {};
 const dialogs = document.getElementById('dialogs');
 
 function handle_graphics_message(message) {
+    console.log(message);
     if (message.type === 'canvas') handle_canvas_graphics_message(message);
     else if (message.type === 'svg') handle_svg_graphics_message(message);
+    else if (message.type === 'latex') handle_latex_graphics_message(message);
     else console.error('graphics type not recognized');
 }
 

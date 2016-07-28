@@ -25,7 +25,15 @@
     "\""))
 
 (define (string->json string)
-  (string-append "\"" string "\""))
+  (string-append
+    "\""
+    (apply string-append
+      (map (lambda (char)
+             (cond ((char=? char #\\) "\\\\")
+                    ((char=? char #\") "\\\"")
+                    (else (char->string char))))
+        (string->list string)))
+    "\""))
 
 (define (symbol->json symbol)
   (string-append "\"" (symbol->string symbol) "\""))

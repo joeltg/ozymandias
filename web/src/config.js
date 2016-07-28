@@ -36,7 +36,7 @@ function set_layout(layout) {
 }
 
 window.addEventListener('resize', set_layout);
-set_layout('editor_only');
+set_layout('repl_only');
 
 const settings = document.getElementById('settings-dialog');
 settings.paddingLeft = 8;

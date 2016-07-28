@@ -31,7 +31,6 @@ class CanvasWindow extends Window {
         this.dialog.appendChild(this.canvas);
         this.x = d3.scaleLinear().range([0, frame_width]).domain([xmin, xmax]);
         this.y = d3.scaleLinear().range([frame_height, 0]).domain([ymin, ymax]);
-
         this.context = this.canvas.getContext('2d');
     }
     set_coordinate_limits(value) {

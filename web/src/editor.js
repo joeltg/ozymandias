@@ -20,7 +20,7 @@ const editor = CodeMirror(document.getElementById('editor'), {
         "Alt-O": eval_everything,
         "Ctrl-X": highlight_expr,
         "Ctrl-E": eval_selection,
-        "Ctrl-C": cm => send_data('kill', 'SIGQUIT')
+        // "Ctrl-C": cm => send_data('kill', 'SIGQUIT')
     })
 });
 
