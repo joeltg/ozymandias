@@ -53,7 +53,10 @@ webSocketServer.on('connection', socket => {
 });
 
 process.on('SIGINT', e => process.exit()).on('SIGTERM', e => process.exit());
-process.on('exit', e => Object.keys(children).forEach(pid => {
-    cp.spawnSync('pkill', ['--signal', 'KILL', '-P', pid]);
-    children[pid].kill('SIGKILL');
-}));
+process.on('exit', e => {
+    Object.keys(children).forEach(pid => {
+        cp.spawnSync('pkill', ['--signal', 'KILL', '-P', pid]);
+        children[pid].kill('SIGKILL');
+    });
+    cp.spawnSync('pkill', ['--signal', 'KILL', '-P', process.pid]);
+});
