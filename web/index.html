@@ -5,20 +5,23 @@
     <title>Web Scheme</title>
     <link rel="icon" href="src/images/favicon.ico" type="image/x-icon"/>
 
-    <link rel="stylesheet" type="text/css" href="src/styles.css"/>
+    <link rel="stylesheet" type="text/css" href="src/styles.css" charset="UTF-8"/>
 
-    <link rel="stylesheet" type="text/css" href="lib/codemirror/codemirror.css"/>
-    <link rel="stylesheet" type="text/css" href="lib/codemirror/monokai.css"/>
-    <!--<script src="lib/codemirror/codemirror.min.graphics" type="text/javascript"></script>-->
-    <script src="lib/codemirror/codemirror.min.js" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="lib/codemirror/codemirror.css" charset="UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="lib/codemirror/monokai.css" charset="UTF-8"/>
+    <script src="lib/codemirror/codemirror.min.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="lib/codemirror/keymaps/emacs.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="lib/codemirror/keymaps/sublime.js" type="text/javascript" charset="UTF-8"></script>
     <script src="lib/codemirror/scheme.js" type="text/javascript" charset="UTF-8"></script>
 
-    <script src="lib/jquery-ui/jquery.min.js" type="text/javascript"></script>
-    <link href="lib/jquery-ui/jquery-ui.min.css" rel="stylesheet">
-    <script src="lib/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+    <script src="lib/jquery-ui/jquery.min.js" type="text/javascript" charset="UTF-8"></script>
+    <link href="lib/jquery-ui/jquery-ui.min.css" rel="stylesheet" charset="UTF-8">
+    <script src="lib/jquery-ui/jquery-ui.min.js" type="text/javascript" charset="UTF-8"></script>
 
-   <link rel="stylesheet" href="lib/katex/katex.min.css">
-   <script src="lib/katex/katex.min.js"></script>
+    <link rel="stylesheet" href="lib/katex/katex.min.css" type="text/css" charset="UTF-8">
+    <script src="lib/katex/katex.min.js" type="text/javascript" charset="UTF-8"></script>
+
+    <script src="lib/split/split.min.js" type="text/javascript" charset="UTF-8"></script>
 
     <script src="lib/d3/d3-array.v1.min.js" type="text/javascript" charset="UTF-8"></script>
     <script src="lib/d3/d3-collection.v1.min.js" type="text/javascript" charset="UTF-8"></script>
@@ -37,75 +40,72 @@
     <script src="lib/d3/d3-drag.v1.min.js" type="text/javascript" charset="UTF-8"></script>
 </head>
 <body>
-    <img height="32" width="32" id="settings-icon" src="src/images/settings_icon.svg"
-         onclick="var a = $(settings); a.dialog(a.dialog('isOpen') ? 'close' : 'open');"/>
-    <div id="container">
-        <div id="editor"></div>
-        <div id="repl"></div>
-    </div>
-    <div class="hint">
-        <ul>
-            <li>Eval: Ctrl-X Ctrl-E</li>
-            <li>Tea</li>
-            <li>Milk</li>
-        </ul>
-    </div>
-    <div id="dialogs">
-        <div id="settings-dialog">
-            <h4>Layout</h4>
-            <form>
-                <div class="setting">
-                    <input type="radio" id="split" name="radio"
-                           onclick="set_layout('split')">
-                    <label for="split">Split</label>
-
-                    <input type="radio" id="editor_only" name="radio" checked="checked"
-                           onclick="set_layout('editor_only')">
-                    <label for="editor_only">Editor only</label>
-
-                    <input type="radio" id="repl_only" name="radio"
-                           onclick="set_layout('repl_only')">
-                    <label for="repl_only">REPL only</label>
+    <div id="container" class="split">
+        <div id="editor">
+            <img height="32" width="32" class="icon" id="editor-icon" src=""/>
+            <div class="hint" id="editor-hint">
+                <h3>Editor</h3>
+                <div class="settings">
+                    <form style="float: left">
+                        <input type="radio" class="editor-keyMap" id="editor-keyMap-emacs" name="radio" checked="checked">
+                        <label for="editor-keyMap-emacs">emacs</label>
+                        <input type="radio" class="editor-keyMap" id="editor-keyMap-sublime" name="radio">
+                        <label for="editor-keyMap-sublime">sublime</label>
+                    </form>
+                    <form style="float: right">
+                        <input type="radio" class="editor-theme" id="editor-theme-light" name="radio">
+                        <label for="editor-theme-light">light</label>
+                        <input type="radio" class="editor-theme" id="editor-theme-dark" name="radio" checked="checked">
+                        <label for="editor-theme-dark">dark</label>
+                    </form>
                 </div>
-            </form>
-            <h4>Editor Theme</h4>
-            <form>
-                <div class="setting">
-                    <input type="radio" id="editor-monokai" name="radio" checked="checked"
-                           onclick="set_theme(editor, 'monokai')">
-                    <label for="editor-monokai">Dark</label>
-
-                    <input type="radio" id="editor-classic" name="radio"
-                           onclick="set_theme(editor, 'default')">
-                    <label for="editor-classic">Light</label>
+                <h4>Evaluation</h4>
+                <ul>
+                    <li>Eval selection:<span class="key-binding eval-selection"></span></li>
+                    <li>Eval expression:<span class="key-binding eval-expression"></span></li>
+                    <li>Eval document:<span class="key-binding eval-document"></span></li>
+                </ul>
+                <h4>Control</h4>
+                <ul>
+                    <li>Quit:<span class="key-binding quit"></span></li>
+                </ul>
+            </div>
+        </div>
+        <div id="repl">
+            <img height="32" width="32" class="icon" id="repl-icon" src=""/>
+            <div class="hint" id="repl-hint">
+                <h3>REPL</h3>
+                <div class="settings">
+                    <form style="float: left">
+                        <input type="radio" class="repl-keyMap" id="repl-keyMap-emacs" name="radio" checked="checked">
+                        <label for="repl-keyMap-emacs">emacs</label>
+                        <input type="radio" class="repl-keyMap" id="repl-keyMap-sublime" name="radio">
+                        <label for="repl-keyMap-sublime">sublime</label>
+                    </form>
+                    <form style="float: right">
+                        <input type="radio" class="repl-theme" id="repl-theme-light" name="radio">
+                        <label for="repl-theme-light">light</label>
+                        <input type="radio" class="repl-theme" id="repl-theme-dark" name="radio" checked="checked">
+                        <label for="repl-theme-dark">dark</label>
+                    </form>
                 </div>
-            </form>
-            <h4>REPL Theme</h4>
-            <form>
-                <div class="setting">
-                    <input type="radio" id="repl-monokai" name="radio" checked="checked"
-                           onclick="set_theme(repl, 'monokai')">
-                    <label for="repl-monokai">Dark</label>
-
-                    <input type="radio" id="repl-classic" name="radio"
-                           onclick="set_theme(repl, 'default')">
-                    <label for="repl-classic">Light</label>
-                </div>
-            </form>
-            <h4>Keyboard Shortcuts</h4>
-            <form>
-                <div class="setting">
-                    <input type="radio" id="emacs" name="radio" checked="checked"
-                           onclick="set_keymap('emacs')">
-                    <label for="emacs">Emacs</label>
-
-                    <input type="radio" id="sublime" name="radio"
-                           onclick="set_keymap('sublime')">
-                    <label for="sublime">Sublime</label>
-                </div>
-            </form>
+                <h4>Evaluation</h4>
+                <ul>
+                    <li>Eval line:<span class="key-binding eval-line"></span></li>
+                </ul>
+                <h4>Control</h4>
+                <ul>
+                    <li>Quit:<span class="key-binding quit"></span></li>
+                </ul>
+                <h4>History</h4>
+                <ul>
+                    <li>Previous:<span class="key-binding history-previous"></span></li>
+                    <li>Next:<span class="key-binding history-next"></span></li>
+                </ul>
+            </div>
         </div>
     </div>
+    <div id="dialogs"></div>
     <script src="src/connect-to-server.js" type="text/javascript" charset="UTF-8"></script>
     <script src="src/editor.js" type="text/javascript" charset="UTF-8"></script>
     <script src="src/repl.js" type="text/javascript" charset="UTF-8"></script>

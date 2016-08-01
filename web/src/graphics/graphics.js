@@ -8,7 +8,6 @@ const windows = {};
 const dialogs = document.getElementById('dialogs');
 
 function handle_graphics_message(message) {
-    console.log(message);
     if (message.type === 'canvas') handle_canvas_graphics_message(message);
     else if (message.type === 'svg') handle_svg_graphics_message(message);
     else if (message.type === 'latex') handle_latex_graphics_message(message);
@@ -30,7 +29,7 @@ class Window {
             width: width || default_width,
             height: (height || default_height) + 40,
             close: e => this.close(),
-            resizable: resizable,
+            resizable: !!resizable,
             resize: (event, ui) => {
                 const size = ui.size;
                 const width = size.width - 2;

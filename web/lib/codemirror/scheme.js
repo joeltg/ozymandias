@@ -137,6 +137,7 @@ CodeMirror.defineMode("scheme", function () {
                         returnType = STRING;
 
                     } else if (ch == "'") {
+                        stream.eatWhile(/[\w\$_\-!$%&*+\.\/:<=>?@\^~]/);
                         returnType = ATOM;
                     } else if (ch == '#') {
                         if (stream.eat("|")) {                    // Multi-line comment

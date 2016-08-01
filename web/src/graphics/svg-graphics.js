@@ -123,12 +123,13 @@ class SVGWindow extends Window {
     }
 
     update_point([id], {x, y}) {
-        push_repl(`(update-point "${this.name}" ${id} ${this.xScale.invert(x)} ${this.yScale.invert(y)})\n`, true)
+        const text = `(update-point "${this.name}" ${id} ${this.xScale.invert(x)} ${this.yScale.invert(y)})\n`;
+        if (!repl.waiting) push_repl(text, true);
     }
 
     update_env(key, {x}) {
         const val = this.env_scales[key].invert(x);
-        push_repl(`(update-env "${this.name}" '${key} ${val})\n`, true);
+        if (!repl.waiting) push_repl(`(update-env "${this.name}" '${key} ${val})\n`, true);
     }
 
     update(points, env) {
