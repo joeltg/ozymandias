@@ -1,2 +1,0 @@
-#!/bin/bash
-schroot -d /home/scheme-user -c scmutils-server -- /usr/local/bin/mechanics-no-edwin $@

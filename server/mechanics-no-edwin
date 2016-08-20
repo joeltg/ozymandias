@@ -1,6 +1,0 @@
-#!/bin/bash
-
-ROOT="/usr/local/scmutils"
-SCHEME="/usr/local/bin/mit-scheme-x86-64"
-CMD="${SCHEME} --stack 256 --heap 300000 -option-summary --band ${ROOT}/scheme-x86-64/mechanics.com"
-exec ${CMD} $@

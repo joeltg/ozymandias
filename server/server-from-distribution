@@ -1,8 +1,0 @@
-#!/bin/sh
-
-SERVER=./server.js
-SCHEME_PATH=./start-mechanics-from-distribution
-SCHEME_ROOT=./
-LOAD_PATH=./utils/load.scm
-PIPE_DIRECTORY=./pipes/
-node ${SERVER} ${SCHEME_PATH} ${SCHEME_ROOT} ${LOAD_PATH} ${PIPE_DIRECTORY}
