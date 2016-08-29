@@ -1,0 +1,10 @@
+.ui-widget {
+    font-family: monospace !important;
+}
+
+.ui-dialog-title { font-size: 16px; }
+
+.ui-dialog-content, .ui-dialog {
+    padding: 0 !important;
+    overflow: hidden !important;
+}

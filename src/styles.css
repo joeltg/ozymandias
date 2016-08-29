@@ -1,0 +1,102 @@
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    font-family: monospace;
+}
+
+h3 {  margin: 8px;  }
+h4 {  margin: 8px;  }
+h4 + ul {  margin-top: 0;  }
+
+form, input, label {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#repl > .CodeMirror, #editor > .CodeMirror {  height: 100%;  }
+
+/* may God forgive me*/
+#editor .CodeMirror { z-index: 0; }
+#editor-hint        { z-index: 1; }
+#editor-icon        { z-index: 2; }
+#repl .CodeMirror   { z-index: 3; }
+#repl-hint          { z-index: 4; }
+#repl-icon          { z-index: 5; }
+
+.gutter {
+    background: #75715e url('../web/images/ic_drag_handle_black_36px.svg') no-repeat scroll center;
+    box-shadow: 0 0 24px rgba(0,0,0,0.23);
+    position: relative;
+    z-index: 6;
+}
+
+.gutter:hover { cursor: ns-resize; }
+
+.settings {
+    height: 32px;
+}
+
+.hint {
+    display: none;
+    margin: 16px;
+    width: 300px;
+    position: fixed;
+    right: 0;
+    background: #aaa;
+    border-radius: 3px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+
+.hint form {
+    margin: 0 8px;
+    padding: 8px 2px;
+}
+
+.hint ul { padding: 0 24px; }
+.hint input { display: none; }
+
+.hint input + label {
+    cursor: pointer;
+    border: 1px solid black;
+    border-radius: 2px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    padding: 4px;
+}
+
+.hint input:checked + label{
+    /*background: #ae81ff;*/
+    border-width: 3px;
+    font-style: italic;
+    font-weight: bold;
+    padding: 3.5px;
+}
+
+.key-binding { float: right; }
+#input, #output { overflow: scroll; }
+
+.icon {
+    position: fixed;
+    margin: 16px;
+    right: 0;
+    opacity: 0.5;
+}
+
+.icon:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
+#container {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
