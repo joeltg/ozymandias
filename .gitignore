@@ -9,7 +9,6 @@ npm-debug.log*
 .idea
 legacy
 scheme
-web/build
 
 # Runtime data
 pids
