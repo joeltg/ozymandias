@@ -24,9 +24,7 @@ function initialize(user, id, send, sources, children) {
     children[name] = scheme;
 
     scheme.on('exit', e => {
-        console.log('scheme exited');
         if (name in children) {
-            console.log('deleting name');
             cp.spawnSync('schroot', ['--chroot', name, '--end-session']);
             delete children[name];
         }
