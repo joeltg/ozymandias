@@ -3,7 +3,7 @@
 dir=$1
 scheme=$2
 
-mkdir -f /etc/schroot/scheme
+mkdir -p /etc/schroot/scheme
 
 echo "SETUP_COPYFILES=\"scheme/copyfiles"       >  /etc/schroot/scheme/config
 echo "SETUP_NSSDATABASES=\"scheme/nssdatabases" >> /etc/schroot/scheme/config
