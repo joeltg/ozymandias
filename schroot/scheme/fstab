@@ -1,0 +1,7 @@
+# <file system> <mount point> <type> <options> <dump> <pass>
+
+root/bin   /bin    none ro,bind 0 0
+root/lib   /lib    none ro,bind 0 0
+root/lib64 /lib64  none ro,bind 0 0
+utils      /utils  none ro,bind 0 0
+scheme     /scheme none ro,bind 0 0

@@ -1,7 +1,7 @@
 {
   "name": "webscheme",
   "version": "0.1.0",
-  "description": "Scheme in the Browser",
+  "description": "MIT Scheme IDE, mechanics utilities, and dark magic for the browser",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -17,15 +17,32 @@
     "repl",
     "scmutils",
     "lisp",
-    "mit-scheme"
+    "mit-scheme",
+    "mechanics"
   ],
-  "author": "Joel Gustafson",
+  "private": true,
+  "os" : [
+    "linux"
+  ],
+  "engines" : {
+    "node" : ">=6.0.0"
+  },
+  "author": {
+    "name" : "Joel Gustafson",
+    "email" : "joelg@mit.edu",
+    "url" : "http://joelgustafson.com"
+  },
+  "contributors": [
+    "Gerald Sussman",
+    "Guillermo Webster",
+    "Kevin Kwok"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/joeltg/repl/issues"
   },
   "homepage": "https://github.com/joeltg/repl#readme",
-  "dependencies": {
+  "devDependencies": {
     "babel-core": "^6.13.2",
     "babel-loader": "^6.2.5",
     "babel-preset-es2015": "^6.13.2",
@@ -33,7 +50,6 @@
     "babel-preset-stage-0": "^6.5.0",
     "codemirror": "^5.17.0",
     "css-loader": "^0.23.1",
-    "express": "^4.14.0",
     "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "^0.9.0",
     "jquery": "^3.1.0",
@@ -44,7 +60,10 @@
     "split.js": "^1.0.7",
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.7",
-    "webpack": "^1.13.2",
+    "webpack": "^1.13.2"
+  },
+  "dependencies": {
+    "express": "^4.14.0",
     "ws": "^1.1.1"
   }
 }

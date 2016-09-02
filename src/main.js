@@ -24,9 +24,11 @@ function graphics(message) {
     else console.error('graphics type not recognized');
 }
 
-latex({name: 'hi', latex: '4'});
-
 const sources = {
+    auth(content) {
+        console.log('authorizing something', content);
+        send('auth', content);
+    },
     repl(content) {
         push_repl(content, false);
         const repl_values = (repl_buffer + content).split(repl_delimiter);
@@ -40,11 +42,15 @@ const sources = {
     }
 };
 
+function data({source, content}) {
+    sources[source](content);
+}
+
 CodeMirror.commands.quit = cm => send('kill', 'SIGINT');
 CodeMirror.commands.save = cm => console.log('save!');
 
 push_repl('connecting to server...\n', false);
 
 socket.onopen = event => push_repl('connected to server.\n', false);
-socket.onmessage = event => (({source, content}) => sources[source](content))(JSON.parse(event.data));
+socket.onmessage = event => data(JSON.parse(event.data));
 socket.onclose = event => push_repl('lost connection to server.\n', false);

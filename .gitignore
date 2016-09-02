@@ -6,8 +6,10 @@ logs
 
 npm-debug.log*
 
-.idea/
-legacy/
+.idea
+legacy
+scheme
+web/build
 
 # Runtime data
 pids
