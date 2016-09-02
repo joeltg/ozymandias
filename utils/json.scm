@@ -3,8 +3,10 @@
 ;; and also have to end with a digit ("50." is invalid).
 
 (define digit-cutoff 5)
-((record-modifier (record-type-descriptor flonum-unparser-cutoff) 'value)
-  flonum-unparser-cutoff `(relative ,digit-cutoff))
+; ((record-modifier (record-type-descriptor flonum-unparser-cutoff) 'value)
+;   flonum-unparser-cutoff `(relative ,digit-cutoff))
+
+(set! flonum-unparser-cutoff `(relative ,digit-cutoff))
 
 ;(define (number->json number)
 ;  (if (integer? number) (number->string number)
