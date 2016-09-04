@@ -357,7 +357,7 @@ var keyMap = CodeMirror.keyMap.emacs = CodeMirror.normalizeKeyMap({
   "Ctrl-Z": repeated("undo"), "Cmd-Z": repeated("undo"),
   "Shift-Alt-,": "goDocStart", "Shift-Alt-.": "goDocEnd",
   "Ctrl-S": "findNext", "Ctrl-R": "findPrev",
-  "Ctrl-G": 'quit', "Shift-Alt-5": "replace",
+  "Ctrl-G": 'kill', "Shift-Alt-5": "replace",
   "Alt-/": "autocomplete",
   "Ctrl-J": "newlineAndIndent", "Enter": false, "Tab": "indentAuto",
 

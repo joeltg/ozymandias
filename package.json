@@ -21,16 +21,16 @@
     "mechanics"
   ],
   "private": true,
-  "os" : [
+  "os": [
     "linux"
   ],
-  "engines" : {
-    "node" : ">=6.0.0"
+  "engines": {
+    "node": ">=6.0.0"
   },
   "author": {
-    "name" : "Joel Gustafson",
-    "email" : "joelg@mit.edu",
-    "url" : "http://joelgustafson.com"
+    "name": "Joel Gustafson",
+    "email": "joelg@mit.edu",
+    "url": "http://joelgustafson.com"
   },
   "contributors": [
     "Gerald Sussman",
@@ -64,6 +64,7 @@
   },
   "dependencies": {
     "express": "^4.14.0",
+    "uws": "^0.8.0",
     "ws": "^1.1.1"
   }
 }

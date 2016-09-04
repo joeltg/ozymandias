@@ -3,7 +3,7 @@
 
 const path = require('path');
 const cp = require('child_process');
-const ws = require('ws');
+const ws = require('uws');
 const express = require('express');
 const connection = require('./server/connection');
 const children = {};

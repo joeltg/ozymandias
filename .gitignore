@@ -9,6 +9,7 @@ npm-debug.log*
 .idea
 legacy
 scheme
+jail
 
 # Runtime data
 pids

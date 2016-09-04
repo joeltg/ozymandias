@@ -33,8 +33,7 @@ function initialize(user, id, send, sources, children) {
     scheme.stdout.on('data', data => send('repl', data.toString()));
     
     sources.repl = s => (name in children) && scheme.stdin.write(s);
-    sources.kill = s => (name in children) && scheme.kill(s);
-    sources.exit = s => cp.spawnSync('pkill', ['--signal', 'KILL', '-P', scheme.pid]);
+    sources.kill = s => (name in children) && cp.spawnSync('pkill', ['--signal', s, '-P', scheme.pid]);
 }
 
 module.exports = initialize;

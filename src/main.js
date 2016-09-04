@@ -3,6 +3,19 @@ import './styles.css';
 import {send, socket} from './connect';
 
 import CodeMirror from 'codemirror';
+import 'codemirror/addon/edit/matchbrackets';
+import 'codemirror/addon/edit/closebrackets';
+import 'codemirror/addon/search/search';
+import 'codemirror/addon/search/searchcursor';
+import 'codemirror/addon/search/matchesonscrollbar';
+import 'codemirror/addon/search/matchesonscrollbar.css';
+import 'codemirror/addon/scroll/annotatescrollbar';
+import 'codemirror/addon/scroll/simplescrollbars';
+import 'codemirror/addon/scroll/simplescrollbars.css';
+
+import 'codemirror/addon/dialog/dialog';
+import 'codemirror/addon/dialog/dialog.css';
+import 'codemirror/addon/selection/active-line';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
 import './scheme';
@@ -46,11 +59,11 @@ function data({source, content}) {
     sources[source](content);
 }
 
-CodeMirror.commands.quit = cm => send('kill', 'SIGINT');
+CodeMirror.commands.kill = cm => send('kill', 'INT');
 CodeMirror.commands.save = cm => console.log('save!');
 
-push_repl('connecting to server...\n', false);
+push_repl('connecting to server... ', false);
 
-socket.onopen = event => push_repl('connected to server.\n', false);
+socket.onopen = event => push_repl('connected.\n', false);
 socket.onmessage = event => data(JSON.parse(event.data));
 socket.onclose = event => push_repl('lost connection to server.\n', false);

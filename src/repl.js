@@ -10,6 +10,7 @@ const repl_element = document.getElementById('repl');
 const repl = CodeMirror(repl_element, {
     mode: 'scheme',
     theme: default_theme,
+    styleActiveLine: false,
     autoCloseBrackets: true,
     autoMatchParens: true,
     matchBrackets: true,

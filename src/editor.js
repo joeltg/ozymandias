@@ -6,6 +6,7 @@ const editor_element = document.getElementById('editor');
 const editor = CodeMirror(editor_element, {
     mode:  'scheme',
     theme: default_theme,
+    styleActiveLine: true,
     autoCloseBrackets: true,
     autoMatchParens: true,
     matchBrackets: true,

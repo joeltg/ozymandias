@@ -16,7 +16,10 @@ form, input, label {
     user-select: none;
 }
 
-#repl > .CodeMirror, #editor > .CodeMirror {  height: 100%;  }
+#repl > .CodeMirror, #editor > .CodeMirror {
+    height: 100%;
+    font-size: 16px;
+}
 
 /* may God forgive me*/
 #editor .CodeMirror { z-index: 0; }

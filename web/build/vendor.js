@@ -99,11 +99,11 @@
 /***/ 0:
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(93);
-	__webpack_require__(183);
+	__webpack_require__(108);
+	__webpack_require__(198);
 	__webpack_require__(8);
-	__webpack_require__(20);
-	module.exports = __webpack_require__(22);
+	__webpack_require__(35);
+	module.exports = __webpack_require__(37);
 
 
 /***/ },
@@ -9050,7 +9050,7 @@
 
 /***/ },
 
-/***/ 20:
+/***/ 35:
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*eslint-disable no-unused-vars*/
@@ -19131,7 +19131,7 @@
 
 /***/ },
 
-/***/ 22:
+/***/ 37:
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -19153,7 +19153,7 @@
 		if ( true ) {
 
 			// AMD. Register as an anonymous module.
-			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [ __webpack_require__(20), __webpack_require__(23) ], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [ __webpack_require__(35), __webpack_require__(38) ], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 		} else {
 
 			// Browser globals
@@ -19851,14 +19851,14 @@
 
 /***/ },
 
-/***/ 23:
+/***/ 38:
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;( function( factory ) {
 		if ( true ) {
 
 			// AMD. Register as an anonymous module.
-			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [ __webpack_require__(20) ], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [ __webpack_require__(35) ], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 		} else {
 
 			// Browser globals
@@ -19875,7 +19875,7 @@
 
 /***/ },
 
-/***/ 93:
+/***/ 108:
 /***/ function(module, exports, __webpack_require__) {
 
 	/* eslint no-console:0 */
@@ -19887,12 +19887,12 @@
 	 * errors in the expression, or errors in javascript handling.
 	 */
 
-	var ParseError = __webpack_require__(94);
-	var Settings = __webpack_require__(95);
+	var ParseError = __webpack_require__(109);
+	var Settings = __webpack_require__(110);
 
-	var buildTree = __webpack_require__(96);
-	var parseTree = __webpack_require__(109);
-	var utils = __webpack_require__(101);
+	var buildTree = __webpack_require__(111);
+	var parseTree = __webpack_require__(124);
+	var utils = __webpack_require__(116);
 
 	/**
 	 * Parse and build an expression, and place that expression in the DOM node
@@ -19956,7 +19956,7 @@
 
 /***/ },
 
-/***/ 94:
+/***/ 109:
 /***/ function(module, exports) {
 
 	/**
@@ -20003,7 +20003,7 @@
 
 /***/ },
 
-/***/ 95:
+/***/ 110:
 /***/ function(module, exports) {
 
 	/**
@@ -20038,15 +20038,15 @@
 
 /***/ },
 
-/***/ 96:
+/***/ 111:
 /***/ function(module, exports, __webpack_require__) {
 
-	var buildHTML = __webpack_require__(97);
-	var buildMathML = __webpack_require__(106);
-	var buildCommon = __webpack_require__(99);
-	var Options = __webpack_require__(108);
-	var Settings = __webpack_require__(95);
-	var Style = __webpack_require__(98);
+	var buildHTML = __webpack_require__(112);
+	var buildMathML = __webpack_require__(121);
+	var buildCommon = __webpack_require__(114);
+	var Options = __webpack_require__(123);
+	var Settings = __webpack_require__(110);
+	var Style = __webpack_require__(113);
 
 	var makeSpan = buildCommon.makeSpan;
 
@@ -20085,7 +20085,7 @@
 
 /***/ },
 
-/***/ 97:
+/***/ 112:
 /***/ function(module, exports, __webpack_require__) {
 
 	/* eslint no-console:0 */
@@ -20096,14 +20096,14 @@
 	 * called, to produce a final HTML tree.
 	 */
 
-	var ParseError = __webpack_require__(94);
-	var Style = __webpack_require__(98);
+	var ParseError = __webpack_require__(109);
+	var Style = __webpack_require__(113);
 
-	var buildCommon = __webpack_require__(99);
-	var delimiter = __webpack_require__(105);
-	var domTree = __webpack_require__(100);
-	var fontMetrics = __webpack_require__(102);
-	var utils = __webpack_require__(101);
+	var buildCommon = __webpack_require__(114);
+	var delimiter = __webpack_require__(120);
+	var domTree = __webpack_require__(115);
+	var fontMetrics = __webpack_require__(117);
+	var utils = __webpack_require__(116);
 
 	var makeSpan = buildCommon.makeSpan;
 
@@ -21494,7 +21494,7 @@
 
 /***/ },
 
-/***/ 98:
+/***/ 113:
 /***/ function(module, exports) {
 
 	/**
@@ -21627,7 +21627,7 @@
 
 /***/ },
 
-/***/ 99:
+/***/ 114:
 /***/ function(module, exports, __webpack_require__) {
 
 	/* eslint no-console:0 */
@@ -21636,10 +21636,10 @@
 	 * different kinds of domTree nodes in a consistent manner.
 	 */
 
-	var domTree = __webpack_require__(100);
-	var fontMetrics = __webpack_require__(102);
-	var symbols = __webpack_require__(104);
-	var utils = __webpack_require__(101);
+	var domTree = __webpack_require__(115);
+	var fontMetrics = __webpack_require__(117);
+	var symbols = __webpack_require__(119);
+	var utils = __webpack_require__(116);
 
 	var greekCapitals = [
 	    "\\Gamma",
@@ -22084,7 +22084,7 @@
 
 /***/ },
 
-/***/ 100:
+/***/ 115:
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -22097,7 +22097,7 @@
 	 * Similar functions for working with MathML nodes exist in mathMLTree.js.
 	 */
 
-	var utils = __webpack_require__(101);
+	var utils = __webpack_require__(116);
 
 	/**
 	 * Create an HTML className based on a list of classes. In addition to joining
@@ -22360,7 +22360,7 @@
 
 /***/ },
 
-/***/ 101:
+/***/ 116:
 /***/ function(module, exports) {
 
 	/**
@@ -22473,12 +22473,12 @@
 
 /***/ },
 
-/***/ 102:
+/***/ 117:
 /***/ function(module, exports, __webpack_require__) {
 
 	/* eslint no-unused-vars:0 */
 
-	var Style = __webpack_require__(98);
+	var Style = __webpack_require__(113);
 
 	/**
 	 * This file contains metrics regarding fonts and individual symbols. The sigma
@@ -22597,7 +22597,7 @@
 	// metrics, including height, depth, italic correction, and skew (kern from the
 	// character to the corresponding \skewchar)
 	// This map is generated via `make metrics`. It should not be changed manually.
-	var metricMap = __webpack_require__(103);
+	var metricMap = __webpack_require__(118);
 
 	/**
 	 * This function is a convenience function for looking up information in the
@@ -22627,7 +22627,7 @@
 
 /***/ },
 
-/***/ 103:
+/***/ 118:
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -24386,7 +24386,7 @@
 
 /***/ },
 
-/***/ 104:
+/***/ 119:
 /***/ function(module, exports) {
 
 	/**
@@ -25013,7 +25013,7 @@
 
 /***/ },
 
-/***/ 105:
+/***/ 120:
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -25038,13 +25038,13 @@
 	 * used in `\left` and `\right`.
 	 */
 
-	var ParseError = __webpack_require__(94);
-	var Style = __webpack_require__(98);
+	var ParseError = __webpack_require__(109);
+	var Style = __webpack_require__(113);
 
-	var buildCommon = __webpack_require__(99);
-	var fontMetrics = __webpack_require__(102);
-	var symbols = __webpack_require__(104);
-	var utils = __webpack_require__(101);
+	var buildCommon = __webpack_require__(114);
+	var fontMetrics = __webpack_require__(117);
+	var symbols = __webpack_require__(119);
+	var utils = __webpack_require__(116);
 
 	var makeSpan = buildCommon.makeSpan;
 
@@ -25562,7 +25562,7 @@
 
 /***/ },
 
-/***/ 106:
+/***/ 121:
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -25571,12 +25571,12 @@
 	 * parser.
 	 */
 
-	var buildCommon = __webpack_require__(99);
-	var fontMetrics = __webpack_require__(102);
-	var mathMLTree = __webpack_require__(107);
-	var ParseError = __webpack_require__(94);
-	var symbols = __webpack_require__(104);
-	var utils = __webpack_require__(101);
+	var buildCommon = __webpack_require__(114);
+	var fontMetrics = __webpack_require__(117);
+	var mathMLTree = __webpack_require__(122);
+	var ParseError = __webpack_require__(109);
+	var symbols = __webpack_require__(119);
+	var utils = __webpack_require__(116);
 
 	var makeSpan = buildCommon.makeSpan;
 	var fontMap = buildCommon.fontMap;
@@ -26102,7 +26102,7 @@
 
 /***/ },
 
-/***/ 107:
+/***/ 122:
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -26115,7 +26115,7 @@
 	 * domTree.js, creating namespaced DOM nodes and HTML text markup respectively.
 	 */
 
-	var utils = __webpack_require__(101);
+	var utils = __webpack_require__(116);
 
 	/**
 	 * This node represents a general purpose MathML node of any type. The
@@ -26211,7 +26211,7 @@
 
 /***/ },
 
-/***/ 108:
+/***/ 123:
 /***/ function(module, exports) {
 
 	/**
@@ -26407,7 +26407,7 @@
 
 /***/ },
 
-/***/ 109:
+/***/ 124:
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -26415,7 +26415,7 @@
 	 * TODO(emily): Remove this
 	 */
 
-	var Parser = __webpack_require__(110);
+	var Parser = __webpack_require__(125);
 
 	/**
 	 * Parses an expression using a Parser, then returns the parsed result.
@@ -26431,18 +26431,18 @@
 
 /***/ },
 
-/***/ 110:
+/***/ 125:
 /***/ function(module, exports, __webpack_require__) {
 
 	/* eslint no-constant-condition:0 */
-	var functions = __webpack_require__(111);
-	var environments = __webpack_require__(112);
-	var Lexer = __webpack_require__(114);
-	var symbols = __webpack_require__(104);
-	var utils = __webpack_require__(101);
+	var functions = __webpack_require__(126);
+	var environments = __webpack_require__(127);
+	var Lexer = __webpack_require__(129);
+	var symbols = __webpack_require__(119);
+	var utils = __webpack_require__(116);
 
-	var parseData = __webpack_require__(113);
-	var ParseError = __webpack_require__(94);
+	var parseData = __webpack_require__(128);
+	var ParseError = __webpack_require__(109);
 
 	/**
 	 * This file contains the parser used to parse out a TeX expression from the
@@ -27175,11 +27175,11 @@
 
 /***/ },
 
-/***/ 111:
+/***/ 126:
 /***/ function(module, exports, __webpack_require__) {
 
-	var utils = __webpack_require__(101);
-	var ParseError = __webpack_require__(94);
+	var utils = __webpack_require__(116);
+	var ParseError = __webpack_require__(109);
 
 	/* This file contains a list of functions that we parse, identified by
 	 * the calls to defineFunction.
@@ -27762,13 +27762,13 @@
 
 /***/ },
 
-/***/ 112:
+/***/ 127:
 /***/ function(module, exports, __webpack_require__) {
 
 	/* eslint no-constant-condition:0 */
-	var fontMetrics = __webpack_require__(102);
-	var parseData = __webpack_require__(113);
-	var ParseError = __webpack_require__(94);
+	var fontMetrics = __webpack_require__(117);
+	var parseData = __webpack_require__(128);
+	var ParseError = __webpack_require__(109);
 
 	var ParseNode = parseData.ParseNode;
 
@@ -27990,7 +27990,7 @@
 
 /***/ },
 
-/***/ 113:
+/***/ 128:
 /***/ function(module, exports) {
 
 	/**
@@ -28010,7 +28010,7 @@
 
 /***/ },
 
-/***/ 114:
+/***/ 129:
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -28026,9 +28026,9 @@
 	 * kinds.
 	 */
 
-	var matchAt = __webpack_require__(115);
+	var matchAt = __webpack_require__(130);
 
-	var ParseError = __webpack_require__(94);
+	var ParseError = __webpack_require__(109);
 
 	// The main lexer class
 	function Lexer(input) {
@@ -28179,7 +28179,7 @@
 
 /***/ },
 
-/***/ 115:
+/***/ 130:
 /***/ function(module, exports) {
 
 	/** @flow */
@@ -28227,7 +28227,7 @@
 
 /***/ },
 
-/***/ 183:
+/***/ 198:
 /***/ function(module, exports, __webpack_require__) {
 
 	

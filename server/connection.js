@@ -24,7 +24,7 @@ function connection(socket, children) {
     }
 
     socket.on('message', message => data(JSON.parse(message)));
-    socket.on('close', e => ('exit' in sources) && sources.exit());
+    socket.on('close', e => ('kill' in sources) && sources.kill('KILL'));
     
     send('auth', 'magic');
 }
