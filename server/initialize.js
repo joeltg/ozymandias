@@ -31,9 +31,42 @@ function initialize(user, id, send, sources, children) {
     });
 
     scheme.stdout.on('data', data => send('repl', data.toString()));
-    
-    sources.repl = s => (name in children) && scheme.stdin.write(s);
-    sources.kill = s => (name in children) && cp.spawnSync('pkill', ['--signal', s, '-P', scheme.pid]);
+
+    function save(data) {
+        const name = data.name.replace(/\W/g, ''), text = data.text;
+        const path = user_path + '/files/' + name;
+        fs.writeFile(path, text, 'utf8', err => send('save', !err));
+    }
+
+    function load(data) {
+        const name = data.replace(/\W/g, '');
+        const path = user_path + '/files/' + name;
+        fs.readFile(path, 'utf8', (err, text) => send('load', text));
+    }
+
+    function open(data) {
+        const path = user_path + '/files/';
+        fs.readdir(path, (err, files) => send('open', files));
+    }
+
+    function repl(data) {
+        if (name in children) {
+            scheme.stdin.write(data);
+        }
+    }
+
+    function kill(data) {
+        if (name in children) {
+            cp.spawnSync('pkill', ['--signal', data, '-P', scheme.pid]);
+        }
+    }
+
+    sources.save = save;
+    sources.load = load;
+    sources.open = open;
+    sources.repl = repl;
+    sources.kill = kill;
+
 }
 
 module.exports = initialize;

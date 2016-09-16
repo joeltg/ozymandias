@@ -580,4 +580,6 @@ map["Ctrl-Shift-Enter"] = "eval_selection";
 map["Ctrl-Enter"] = "eval_expression";
 map["Ctrl-A-Enter"] = "eval_document";
 
+map[ctrl + "O"] = "open";
+
 CodeMirror.normalizeKeyMap(map);

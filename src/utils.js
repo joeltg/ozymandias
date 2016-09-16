@@ -6,6 +6,8 @@ const default_keyMap = 'sublime';
 const default_state = 'settings';
 const default_theme = 'monokai';
 
+const default_width = 400, default_height = 300;
+
 const state = {
     editor_position: false,
     last_position: {line: 0, ch: 0},
@@ -26,4 +28,4 @@ function strip_string(string) {
     return string;
 }
 
-export {default_keyMap, default_state, default_theme, get_end, strip_string, state};
+export {default_keyMap, default_state, default_theme, get_end, strip_string, state, default_width, default_height};

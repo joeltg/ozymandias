@@ -26,7 +26,7 @@ import {push_repl} from './repl';
 import {push_editor} from './editor';
 import {canvas} from './graphics/canvas';
 import {latex} from './graphics/latex';
-import './config';
+import {cm_open, cm_save, open, save, load} from './config';
 
 const repl_delimiter = /\s*\n\d+\s(?:(?:]=)|(?:error))>\s/, pipe_delimiter = '\n';
 let repl_buffer = '', pipe_buffer = '';
@@ -52,7 +52,8 @@ const sources = {
         const pipe_values = (pipe_buffer + content).split(pipe_delimiter);
         pipe_buffer = pipe_values.pop();
         pipe_values.map(JSON.parse).forEach(graphics);
-    }
+    },
+    open, save, load
 };
 
 function data({source, content}) {
@@ -60,7 +61,8 @@ function data({source, content}) {
 }
 
 CodeMirror.commands.kill = cm => send('kill', 'INT');
-CodeMirror.commands.save = cm => console.log('save!');
+CodeMirror.commands.save = cm_save;
+CodeMirror.commands.open = cm_open;
 
 push_repl('connecting to server... ', false);
 

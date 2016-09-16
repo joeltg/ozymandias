@@ -103,3 +103,11 @@ form, input, label {
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
+
+#filename {
+    height: 24px;
+    font-size: 18px;
+}
+.filename {
+    margin: 8px;
+}
