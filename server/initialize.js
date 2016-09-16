@@ -31,6 +31,7 @@ function initialize(user, id, send, sources, children) {
     });
 
     scheme.stdout.on('data', data => send('repl', data.toString()));
+    scheme.stdout.on('error', err => console.error(err));
 
     function save(data) {
         const name = data.name.replace(/\W/g, ''), text = data.text;
@@ -66,7 +67,6 @@ function initialize(user, id, send, sources, children) {
     sources.open = open;
     sources.repl = repl;
     sources.kill = kill;
-
 }
 
 module.exports = initialize;

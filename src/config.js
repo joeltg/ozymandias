@@ -176,7 +176,7 @@ function open(files) {
 
 function load(data) {
     $(open_dialog).dialog('close');
-    editor.setValue(data);
+    if (data) editor.setValue(data);
 }
 
 function save(data) {

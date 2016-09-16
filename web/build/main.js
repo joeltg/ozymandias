@@ -3976,7 +3976,7 @@ webpackJsonp([0],[
 
 	function load(data) {
 	    (0, _jquery2.default)(open_dialog).dialog('close');
-	    _editor.editor.setValue(data);
+	    if (data) _editor.editor.setValue(data);
 	}
 
 	function save(data) {
