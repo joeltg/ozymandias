@@ -3741,10 +3741,6 @@ webpackJsonp([0],[
 	});
 	exports.load = exports.save = exports.open = exports.cm_save = exports.cm_open = undefined;
 
-	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }(); /**
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * Created by joel on 8/20/16.
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          */
-
 	var _split = __webpack_require__(130);
 
 	var _split2 = _interopRequireDefault(_split);
@@ -3826,7 +3822,9 @@ webpackJsonp([0],[
 	        'monokai': 'images/ic_close_white_36px.svg',
 	        'default': 'images/ic_close_black_36px.svg'
 	    }
-	};
+	}; /**
+	    * Created by joel on 8/20/16.
+	    */
 
 	var global_labels = {
 	    'history-previous': {
@@ -3896,17 +3894,13 @@ webpackJsonp([0],[
 	    (0, _jquery2.default)('#' + name + '-icon').click(function (e) {
 	        return toggle_state(cm);
 	    });
-	    (0, _jquery2.default)('.' + name + '-theme').click(function (_ref) {
-	        var _ref$currentTarget$la = _slicedToArray(_ref.currentTarget.labels, 1);
-
-	        var innerText = _ref$currentTarget$la[0].innerText;
-	        return set_theme(cm, innerText);
+	    // $(`.${name}-theme`).click(({currentTarget: {labels: [{innerText}]}}) => set_theme(cm, innerText));
+	    (0, _jquery2.default)('.' + name + '-theme').click(function (e) {
+	        return set_theme(cm, e.currentTarget.nextElementSibling.innerText);
 	    });
-	    (0, _jquery2.default)('.' + name + '-keyMap').click(function (_ref2) {
-	        var _ref2$currentTarget$l = _slicedToArray(_ref2.currentTarget.labels, 1);
-
-	        var innerText = _ref2$currentTarget$l[0].innerText;
-	        return set_keyMap(cm, innerText);
+	    // $(`.${name}-keyMap`).click(({currentTarget: {labels: [{innerText}]}}) => set_keyMap(cm, innerText));
+	    (0, _jquery2.default)('.' + name + '-keyMap').click(function (e) {
+	        return set_keyMap(cm, e.currentTarget.nextElementSibling.innerText);
 	    });
 	    set_state(cm, _utils.default_state);
 	    set_keyMap(cm, _utils.default_keyMap);
@@ -3980,7 +3974,7 @@ webpackJsonp([0],[
 	}
 
 	function save(data) {
-	    console.log('save', data);
+	    console.log('saved');
 	}
 
 	function send_save(event) {
@@ -3988,7 +3982,7 @@ webpackJsonp([0],[
 	    var text = _editor.editor.getValue();
 	    _editor.editor.filename = name;
 	    if (name && text) {
-	        console.log('sending save', name, text);
+	        console.log('sending save');
 	        (0, _connect.send)('save', { name: name, text: text });
 	        (0, _jquery2.default)(save_dialog).dialog('close');
 	    }

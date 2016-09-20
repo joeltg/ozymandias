@@ -101,8 +101,8 @@ function set_keyMap(cm, keyMap) {
 function initialize(cm) {
     const {name} = cm.settings;
     $(`#${name}-icon`).click(e => toggle_state(cm));
-    $(`.${name}-theme`).click(({currentTarget: {labels: [{innerText}]}}) => set_theme(cm, innerText));
-    $(`.${name}-keyMap`).click(({currentTarget: {labels: [{innerText}]}}) => set_keyMap(cm, innerText));
+    $(`.${name}-theme`).click(e => set_theme(cm, e.currentTarget.nextElementSibling.innerText));
+    $(`.${name}-keyMap`).click(e => set_keyMap(cm, e.currentTarget.nextElementSibling.innerText));
     set_state(cm, default_state);
     set_keyMap(cm, default_keyMap);
     set_theme(cm, default_theme);
@@ -180,7 +180,7 @@ function load(data) {
 }
 
 function save(data) {
-    console.log('save', data);
+    console.log('saved');
 }
 
 function send_save(event) {
@@ -188,7 +188,7 @@ function send_save(event) {
     const text = editor.getValue();
     editor.filename = name;
     if (name && text) {
-        console.log('sending save', name, text);
+        console.log('sending save');
         send('save', {name, text});
         $(save_dialog).dialog('close');
     }
