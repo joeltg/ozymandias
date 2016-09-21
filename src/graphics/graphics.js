@@ -29,12 +29,10 @@ class Window {
             height: (height || default_height) + 40,
             close: e => this.close(),
             resizable,
-            resize: (event, ui) => {
-                const size = ui.size;
-                const width = size.width - 2;
-                const height = size.height - 42;
-                this.resize(width, height);
-            }
+            resize: (event, {size: {width, height}}) => {
+                this.resize && this.resize(width - 2, height - 42);
+            },
+            dragStop: (event, ui) => editor.focus()
         });
         source.focus();
     }

@@ -1,10 +1,10 @@
 (define latex-environment (the-environment))
 
-(define-structure (latex-window (constructor silently-make-latex-window (#!optional name)))
+(define-structure (latex-window (constructor silently-make-latex-window))
   (name (string-append "latex-window-" (number->string (get-id))) read-only #t))
 
-(define (make-latex-window #!optional name latex)
-  (define latex-window (silently-make-latex-window name latex))
+(define (make-latex-window)
+  (define latex-window (silently-make-latex-window))
   (send-latex-window latex-window #t)
   latex-window)
 
@@ -24,6 +24,7 @@
       (let ((latex-window (if (latex-window? latex-window) latex-window (silently-make-latex-window)))
             (expression (cond ((literal-number? expression) (simplify expression))
                                ((literal-function? expression) (simplify expression))
+                               ((or (up? expression) (down? expression)) (simplify expression))
                                (else expression))))
         (send-latex-window latex-window (expression->tex-string expression) #t)
         expression)))

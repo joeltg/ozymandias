@@ -3491,11 +3491,15 @@ webpackJsonp([0],[
 	                return _this.close();
 	            },
 	            resizable: resizable,
-	            resize: function resize(event, ui) {
-	                var size = ui.size;
-	                var width = size.width - 2;
-	                var height = size.height - 42;
-	                _this.resize(width, height);
+	            resize: function resize(event, _ref) {
+	                var _ref$size = _ref.size;
+	                var width = _ref$size.width;
+	                var height = _ref$size.height;
+
+	                _this.resize && _this.resize(width - 2, height - 42);
+	            },
+	            dragStop: function dragStop(event, ui) {
+	                return _editor.editor.focus();
 	            }
 	        });
 	        source.focus();
@@ -3894,11 +3898,9 @@ webpackJsonp([0],[
 	    (0, _jquery2.default)('#' + name + '-icon').click(function (e) {
 	        return toggle_state(cm);
 	    });
-	    // $(`.${name}-theme`).click(({currentTarget: {labels: [{innerText}]}}) => set_theme(cm, innerText));
 	    (0, _jquery2.default)('.' + name + '-theme').click(function (e) {
 	        return set_theme(cm, e.currentTarget.nextElementSibling.innerText);
 	    });
-	    // $(`.${name}-keyMap`).click(({currentTarget: {labels: [{innerText}]}}) => set_keyMap(cm, innerText));
 	    (0, _jquery2.default)('.' + name + '-keyMap').click(function (e) {
 	        return set_keyMap(cm, e.currentTarget.nextElementSibling.innerText);
 	    });
