@@ -2943,7 +2943,7 @@ webpackJsonp([0],[
 	  return e;
 	};
 	map[ctrl + "S"] = "save";
-	map["Ctrl-C"] = "kill";
+	map["Ctrl-Q"] = "kill";
 	map["Up"] = "previous";
 	map["Down"] = "next";
 
