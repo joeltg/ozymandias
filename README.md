@@ -57,3 +57,13 @@ To add a user  to the system, run `sudo ./schroot/make-user.sh <path> <user> <ow
 The directions above only install the minimum dependencies to run the server.
 The contents of the `web` directory are generated with Webpack and Babel, so if you want to make any changes you'll have to `npm install` to get all the `devDependencies`.
 Make your changes in `src`, then run `npm run build` to regenerate the JavaScript and CSS assets that the Express server actually serves to the client.
+
+### Credits
+
+None of this would be possible without the incredible work of many free and open-source projects, and none of them get enough thanks:
+- scmutils
+- CodeMirror
+- D3.js
+- jQuery
+- jQuery UI
+- Katex
