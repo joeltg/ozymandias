@@ -8,7 +8,7 @@ cat <<FOO >> /etc/schroot/chroot.d/scheme.conf
 
 [scheme-${user}]
 type=directory
-directory=${path}
+directory=${path}/jail/${user}
 users=${owner}
 root-groups=root
 profile=scheme
