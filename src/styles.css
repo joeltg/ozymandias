@@ -9,6 +9,9 @@ h3 {  margin: 8px;  }
 h4 {  margin: 8px;  }
 h4 + ul {  margin-top: 0;  }
 
+form {  float: left;  }
+form + form {  float: right;  }
+
 form, input, label {
     -moz-user-select: none;
     -webkit-user-select: none;
@@ -29,6 +32,10 @@ form, input, label {
 #repl-hint          { z-index: 4; }
 #repl-icon          { z-index: 5; }
 
+#save span {  font-size: 18px;  }
+.cm-s-default .cm-latex {  color: black;  }
+.cm-s-monokai .cm-latex {  color: white;  }
+
 .gutter {
     background: #75715e url('../web/images/ic_drag_handle_black_36px.svg') no-repeat scroll center;
     box-shadow: 0 0 24px rgba(0,0,0,0.23);
@@ -38,9 +45,7 @@ form, input, label {
 
 .gutter:hover { cursor: ns-resize; }
 
-.settings {
-    height: 32px;
-}
+.settings {  height: 32px;  }
 
 .hint {
     display: none;

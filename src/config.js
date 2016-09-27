@@ -63,7 +63,7 @@ const global_labels = {
     },
     'quit': {
         emacs: 'Ctrl-G',
-        sublime: 'Ctrl-C'
+        sublime: 'Ctrl-Q'
     }
 };
 
@@ -110,10 +110,10 @@ function initialize(cm) {
 
 initialize(repl);
 initialize(editor);
-repl.focus();
+editor.focus();
 
 Split(['#editor', '#repl'], {
-    sizes: [50, 50],
+    sizes: [70, 30],
     direction: 'vertical',
     cursor: 'ns-resize',
     minSize: 8,
@@ -131,7 +131,7 @@ $(open_dialog).dialog({
     resizable: true,
     buttons: [
         {
-            text: "Cancel",
+            text: "Cancel (Esc)",
             click: function() {
                 $( this ).dialog( "close" );
             }
@@ -146,20 +146,19 @@ $(save_dialog).dialog({
     resizable: true,
     buttons: [
         {
-            text: "Cancel",
+            text: "Cancel (Esc)",
             click: function() {
                 $( this ).dialog( "close" );
             }
         },
         {
-            text: "Save",
+            text: "Save (Enter)",
             click: send_save
         }
     ]
 });
 
 function open(files) {
-    console.log('open files', files);
     $(open_dialog).empty();
     files.forEach(label => {
         const button = document.createElement('button');
@@ -171,12 +170,13 @@ function open(files) {
         });
         $(open_dialog).append(button);
         $(button).button({label})
-    })
+    });
 }
 
 function load(data) {
     $(open_dialog).dialog('close');
-    if (data) editor.setValue(data);
+    editor.setValue(data || '');
+    editor.markClean();
 }
 
 function save(data) {
@@ -187,15 +187,14 @@ function send_save(event) {
     const name = filename.value;
     const text = editor.getValue();
     editor.filename = name;
-    if (name && text) {
-        console.log('sending save');
+    if (name) {
+        editor.markClean();
         send('save', {name, text});
         $(save_dialog).dialog('close');
     }
 }
 
 function send_open() {
-    console.log('sending open');
     send('open', true);
 }
 
@@ -207,21 +206,19 @@ function cm_open(cm) {
 }
 
 function cm_save(cm) {
-    if (cm === editor) {
-        console.log(editor.filename);
+    if (cm === editor && !editor.isClean()) {
         if (editor.filename) filename.value = editor.filename;
         $(save_dialog).dialog('open');
     }
 }
 
-$(filename).keyup(e => {
-    if (e.keyCode === 13) {
-        send_save(e.target.value);
-    } else {
-
+$(document).keyup(e => {
+    if (e.keyCode === 27) {
+        $(save_dialog).dialog('close');
+        $(open_dialog).dialog('close');
     }
 });
-
+$(filename).keyup(e => e.keyCode === 13 && send_save(e.target.value));
 $('input').addClass("ui-widget ui-widget-content ui-corner-all");
 
 export {cm_open, cm_save, open, save, load}

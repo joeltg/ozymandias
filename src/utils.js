@@ -3,7 +3,7 @@
  */
 
 const default_keyMap = 'sublime';
-const default_state = 'settings';
+const default_state = 'close';
 const default_theme = 'monokai';
 
 const default_width = 400, default_height = 300;

@@ -13,13 +13,13 @@
             <div class="hint" id="editor-hint">
                 <h3>Editor</h3>
                 <div class="settings">
-                    <form style="float: left">
+                    <form>
                         <input type="radio" class="editor-keyMap" id="editor-keyMap-emacs" name="radio">
                         <label for="editor-keyMap-emacs">emacs</label>
                         <input type="radio" class="editor-keyMap" id="editor-keyMap-sublime" name="radio" checked="checked">
                         <label for="editor-keyMap-sublime">sublime</label>
                     </form>
-                    <form style="float: right">
+                    <form>
                         <input type="radio" class="editor-theme" id="editor-theme-light" name="radio">
                         <label for="editor-theme-light">light</label>
                         <input type="radio" class="editor-theme" id="editor-theme-dark" name="radio" checked="checked">
@@ -28,13 +28,18 @@
                 </div>
                 <h4>Evaluation</h4>
                 <ul>
+                    <li>Eval document:<span class="key-binding eval-document"></span></li>
                     <li>Eval selection:<span class="key-binding eval-selection"></span></li>
                     <li>Eval expression:<span class="key-binding eval-expression"></span></li>
-                    <li>Eval document:<span class="key-binding eval-document"></span></li>
                 </ul>
-                <h4>Control</h4>
+                <!--<h4>Control</h4>-->
+                <!--<ul>-->
+                    <!--<li>Quit:<span class="key-binding quit"></span></li>-->
+                <!--</ul>-->
+                <h4>I/O</h4>
                 <ul>
-                    <li>Quit:<span class="key-binding quit"></span></li>
+                    <li>Open File:<span class="key-binding open"></span></li>
+                    <li>Save File:<span class="key-binding save"></span></li>
                 </ul>
             </div>
         </div>
@@ -43,13 +48,13 @@
             <div class="hint" id="repl-hint">
                 <h3>REPL</h3>
                 <div class="settings">
-                    <form style="float: left">
+                    <form>
                         <input type="radio" class="repl-keyMap" id="repl-keyMap-emacs" name="radio">
                         <label for="repl-keyMap-emacs">emacs</label>
                         <input type="radio" class="repl-keyMap" id="repl-keyMap-sublime" name="radio" checked="checked">
                         <label for="repl-keyMap-sublime">sublime</label>
                     </form>
-                    <form style="float: right">
+                    <form>
                         <input type="radio" class="repl-theme" id="repl-theme-light" name="radio">
                         <label for="repl-theme-light">light</label>
                         <input type="radio" class="repl-theme" id="repl-theme-dark" name="radio" checked="checked">
@@ -77,7 +82,7 @@
         <div id="save" style="padding: 16px !important;">
             <h2 style="margin-top: 0;">Name:</h2>
             <input title="Name: " type="text" id="filename"/>
-            <input type="button" title="Cancel" id="cancel-save"/>
+            <span>.scm</span>
         </div>
     </div>
     <script src="connect.js"></script>

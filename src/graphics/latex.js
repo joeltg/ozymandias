@@ -1,5 +1,4 @@
 import katex from 'katex';
-import 'katex/dist/katex.min.css';
 import {Window} from './graphics';
 import {state} from '../utils';
 const {windows} = state;

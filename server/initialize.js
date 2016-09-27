@@ -5,6 +5,7 @@ const cp = require('child_process');
 const fs = require('fs');
 
 const namespace = 'scheme-';
+const file_type = '.scm';
 
 const init_path = path.resolve(__dirname, 'initialize.sh');
 const start_path = path.resolve(__dirname, 'start.sh');
@@ -33,20 +34,22 @@ function initialize(user, id, send, sources, children) {
     scheme.stdout.on('error', err => console.error(err));
 
     function save(data) {
-        const name = data.name.replace(/\W/g, ''), text = data.text;
+        const name = data.name.replace(/\//g, '-') + file_type, text = data.text;
         const path = user_path + '/files/' + name;
         fs.writeFile(path, text, 'utf8', err => send('save', !err));
     }
 
     function load(data) {
-        const name = data.replace(/\W/g, '');
-        const path = user_path + '/files/' + name;
+        const name = data.replace(/\//g, '-');
+        const path = user_path + '/files/' + name + file_type;
         fs.readFile(path, 'utf8', (err, text) => send('load', text));
     }
 
     function open(data) {
         const path = user_path + '/files/';
-        fs.readdir(path, (err, files) => send('open', files));
+        const scm = f => f.substr(f.length - 4) === file_type;
+        const name = f => f.substring(0, f.length - 4);
+        fs.readdir(path, (err, files) => send('open', files.filter(scm).map(name)));
     }
 
     function repl(data) {

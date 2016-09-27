@@ -571,7 +571,7 @@ map["F3"] = "findNext";
 map["Shift-F3"] = "findPrev";
 
 map["Ctrl-G"] = e => e;
-map[ctrl + "S"] = "save";
+map["Ctrl-S"] = "save";
 map["Ctrl-Q"] = "kill";
 map["Up"] = "previous";
 map["Down"] = "next";
@@ -580,6 +580,8 @@ map["Ctrl-Shift-Enter"] = "eval_selection";
 map["Ctrl-Enter"] = "eval_expression";
 map["Ctrl-A-Enter"] = "eval_document";
 
-map[ctrl + "O"] = "open";
+map["Ctrl-O"] = "open";
+
+map["Shift-Tab"] = "tab_expression";
 
 CodeMirror.normalizeKeyMap(map);

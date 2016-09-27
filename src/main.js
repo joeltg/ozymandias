@@ -28,13 +28,16 @@ import {canvas} from './graphics/canvas';
 import {latex} from './graphics/latex';
 import {cm_open, cm_save, open, save, load} from './config';
 
-const repl_delimiter = /\s*\n\d+\s(?:(?:]=)|(?:error))>\s/, pipe_delimiter = '\n';
-let repl_buffer = '', pipe_buffer = '';
+const delimiter = '\n';
+let buffer = '';
 
-function graphics(message) {
+function pipe(message) {
     if (message.type === 'canvas') canvas(message);
     else if (message.type === 'latex') latex(message);
-    else console.error('graphics type not recognized');
+    else if (message.type === 'editor') push_editor(message);
+    else {
+        console.error('graphics type not recognized', message);
+    }
 }
 
 const sources = {
@@ -44,14 +47,11 @@ const sources = {
     },
     repl(content) {
         push_repl(content, false);
-        const repl_values = (repl_buffer + content).split(repl_delimiter);
-        repl_buffer = repl_values.pop();
-        repl_values.forEach(push_editor);
     },
     pipe(content) {
-        const pipe_values = (pipe_buffer + content).split(pipe_delimiter);
-        pipe_buffer = pipe_values.pop();
-        pipe_values.map(JSON.parse).forEach(graphics);
+        const values = (buffer + content).split(delimiter);
+        buffer = values.pop();
+        values.map(JSON.parse).forEach(pipe);
     },
     open, save, load
 };

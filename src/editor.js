@@ -1,6 +1,9 @@
 import CodeMirror from 'codemirror';
 import {default_keyMap, default_state, default_theme, strip_string, get_end, state} from './utils';
 import {push_repl} from './repl';
+import {Expression, modes} from './expression';
+
+const marks = [];
 
 const editor_element = document.getElementById('editor');
 const editor = CodeMirror(editor_element, {
@@ -25,16 +28,24 @@ editor.settings = {
     name: 'editor',
     labels: {
         'eval-selection': {
-            emacs: 'Meta-X R',
+            emacs: 'Ctrl-X Ctrl-R',
             sublime: 'Ctrl-Shift-Enter'
         },
         'eval-expression': {
-            emacs: 'Meta-X D',
+            emacs: 'Ctrl-X Ctrl-E',
             sublime: 'Ctrl-Enter'
         },
         'eval-document': {
-            emacs: 'Meta-X B',
+            emacs: 'Ctrl-X Ctrl-A',
             sublime: 'Ctrl-A-Enter'
+        },
+        'open': {
+            emacs: 'Ctrl-X F',
+            sublime: 'Ctrl-O'
+        },
+        'save': {
+            emacs: 'Ctrl-X S',
+            sublime: 'Ctrl-S'
         }
     },
     state: default_state,
@@ -45,7 +56,14 @@ editor.settings = {
 CodeMirror.commands.eval_selection = eval_selection;
 CodeMirror.commands.eval_document = eval_document;
 CodeMirror.commands.eval_expression = eval_expression;
+CodeMirror.commands.tab_expression = tab_expression;
+let index = 0;
 
+function tab_expression(cm) {
+    if (cm !== editor) return;
+    index = (index + 1) % modes.length;
+    marks.forEach(mark => mark.find() && mark.expression.update(index) && mark.changed());
+}
 
 function eval_expression(cm) {
     if (cm !== editor) return;
@@ -101,11 +119,21 @@ function eval_editor(value, position) {
     push_repl(strip_string(value) + '\n', true);
 }
 
-function push_editor(string) {
-    if (state.editor_position) {
-        editor.replaceRange(`\n${strip_string(string)}\n`, state.editor_position, state.editor_position);
-        editor.setCursor(state.editor_position = editor.getCursor());
-        state.editor_position = false;
+function push_editor({string, latex}) {
+    const position = state.editor_position;
+    if (position) {
+        const expression = new Expression(string, latex);
+        editor.setCursor(position);
+        editor.replaceRange(`\n${string}\n`, position, position);
+        state.editor_position = editor.getCursor();
+        const mark = editor.markText(
+            {line: position.line + 1, ch: 0},
+            {line: state.editor_position.line - 1},
+            {replacedWith: expression.node}
+        );
+        expression.mark = mark;
+        mark.expression = expression;
+        marks.push(mark);
     }
 }
 

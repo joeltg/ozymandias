@@ -380,7 +380,7 @@ var keyMap = CodeMirror.keyMap.emacs = CodeMirror.normalizeKeyMap({
   },
   "Ctrl-X Ctrl-S": "save",
   "Ctrl-X Ctrl-W": "save",
-  "Ctrl-X S": "saveAll",
+  "Ctrl-X S": "save",
   "Ctrl-X F": "open",
   "Ctrl-X U": repeated("undo"),
   "Ctrl-X K": "close",
@@ -391,9 +391,9 @@ var keyMap = CodeMirror.keyMap.emacs = CodeMirror.normalizeKeyMap({
   "Ctrl-U": addPrefixMap,
   "Alt-P": "previous",
   "Alt-N": "next",
-  "Alt-X B": "eval_document",
-  "Alt-X R": "eval_selection",
-  "Alt-X D": "eval_expression"
+  "Ctrl-X Ctrl-A": "eval_document",
+  "Ctrl-X Ctrl-R": "eval_selection",
+  "Ctrl-X Ctrl-E": "eval_expression"
 });
 
 var prefixMap = {"Ctrl-G": clearPrefix};
