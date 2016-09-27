@@ -53,6 +53,7 @@ As such, it is built to support multiple user accounts and authentication mechan
 The directions above create a default user `root`, and this is used by default in the client-side code in `src/authentication.js`.
 To add a user  to the system, run `sudo ./schroot/make-user.sh <path> <user> <owner>`, and add some log-in mechanism to `src/authenticate.js` (server) and `src/main.js` (client).
 
-### What actually happens here?
-
-More documentation "coming soon".
+### Building from source
+The directions above only install the minimum dependencies to run the server.
+The contents of the `web` directory are generated with Webpack and Babel, so if you want to make any changes you'll have to `npm install` to get all the `devDependencies`.
+Make your changes in `src`, then run `npm run build` to regenerate the JavaScript and CSS assets that the Express server actually serves to the client.
