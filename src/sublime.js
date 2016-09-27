@@ -582,6 +582,6 @@ map["Ctrl-A-Enter"] = "eval_document";
 
 map["Ctrl-O"] = "open";
 
-map["Shift-Tab"] = "tab_expression";
+map["Shift-Tab"] = "view";
 
 CodeMirror.normalizeKeyMap(map);

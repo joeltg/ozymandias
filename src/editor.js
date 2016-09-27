@@ -27,10 +27,6 @@ const editor = CodeMirror(editor_element, {
 editor.settings = {
     name: 'editor',
     labels: {
-        'eval-selection': {
-            emacs: 'Ctrl-X Ctrl-R',
-            sublime: 'Ctrl-Shift-Enter'
-        },
         'eval-expression': {
             emacs: 'Ctrl-X Ctrl-E',
             sublime: 'Ctrl-Enter'
@@ -53,13 +49,11 @@ editor.settings = {
     keyMap: default_keyMap
 };
 
-CodeMirror.commands.eval_selection = eval_selection;
 CodeMirror.commands.eval_document = eval_document;
 CodeMirror.commands.eval_expression = eval_expression;
-CodeMirror.commands.tab_expression = tab_expression;
 let index = 0;
 
-function tab_expression(cm) {
+function toggle_view(cm) {
     if (cm !== editor) return;
     index = (index + 1) % modes.length;
     marks.forEach(mark => mark.find() && mark.expression.update(index) && mark.changed());
@@ -77,12 +71,6 @@ function eval_document(cm) {
     if (cm !== editor) return;
     const everything = editor.getValue();
     if (everything) eval_editor(everything, get_end(editor));
-}
-
-function eval_selection(cm) {
-    if (cm !== editor) return;
-    const selection = editor.getSelection();
-    if (selection) eval_editor(selection, editor.getCursor());
 }
 
 const traverse_tokens = (predicate, callback) => (cm, {line, ch}) => {
@@ -137,4 +125,4 @@ function push_editor({string, latex}) {
     }
 }
 
-export {editor, push_editor}
+export {editor, push_editor, toggle_view}

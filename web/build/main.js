@@ -104,6 +104,7 @@ webpackJsonp([0],[
 	};
 	_codemirror2.default.commands.save = _config.cm_save;
 	_codemirror2.default.commands.open = _config.cm_open;
+	_codemirror2.default.commands.view = _editor.toggle_view;
 
 	(0, _repl.push_repl)('connecting to server... ', false);
 
@@ -2312,7 +2313,8 @@ webpackJsonp([0],[
 	  "Alt-N": "next",
 	  "Ctrl-X Ctrl-A": "eval_document",
 	  "Ctrl-X Ctrl-R": "eval_selection",
-	  "Ctrl-X Ctrl-E": "eval_expression"
+	  "Ctrl-X Ctrl-E": "eval_expression",
+	  "Shift-Tab": "view"
 	});
 
 	var prefixMap = { "Ctrl-G": clearPrefix };
@@ -2950,7 +2952,7 @@ webpackJsonp([0],[
 
 	map["Ctrl-O"] = "open";
 
-	map["Shift-Tab"] = "tab_expression";
+	map["Shift-Tab"] = "view";
 
 	_codemirror2.default.normalizeKeyMap(map);
 
@@ -3102,7 +3104,7 @@ webpackJsonp([0],[
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.push_editor = exports.editor = undefined;
+	exports.toggle_view = exports.push_editor = exports.editor = undefined;
 
 	var _codemirror = __webpack_require__(8);
 
@@ -3144,10 +3146,6 @@ webpackJsonp([0],[
 	editor.settings = {
 	    name: 'editor',
 	    labels: {
-	        'eval-selection': {
-	            emacs: 'Ctrl-X Ctrl-R',
-	            sublime: 'Ctrl-Shift-Enter'
-	        },
 	        'eval-expression': {
 	            emacs: 'Ctrl-X Ctrl-E',
 	            sublime: 'Ctrl-Enter'
@@ -3170,13 +3168,11 @@ webpackJsonp([0],[
 	    keyMap: _utils.default_keyMap
 	};
 
-	_codemirror2.default.commands.eval_selection = eval_selection;
 	_codemirror2.default.commands.eval_document = eval_document;
 	_codemirror2.default.commands.eval_expression = eval_expression;
-	_codemirror2.default.commands.tab_expression = tab_expression;
 	var index = 0;
 
-	function tab_expression(cm) {
+	function toggle_view(cm) {
 	    if (cm !== editor) return;
 	    index = (index + 1) % _expression.modes.length;
 	    marks.forEach(function (mark) {
@@ -3201,12 +3197,6 @@ webpackJsonp([0],[
 	    if (cm !== editor) return;
 	    var everything = editor.getValue();
 	    if (everything) eval_editor(everything, (0, _utils.get_end)(editor));
-	}
-
-	function eval_selection(cm) {
-	    if (cm !== editor) return;
-	    var selection = editor.getSelection();
-	    if (selection) eval_editor(selection, editor.getCursor());
 	}
 
 	var traverse_tokens = function traverse_tokens(predicate, callback) {
@@ -3274,6 +3264,7 @@ webpackJsonp([0],[
 
 	exports.editor = editor;
 	exports.push_editor = push_editor;
+	exports.toggle_view = toggle_view;
 
 /***/ },
 /* 34 */
@@ -3974,6 +3965,10 @@ webpackJsonp([0],[
 	    */
 
 	var global_labels = {
+	    'toggle-latex': {
+	        emacs: 'Shift-Tab',
+	        sublime: 'Shift-Tab'
+	    },
 	    'history-previous': {
 	        emacs: 'Meta-P',
 	        sublime: 'Up'

@@ -53,6 +53,10 @@ const icons = {
 };
 
 const global_labels = {
+    'toggle-latex': {
+        emacs: 'Shift-Tab',
+        sublime: 'Shift-Tab'
+    },
     'history-previous': {
         emacs: 'Meta-P',
         sublime: 'Up'
