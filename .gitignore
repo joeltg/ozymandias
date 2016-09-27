@@ -10,6 +10,7 @@ npm-debug.log*
 legacy/
 scheme/
 jail/
+start
 
 # Runtime data
 pids
