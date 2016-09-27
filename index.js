@@ -12,7 +12,7 @@ const socket = new ws.Server({port: socket_port});
 socket.on('connection', socket => connection(socket, children));
 console.log('socket listening on port', socket_port);
 
-const server_port = 3000;
+const server_port = 80;
 const server = express();
 server.use(express.static(path.resolve(__dirname, 'web')));
 server.get('/', (req, res) => res.sendFile(path.resolve(__dirname, 'web', 'index.html')));
