@@ -7,7 +7,7 @@ They'll probably work also with earlier versions, other *nixes, and maybe even m
 You need Node v6+. If you don't have it, get it:
 ```
 curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
-sudo apt-get install -y nodejs
+sudo apt-get install -y nodejs nodejs-legacy
 ```
 You also need `git` and `schroot`, if you don't already:
 ```
