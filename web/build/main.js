@@ -3106,6 +3106,8 @@ webpackJsonp([0],[
 	});
 	exports.toggle_view = exports.push_editor = exports.editor = undefined;
 
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 	var _codemirror = __webpack_require__(8);
 
 	var _codemirror2 = _interopRequireDefault(_codemirror);
@@ -3195,8 +3197,34 @@ webpackJsonp([0],[
 
 	function eval_document(cm) {
 	    if (cm !== editor) return;
-	    var everything = editor.getValue();
-	    if (everything) eval_editor(everything, (0, _utils.get_end)(editor));
+	    // const everything = editor.getValue();
+	    // if (everything) eval_editor(everything, get_end(editor));
+	    var expressions = [];
+
+	    var open = false;
+	    editor.eachLine(function (line_handle) {
+	        var line = editor.getLineNumber(line_handle);
+	        var tokens = editor.getLineTokens(line);
+	        tokens.forEach(function (token) {
+	            var start = token.start;
+	            var end = token.end;
+	            var type = token.type;
+	            var depth = token.state.depth;
+
+	            if (depth === 0) {
+	                if (type === 'bracket') {
+	                    if (open) {
+	                        expressions.push({ start: open, end: { line_handle: line_handle, end: end } });
+	                        open = false;
+	                    } else open = { line_handle: line_handle, start: start };
+	                } else expressions.push({ start: { line_handle: line_handle, start: start }, end: { line_handle: line_handle, end: end } });
+	            }
+	        });
+	    });
+	    if (expressions.length > 0) {
+	        _utils.state.expressions = expressions;
+	        pop_expression();
+	    }
 	}
 
 	var traverse_tokens = function traverse_tokens(predicate, callback) {
@@ -3245,13 +3273,28 @@ webpackJsonp([0],[
 	    (0, _repl.push_repl)((0, _utils.strip_string)(value) + '\n', true);
 	}
 
+	function pop_expression() {
+	    var _state$expressions$sp = _utils.state.expressions.splice(0, 1);
+
+	    var _state$expressions$sp2 = _slicedToArray(_state$expressions$sp, 1);
+
+	    var _state$expressions$sp3 = _state$expressions$sp2[0];
+	    var start = _state$expressions$sp3.start;
+	    var end = _state$expressions$sp3.end;
+
+	    var from = { line: editor.getLineNumber(start.line_handle), ch: start.start };
+	    var to = { line: editor.getLineNumber(end.line_handle), ch: end.end };
+	    var text = editor.getRange(from, to);
+	    eval_editor(text, to);
+	}
+
 	function push_editor(_ref2) {
 	    var string = _ref2.string;
 	    var latex = _ref2.latex;
 
 	    var position = _utils.state.editor_position;
 	    if (position) {
-	        var expression = new _expression.Expression(string, latex);
+	        var expression = new _expression.Expression(string, latex, index);
 	        editor.setCursor(position);
 	        editor.replaceRange('\n' + string + '\n', position, position);
 	        _utils.state.editor_position = editor.getCursor();
@@ -3260,8 +3303,9 @@ webpackJsonp([0],[
 	        mark.expression = expression;
 	        marks.push(mark);
 	    }
+	    if (_utils.state.expressions && _utils.state.expressions.length > 0) pop_expression();
 	}
-
+	document.foobar = editor;
 	exports.editor = editor;
 	exports.push_editor = push_editor;
 	exports.toggle_view = toggle_view;
@@ -3327,7 +3371,7 @@ webpackJsonp([0],[
 	}
 
 	var Expression = function () {
-	    function Expression(string, tex) {
+	    function Expression(string, tex, index) {
 	        _classCallCheck(this, Expression);
 
 	        this.string = string;
@@ -3336,7 +3380,7 @@ webpackJsonp([0],[
 	        var end = tex.lastIndexOf(key);
 	        this.latex = fix_matrices(tex.substring(start, end));
 	        this.node = document.createElement('span');
-	        this.update(0);
+	        this.update(index);
 	    }
 
 	    _createClass(Expression, [{

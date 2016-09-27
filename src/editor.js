@@ -69,8 +69,30 @@ function eval_expression(cm) {
 
 function eval_document(cm) {
     if (cm !== editor) return;
-    const everything = editor.getValue();
-    if (everything) eval_editor(everything, get_end(editor));
+    // const everything = editor.getValue();
+    // if (everything) eval_editor(everything, get_end(editor));
+    const expressions = [];
+
+    let open = false;
+    editor.eachLine(line_handle => {
+        const line = editor.getLineNumber(line_handle);
+        const tokens = editor.getLineTokens(line);
+        tokens.forEach(token => {
+            const {start, end, type, state: {depth}} = token;
+            if (depth === 0) {
+                if (type === 'bracket') {
+                    if (open) {
+                        expressions.push({start: open, end: {line_handle, end}});
+                        open = false;
+                    } else open = {line_handle, start};
+                } else expressions.push({start: {line_handle, start}, end: {line_handle, end}});
+            }
+        });
+    });
+    if (expressions.length > 0) {
+        state.expressions = expressions;
+        pop_expression();
+    }
 }
 
 const traverse_tokens = (predicate, callback) => (cm, {line, ch}) => {
@@ -107,10 +129,18 @@ function eval_editor(value, position) {
     push_repl(strip_string(value) + '\n', true);
 }
 
+function pop_expression() {
+    const [{start, end}] = state.expressions.splice(0, 1);
+    const from = {line: editor.getLineNumber(start.line_handle), ch: start.start};
+    const to = {line: editor.getLineNumber(end.line_handle), ch: end.end};
+    const text = editor.getRange(from, to);
+    eval_editor(text, to);
+}
+
 function push_editor({string, latex}) {
     const position = state.editor_position;
     if (position) {
-        const expression = new Expression(string, latex);
+        const expression = new Expression(string, latex, index);
         editor.setCursor(position);
         editor.replaceRange(`\n${string}\n`, position, position);
         state.editor_position = editor.getCursor();
@@ -123,6 +153,7 @@ function push_editor({string, latex}) {
         mark.expression = expression;
         marks.push(mark);
     }
+    if (state.expressions && state.expressions.length > 0) pop_expression();
 }
-
+document.foobar = editor;
 export {editor, push_editor, toggle_view}

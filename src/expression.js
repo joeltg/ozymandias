@@ -36,14 +36,14 @@ function fix_matrices(string) {
 }
 
 class Expression {
-    constructor(string, tex) {
+    constructor(string, tex, index) {
         this.string = string;
         const key = '$$';
         const start = tex.indexOf(key) + key.length;
         const end = tex.lastIndexOf(key);
         this.latex = fix_matrices(tex.substring(start, end));
         this.node = document.createElement('span');
-        this.update(0);
+        this.update(index);
     }
     render_string() {
         this.node.textContent = this.string;
