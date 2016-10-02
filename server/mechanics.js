@@ -11,22 +11,22 @@ const logging = false;
 function config(user, location, id) {
     if (user) {
         const user_path = path.resolve(location, 'users', user);
-        const initialize = path.resolve(location, 'server', 'user', 'initialize.sh');
-        const start = path.resolve(location, 'server', 'user', 'start.sh');
+        const util_path = path.resolve(location, 'server', 'user');
         const args = [location, id.toString(), user];
-        return {user_path, initialize ,start, args};
+        return {user_path, util_path, args};
     } else {
         const user_path = path.resolve(location, 'jail');
-        const initialize = path.resolve(location, 'server', 'public', 'initialize.sh');
-        const start = path.resolve(location, 'server', 'public', 'start.sh');
+        const util_path = path.resolve(location, 'server', 'public');
         const args = [location, id.toString()];
-        return {user_path, initialize ,start, args};
+        return {user_path, util_path, args};
     }
 }
 
 function mechanics(user, id, send, sources, children) {
     const location = path.resolve(__dirname, '..');
-    const {user_path, initialize, start, args} = config(user, location, id);
+    const {user_path, util_path, args} = config(user, location, id);
+    const initialize = path.resolve(util_path, 'initialize.sh');
+    const start = path.resolve(util_path, 'start.sh');
     const pipe_path = path.resolve(user_path, 'pipes', id.toString());
 
     cp.execFile(initialize, args, {}, err => {
@@ -51,11 +51,11 @@ function mechanics(user, id, send, sources, children) {
         sources.kill = data => (scheme.pid in children) && cp.exec(`pkill -${data} -P ${scheme.pid}`);
         sources.save = ({name, text}) => fs.writeFile(file(name), text, 'utf8', err => send('save', !err));
         sources.load = ({name}) => fs.readFile(file(name), 'utf8', (err, text) => send('load', text));
-        sources.open = () => {
+        sources.open = open => {
             const directory = path.resolve(user_path, 'files');
             const scm = f => f.substring(f.lastIndexOf('.')) === file_type;
             const name = f => f.substring(0, f.lastIndexOf('.'));
-            fs.readdir(directory, (err, files) => send('open', files.filter(scm).map(name)));
+            if (open) fs.readdir(directory, (err, files) => send('open', files.filter(scm).map(name)));
         };
     });
 }
