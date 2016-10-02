@@ -164,16 +164,17 @@ $(save_dialog).dialog({
 
 function open(files) {
     $(open_dialog).empty();
-    files.forEach(label => {
+    files.forEach((label, index) => {
         const button = document.createElement('button');
         button.className = 'filename';
         button.addEventListener('click', e => {
             const name = e.target.textContent;
             editor.filename = name;
-            send('load', name);
+            send('load', {name});
         });
         $(open_dialog).append(button);
-        $(button).button({label})
+        $(button).button({label});
+        if (index === 0) button.focus();
     });
 }
 

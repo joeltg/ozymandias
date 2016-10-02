@@ -1,3 +1,0 @@
-SETUP_COPYFILES="scheme/copyfiles"
-SETUP_NSSDATABASES="scheme/nssdatabases"
-SETUP_FSTAB="scheme/fstab"

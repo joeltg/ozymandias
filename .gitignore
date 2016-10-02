@@ -4,13 +4,10 @@ logs
 
 *.~*~
 
-npm-debug.log*
-
 .idea/
 legacy/
-scheme/
+users/
 jail/
-start
 
 # Runtime data
 pids

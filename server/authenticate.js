@@ -1,13 +1,10 @@
 #!/usr/bin/env node
 
-const initialize = require('./initialize');
+const initialize = require('./mechanics');
 
-function authenticate(data, id, send, sources, children) {
-    if (data === 'magic') {
-        const user = 'root';
-        delete sources.auth;
-        initialize(user, id, send, sources, children);
-    }
+function authenticate({user}, id, send, sources, children) {
+    delete sources.auth;
+    initialize(user, id, send, sources, children);
 }
 
 module.exports = authenticate;

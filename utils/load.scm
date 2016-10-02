@@ -5,6 +5,6 @@
 (load "/utils/canvas/canvas.scm")
 (load "/utils/canvas/graphics.scm")
 
-(load "/utils/latex/latex-window.scm")
+(load "/utils/latex/latex.scm")
 
-(cd "files")
+(cd "/files")

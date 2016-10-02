@@ -5,28 +5,18 @@ const authenticate = require('./authenticate');
 let ID = 0;
 
 function connection(socket, children) {
-
     const id = ID++;
+
+    const send = (source, content) => (socket.readyState === 1) && socket.send(JSON.stringify({source, content}));
+    const auth = data => authenticate(data, id, send, sources, children);
+    const data = ({source, content}) => (source in sources) && sources[source](content);
 
     const sources = {auth};
 
-    function send(source, content) {
-        if (socket.readyState === 1) socket.send(JSON.stringify({source, content}));
-    }
-
-    function auth(data) {
-        authenticate(data, id, send, sources, children);
-    }
-
-    function data(message) {
-        const source = message.source, content = message.content;
-        if (source in sources) sources[source](content);
-    }
-
     socket.on('message', message => data(JSON.parse(message)));
     socket.on('close', e => ('kill' in sources) && sources.kill('KILL'));
-    
-    send('auth', 'magic');
+
+    send('auth', 'magically');
 }
 
 module.exports = connection;

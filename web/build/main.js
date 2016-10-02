@@ -70,34 +70,39 @@ webpackJsonp([0],[
 	var buffer = '';
 
 	function _pipe(message) {
-	    if (message.type === 'canvas') (0, _canvas.canvas)(message);else if (message.type === 'latex') (0, _latex.latex)(message);else if (message.type === 'editor') (0, _editor.push_editor)(message);else {
-	        console.error('graphics type not recognized', message);
+	    switch (message.type) {
+	        case 'canvas':
+	            return (0, _canvas.canvas)(message);
+	        case 'latex':
+	            return (0, _latex.latex)(message);
+	        case 'editor':
+	            return (0, _editor.push_editor)(message);
+	        default:
+	            console.error('message type not recognized', message);
 	    }
 	}
 
+	var data = function data(_ref) {
+	    var source = _ref.source;
+	    var content = _ref.content;
+	    return sources[source](content);
+	};
+	var auth = function auth(content) {
+	    return (0, _connect.send)('auth', { user: false });
+	};
+	var repl = function repl(content) {
+	    return (0, _repl.push_repl)(content, false);
+	};
+
 	var sources = {
-	    auth: function auth(content) {
-	        console.log('authorizing something', content);
-	        (0, _connect.send)('auth', content);
-	    },
-	    repl: function repl(content) {
-	        (0, _repl.push_repl)(content, false);
-	    },
 	    pipe: function pipe(content) {
 	        var values = (buffer + content).split(delimiter);
 	        buffer = values.pop();
 	        values.map(JSON.parse).forEach(_pipe);
 	    },
 
-	    open: _config.open, save: _config.save, load: _config.load
+	    auth: auth, repl: repl, open: _config.open, save: _config.save, load: _config.load
 	};
-
-	function data(_ref) {
-	    var source = _ref.source;
-	    var content = _ref.content;
-
-	    sources[source](content);
-	}
 
 	_codemirror2.default.commands.kill = function (cm) {
 	    return (0, _connect.send)('kill', 'INT');
@@ -106,16 +111,16 @@ webpackJsonp([0],[
 	_codemirror2.default.commands.open = _config.cm_open;
 	_codemirror2.default.commands.view = _editor.toggle_view;
 
-	(0, _repl.push_repl)('connecting to server... ', false);
+	repl('connecting to server... ');
 
 	_connect.socket.onopen = function (event) {
-	    return (0, _repl.push_repl)('connected.\n', false);
+	    return repl('connected.\n');
 	};
 	_connect.socket.onmessage = function (event) {
 	    return data(JSON.parse(event.data));
 	};
 	_connect.socket.onclose = function (event) {
-	    return (0, _repl.push_repl)('lost connection to server.\n', false);
+	    return repl('lost connection to server.\n');
 	};
 
 /***/ },
@@ -4138,16 +4143,17 @@ webpackJsonp([0],[
 
 	function open(files) {
 	    (0, _jquery2.default)(open_dialog).empty();
-	    files.forEach(function (label) {
+	    files.forEach(function (label, index) {
 	        var button = document.createElement('button');
 	        button.className = 'filename';
 	        button.addEventListener('click', function (e) {
 	            var name = e.target.textContent;
 	            _editor.editor.filename = name;
-	            (0, _connect.send)('load', name);
+	            (0, _connect.send)('load', { name: name });
 	        });
 	        (0, _jquery2.default)(open_dialog).append(button);
 	        (0, _jquery2.default)(button).button({ label: label });
+	        if (index === 0) button.focus();
 	    });
 	}
 

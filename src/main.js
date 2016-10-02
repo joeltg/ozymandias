@@ -32,41 +32,38 @@ const delimiter = '\n';
 let buffer = '';
 
 function pipe(message) {
-    if (message.type === 'canvas') canvas(message);
-    else if (message.type === 'latex') latex(message);
-    else if (message.type === 'editor') push_editor(message);
-    else {
-        console.error('graphics type not recognized', message);
+    switch (message.type) {
+        case 'canvas':
+            return canvas(message);
+        case 'latex':
+            return latex(message);
+        case 'editor':
+            return push_editor(message);
+        default:
+            console.error('message type not recognized', message);
     }
 }
 
+const data = ({source, content}) => sources[source](content);
+const auth = content => send('auth', {user: false});
+const repl = content => push_repl(content, false);
+
 const sources = {
-    auth(content) {
-        console.log('authorizing something', content);
-        send('auth', content);
-    },
-    repl(content) {
-        push_repl(content, false);
-    },
     pipe(content) {
         const values = (buffer + content).split(delimiter);
         buffer = values.pop();
         values.map(JSON.parse).forEach(pipe);
     },
-    open, save, load
+    auth, repl, open, save, load
 };
-
-function data({source, content}) {
-    sources[source](content);
-}
 
 CodeMirror.commands.kill = cm => send('kill', 'INT');
 CodeMirror.commands.save = cm_save;
 CodeMirror.commands.open = cm_open;
 CodeMirror.commands.view = toggle_view;
 
-push_repl('connecting to server... ', false);
+repl('connecting to server... ');
 
-socket.onopen = event => push_repl('connected.\n', false);
+socket.onopen    = event => repl('connected.\n');
 socket.onmessage = event => data(JSON.parse(event.data));
-socket.onclose = event => push_repl('lost connection to server.\n', false);
+socket.onclose   = event => repl('lost connection to server.\n');

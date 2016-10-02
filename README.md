@@ -13,14 +13,6 @@ You also need `git` and `schroot`, if you don't already:
 ```
 sudo apt-get install -y git schroot
 ```
-The server interfaces with a local copy of `scmutils`, a library built on top of `mit-scheme`.
-If you don't have `scmutils` already, you can get a minimal, pre-built copy:
-```
-wget http://groups.csail.mit.edu/mac/users/gjs/6946/scmutils-tarballs/scmutils-20160827-x86-64-gnu-linux.tar.gz
-tar -xvzf scmutils-20160827-x86-64-gnu-linux.tar.gz
-mv scmutils/mit-scheme /usr/local/scheme
-rm -rf scmutils scmutils-20160827-x86-64-gnu-linux.tar.gz
-```
 Clone this repo into `<path>`:
 ```
 git clone https://github.com/joeltg/repl.git
