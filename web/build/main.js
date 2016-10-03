@@ -3032,7 +3032,7 @@ webpackJsonp([0],[
 	    var value = (0, _utils.strip_string)(repl.getRange(_utils.state.last_position, (0, _utils.get_end)(repl)));
 	    if (value) repl_history_pointer = repl_history.push(value);
 	    _utils.state.editor_position = false;
-	    push_repl(value + '\n', true);
+	    if (value) push_repl(value + '\n', true);
 	}
 
 	function move_up_repl_history(cm) {
@@ -3238,15 +3238,17 @@ webpackJsonp([0],[
 	            var start = token.start;
 	            var end = token.end;
 	            var type = token.type;
-	            var depth = token.state.depth;
+	            var _token$state = token.state;
+	            var depth = _token$state.depth;
+	            var mode = _token$state.mode;
 
-	            if (depth === 0) {
+	            if (depth === 0 && mode !== 'comment') {
 	                if (type === 'bracket') {
 	                    if (open) {
 	                        expressions.push({ start: open, end: { line_handle: line_handle, end: end } });
 	                        open = false;
 	                    } else open = { line_handle: line_handle, start: start };
-	                } else expressions.push({ start: { line_handle: line_handle, start: start }, end: { line_handle: line_handle, end: end } });
+	                } else if (type === 'comment') {} else expressions.push({ start: { line_handle: line_handle, start: start }, end: { line_handle: line_handle, end: end } });
 	            }
 	        });
 	    });
@@ -3333,7 +3335,6 @@ webpackJsonp([0],[
 	    }
 	    if (_utils.state.expressions && _utils.state.expressions.length > 0) pop_expression();
 	}
-
 	exports.editor = editor;
 	exports.push_editor = push_editor;
 	exports.toggle_view = toggle_view;
@@ -3418,7 +3419,7 @@ webpackJsonp([0],[
 	    _createClass(Expression, [{
 	        key: 'render_string',
 	        value: function render_string() {
-	            this.node.textContent = '#|' + this.string + '|#';
+	            this.node.textContent = '#| ' + this.string + ' |#';
 	            this.node.className = 'cm-comment';
 	        }
 	    }, {
@@ -4142,6 +4143,16 @@ webpackJsonp([0],[
 	var open_dialog = document.getElementById('open');
 	var save_dialog = document.getElementById('save');
 	var filename = document.getElementById('filename');
+	var editor_filename = document.getElementById('editor_filename');
+
+	var clean = true;
+
+	_editor.editor.on('change', function (cm, change) {
+	    if (_editor.editor.filename && !_editor.editor.isClean() && clean) {
+	        editor_filename.textContent = ' > ' + _editor.editor.filename + '.scm*';
+	        clean = false;
+	    }
+	});
 
 	(0, _jquery2.default)(open_dialog).dialog({
 	    title: 'Open file',
@@ -4192,6 +4203,8 @@ webpackJsonp([0],[
 	    (0, _jquery2.default)(open_dialog).dialog('close');
 	    _editor.editor.setValue(data || '');
 	    _editor.editor.markClean();
+	    editor_filename.textContent = ' > ' + _editor.editor.filename + '.scm';
+	    clean = true;
 	}
 
 	function save(data) {
@@ -4202,6 +4215,8 @@ webpackJsonp([0],[
 	    var name = filename.value;
 	    var text = _editor.editor.getValue();
 	    _editor.editor.filename = name;
+	    editor_filename.textContent = ' > ' + name + '.scm';
+	    clean = true;
 	    if (name) {
 	        _editor.editor.markClean();
 	        (0, _connect.send)('save', { name: name, text: text });

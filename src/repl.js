@@ -53,7 +53,7 @@ function eval_repl() {
     const value = strip_string(repl.getRange(state.last_position, get_end(repl)));
     if (value) repl_history_pointer = repl_history.push(value);
     state.editor_position = false;
-    push_repl(value + '\n', true);
+    if (value) push_repl(value + '\n', true);
 }
 
 function move_up_repl_history(cm) {

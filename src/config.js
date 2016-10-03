@@ -127,6 +127,16 @@ Split(['#editor', '#repl'], {
 const open_dialog = document.getElementById('open');
 const save_dialog = document.getElementById('save');
 const filename = document.getElementById('filename');
+const editor_filename = document.getElementById('editor_filename');
+
+let clean = true;
+
+editor.on('change', (cm, change) => {
+    if (editor.filename && !editor.isClean() && clean) {
+        editor_filename.textContent = ` > ${editor.filename}.scm*`;
+        clean = false;
+    }
+});
 
 $(open_dialog).dialog({
     title: 'Open file',
@@ -182,6 +192,8 @@ function load(data) {
     $(open_dialog).dialog('close');
     editor.setValue(data || '');
     editor.markClean();
+    editor_filename.textContent = ` > ${editor.filename}.scm`;
+    clean = true;
 }
 
 function save(data) {
@@ -192,6 +204,8 @@ function send_save(event) {
     const name = filename.value;
     const text = editor.getValue();
     editor.filename = name;
+    editor_filename.textContent = ` > ${name}.scm`;
+    clean = true;
     if (name) {
         editor.markClean();
         send('save', {name, text});

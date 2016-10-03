@@ -89,13 +89,15 @@ function eval_document(cm) {
         const line = editor.getLineNumber(line_handle);
         const tokens = editor.getLineTokens(line);
         tokens.forEach(token => {
-            const {start, end, type, state: {depth}} = token;
-            if (depth === 0) {
+            const {start, end, type, state: {depth, mode}} = token;
+            if (depth === 0 && mode !== 'comment') {
                 if (type === 'bracket') {
                     if (open) {
                         expressions.push({start: open, end: {line_handle, end}});
                         open = false;
                     } else open = {line_handle, start};
+                } else if (type === 'comment') {
+
                 } else expressions.push({start: {line_handle, start}, end: {line_handle, end}});
             }
         });
@@ -167,5 +169,4 @@ function push_editor({string, latex}) {
     }
     if (state.expressions && state.expressions.length > 0) pop_expression();
 }
-
 export {editor, push_editor, toggle_view}

@@ -50,7 +50,7 @@ class Expression {
         this.update(index);
     }
     render_string() {
-        this.node.textContent = '#|' + this.string + '|#';
+        this.node.textContent = '#| ' + this.string + ' |#';
         this.node.className = 'cm-comment';
     }
     render_latex(mode) {
