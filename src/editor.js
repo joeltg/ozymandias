@@ -154,7 +154,7 @@ function push_editor({string, latex}) {
     if (position) {
         const expression = new Expression(string, latex, default_mode_index);
         editor.setCursor(position);
-        editor.replaceRange(`\n${string}\n`, position, position);
+        editor.replaceRange(`\n#| ${string} |#\n`, position, position);
         state.editor_position = editor.getCursor();
         const mark = editor.markText(
             {line: position.line + 1, ch: 0},

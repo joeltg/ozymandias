@@ -3324,7 +3324,7 @@ webpackJsonp([0],[
 	    if (position) {
 	        var expression = new _expression.Expression(string, latex, default_mode_index);
 	        editor.setCursor(position);
-	        editor.replaceRange('\n' + string + '\n', position, position);
+	        editor.replaceRange('\n#| ' + string + ' |#\n', position, position);
 	        _utils.state.editor_position = editor.getCursor();
 	        var mark = editor.markText({ line: position.line + 1, ch: 0 }, { line: _utils.state.editor_position.line - 1 }, { replacedWith: expression.node });
 	        expression.mark = mark;
@@ -3418,7 +3418,7 @@ webpackJsonp([0],[
 	    _createClass(Expression, [{
 	        key: 'render_string',
 	        value: function render_string() {
-	            this.node.textContent = this.string;
+	            this.node.textContent = '#|' + this.string + '|#';
 	            this.node.className = 'cm-comment';
 	        }
 	    }, {
