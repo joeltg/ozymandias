@@ -39,9 +39,13 @@ class Expression {
     constructor(string, tex, index) {
         this.string = string;
         const key = '$$';
-        const start = tex.indexOf(key) + key.length;
-        const end = tex.lastIndexOf(key);
-        this.latex = fix_matrices(tex.substring(start, end));
+        if (tex) {
+            const start = tex.indexOf(key) + key.length;
+            const end = tex.lastIndexOf(key);
+            this.latex = fix_matrices(tex.substring(start, end));
+        } else {
+            this.latex = false;
+        }
         this.node = document.createElement('span');
         this.update(index);
     }
@@ -50,11 +54,15 @@ class Expression {
         this.node.className = 'cm-comment';
     }
     render_latex(mode) {
-        this.node.textContent = '';
-        this.node.className = 'cm-latex';
-        const child = document.createElement('span');
-        this.node.appendChild(child);
-        katex.render(this.latex, child, {displayMode: mode, throwOnError: false});
+        if (this.latex) {
+            this.node.textContent = '';
+            this.node.className = 'cm-latex';
+            const child = document.createElement('span');
+            this.node.appendChild(child);
+            katex.render(this.latex, child, {displayMode: mode, throwOnError: false});
+        } else {
+            this.render_string();
+        }
     }
     render_latex_inline() {
         this.render_latex(false);

@@ -3,7 +3,8 @@
         (dict->json
             `((type editor)
               (string ,(write-to-string object))
-              (latex ,(expression->tex-string object))))))
+              (latex ,(let ((latex (ignore-errors (lambda () (expression->tex-string object)))))
+                        (if (string? latex) latex #f)))))))
 
 (define (latex/repl-write object s-expression environment repl)
   (let* ((port (cmdl/port repl))

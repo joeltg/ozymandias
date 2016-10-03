@@ -3404,9 +3404,13 @@ webpackJsonp([0],[
 
 	        this.string = string;
 	        var key = '$$';
-	        var start = tex.indexOf(key) + key.length;
-	        var end = tex.lastIndexOf(key);
-	        this.latex = fix_matrices(tex.substring(start, end));
+	        if (tex) {
+	            var start = tex.indexOf(key) + key.length;
+	            var end = tex.lastIndexOf(key);
+	            this.latex = fix_matrices(tex.substring(start, end));
+	        } else {
+	            this.latex = false;
+	        }
 	        this.node = document.createElement('span');
 	        this.update(index);
 	    }
@@ -3420,11 +3424,15 @@ webpackJsonp([0],[
 	    }, {
 	        key: 'render_latex',
 	        value: function render_latex(mode) {
-	            this.node.textContent = '';
-	            this.node.className = 'cm-latex';
-	            var child = document.createElement('span');
-	            this.node.appendChild(child);
-	            _katex2.default.render(this.latex, child, { displayMode: mode, throwOnError: false });
+	            if (this.latex) {
+	                this.node.textContent = '';
+	                this.node.className = 'cm-latex';
+	                var child = document.createElement('span');
+	                this.node.appendChild(child);
+	                _katex2.default.render(this.latex, child, { displayMode: mode, throwOnError: false });
+	            } else {
+	                this.render_string();
+	            }
 	        }
 	    }, {
 	        key: 'render_latex_inline',
