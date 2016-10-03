@@ -2,9 +2,9 @@
 
 path=$1
 
-mkdir ${path}/users ${path}/jail
-mkdir ${path}/jail/etc ${path}/jail/pipes
-mkdir ${path}/schroot
+mkdir -p ${path}/users ${path}/jail
+mkdir -p ${path}/jail/etc ${path}/jail/pipes
+mkdir -p ${path}/schroot
 
 config="
 CHROOT_DIRECTORY=\${FOO_BAR}
