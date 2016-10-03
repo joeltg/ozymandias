@@ -32,9 +32,9 @@ type=directory
 directory=${path}/jail
 groups=users
 root-groups=root,sudo
-profile=../../home/joel/dev/repl/schroot
+profile=../../${path}/schroot
 shell=/bin/bash
-foo.bar=/home/joel/dev/repl/jail/
+foo.bar=${path}/jail/
 user-modifiable-keys=foo.bar
 "
 
