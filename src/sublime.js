@@ -576,9 +576,8 @@ map["Ctrl-Q"] = "kill";
 map["Up"] = "previous";
 map["Down"] = "next";
 
-map["Ctrl-Shift-Enter"] = "eval_selection";
 map["Ctrl-Enter"] = "eval_expression";
-map["Ctrl-A-Enter"] = "eval_document";
+map["Ctrl-Shift-Enter"] = "eval_document";
 
 map["Ctrl-O"] = "open";
 

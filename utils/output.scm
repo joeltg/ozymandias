@@ -1,6 +1,6 @@
 (define arguments (command-line))
 (assert (pair? arguments))
-(define pipe-path (car arguments))
+(define pipe-path (string-append "/pipes/" (car arguments)))
 (define pipe-port (open-i/o-file pipe-path))
 (define id-counter 0)
 

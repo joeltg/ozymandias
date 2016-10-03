@@ -2951,9 +2951,8 @@ webpackJsonp([0],[
 	map["Up"] = "previous";
 	map["Down"] = "next";
 
-	map["Ctrl-Shift-Enter"] = "eval_selection";
 	map["Ctrl-Enter"] = "eval_expression";
-	map["Ctrl-A-Enter"] = "eval_document";
+	map["Ctrl-Shift-Enter"] = "eval_document";
 
 	map["Ctrl-O"] = "open";
 
@@ -3126,6 +3125,7 @@ webpackJsonp([0],[
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var marks = [];
+	var default_mode_index = 0;
 
 	var editor_element = document.getElementById('editor');
 	var editor = (0, _codemirror2.default)(editor_element, {
@@ -3159,7 +3159,7 @@ webpackJsonp([0],[
 	        },
 	        'eval-document': {
 	            emacs: 'Ctrl-X Ctrl-A',
-	            sublime: 'Ctrl-A-Enter'
+	            sublime: 'Ctrl-Shift-Enter'
 	        },
 	        'open': {
 	            emacs: 'Ctrl-X F',
@@ -3177,14 +3177,39 @@ webpackJsonp([0],[
 
 	_codemirror2.default.commands.eval_document = eval_document;
 	_codemirror2.default.commands.eval_expression = eval_expression;
-	var index = 0;
+
+	function earlier(a, b) {
+	    return a.line <= b.line;
+	}
+	function later(a, b) {
+	    return a.line >= b.line;
+	}
+	function range(a, b, c) {
+	    return later(b, a) && earlier(b, c);
+	}
 
 	function toggle_view(cm) {
 	    if (cm !== editor) return;
-	    index = (index + 1) % _expression.modes.length;
-	    marks.forEach(function (mark) {
-	        return mark.find() && mark.expression.update(index) && mark.changed();
+
+	    var start = editor.getCursor('from');
+	    var end = editor.getCursor('to');
+	    var update = function update(_ref) {
+	        var from = _ref.from;
+	        var to = _ref.to;
+	        return range(start, from, end) || range(start, to, end);
+	    };
+
+	    var updates = marks.filter(function (mark) {
+	        return update(mark.find() || { from: -1, to: -1 });
 	    });
+	    if (updates.length > 0) {
+	        (function () {
+	            var index = (updates[0].expression.index + 1) % _expression.modes.length;
+	            updates.forEach(function (mark) {
+	                return mark.expression.update(index) && mark.changed();
+	            });
+	        })();
+	    }
 	}
 
 	function eval_expression(cm) {
@@ -3202,8 +3227,7 @@ webpackJsonp([0],[
 
 	function eval_document(cm) {
 	    if (cm !== editor) return;
-	    // const everything = editor.getValue();
-	    // if (everything) eval_editor(everything, get_end(editor));
+
 	    var expressions = [];
 
 	    var open = false;
@@ -3233,9 +3257,9 @@ webpackJsonp([0],[
 	}
 
 	var traverse_tokens = function traverse_tokens(predicate, callback) {
-	    return function (cm, _ref) {
-	        var line = _ref.line;
-	        var ch = _ref.ch;
+	    return function (cm, _ref2) {
+	        var line = _ref2.line;
+	        var ch = _ref2.ch;
 
 	        var tokens = cm.getLineTokens(line);
 	        for (tokens = tokens.filter(function (token) {
@@ -3259,14 +3283,13 @@ webpackJsonp([0],[
 	    return token.state.depth === 0;
 	}, select_expression);
 
-	function get_paren_block(position, callback) {
+	function get_paren_block(position) {
 	    var parens = editor.findMatchingBracket(position);
 	    if (parens && parens.match) {
 	        var start = parens.forward ? parens.from : parens.to;
 	        var end = parens.forward ? parens.to : parens.from;
 	        end.ch += 1;
 	        _utils.state.editor_position = { line: end.line + 1, ch: 0 };
-	        // if (state.editor_position.line >= editor.lineCount()) editor.replaceRange('\n', end, end);
 	        editor.setCursor(_utils.state.editor_position);
 	        editor.scrollIntoView();
 	        return { start: start, end: end };
@@ -3293,13 +3316,13 @@ webpackJsonp([0],[
 	    eval_editor(text, to);
 	}
 
-	function push_editor(_ref2) {
-	    var string = _ref2.string;
-	    var latex = _ref2.latex;
+	function push_editor(_ref3) {
+	    var string = _ref3.string;
+	    var latex = _ref3.latex;
 
 	    var position = _utils.state.editor_position;
 	    if (position) {
-	        var expression = new _expression.Expression(string, latex, index);
+	        var expression = new _expression.Expression(string, latex, default_mode_index);
 	        editor.setCursor(position);
 	        editor.replaceRange('\n' + string + '\n', position, position);
 	        _utils.state.editor_position = editor.getCursor();
@@ -3310,7 +3333,7 @@ webpackJsonp([0],[
 	    }
 	    if (_utils.state.expressions && _utils.state.expressions.length > 0) pop_expression();
 	}
-	document.foobar = editor;
+
 	exports.editor = editor;
 	exports.push_editor = push_editor;
 	exports.toggle_view = toggle_view;

@@ -4,12 +4,14 @@ path=$1
 
 mkdir ${path}/users ${path}/jail
 mkdir ${path}/jail/etc ${path}/jail/pipes
-mkdir /etc/schroot/scheme
+mkdir ${path}/schroot
 
 config="
-SETUP_COPYFILES=\"scheme/copyfiles
-SETUP_NSSDATABASES=\"scheme/nssdatabases
-SETUP_FSTAB=\"scheme/fstab\"
+CHROOT_DIRECTORY=\${FOO_BAR}
+
+SETUP_COPYFILES=\"../..${path}/schroot/copyfiles\"
+SETUP_NSSDATABASES=\"../..${path}/schroot/nssdatabases\"
+SETUP_FSTAB=\"../..${path}/schroot/fstab\"
 "
 
 fstab="
@@ -19,10 +21,10 @@ ${path}/root/lib64 /lib64  none ro,bind 0 0
 ${path}/utils      /utils  none ro,bind 0 0
 "
 
-echo "${fstab}"         > /etc/schroot/scheme/fstab
-echo "${config}"        > /etc/schroot/scheme/config
-echo "/etc/resolv.conf" > /etc/schroot/scheme/copyfiles
-echo ""                 > /etc/schroot/scheme/nssdatabases
+echo "${fstab}"         > ${path}/schroot/fstab
+echo "${config}"        > ${path}/schroot/config
+echo "/etc/resolv.conf" > ${path}/schroot/copyfiles
+echo ""                 > ${path}/schroot/nssdatabases
 
 scheme="
 [scheme]
@@ -30,9 +32,10 @@ type=directory
 directory=${path}/jail
 groups=users
 root-groups=root,sudo
-profile=scheme
+profile=../../home/joel/dev/repl/schroot
 shell=/bin/bash
-user-modifiable-keys=directory
+foo.bar=/home/joel/dev/repl/jail/
+user-modifiable-keys=foo.bar
 "
 
 echo "${scheme}" > /etc/schroot/chroot.d/scheme.conf

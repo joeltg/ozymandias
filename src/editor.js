@@ -1,9 +1,10 @@
 import CodeMirror from 'codemirror';
-import {default_keyMap, default_state, default_theme, strip_string, get_end, state} from './utils';
+import {default_keyMap, default_state, default_theme, strip_string, state} from './utils';
 import {push_repl} from './repl';
 import {Expression, modes} from './expression';
 
 const marks = [];
+const default_mode_index = 0;
 
 const editor_element = document.getElementById('editor');
 const editor = CodeMirror(editor_element, {
@@ -33,7 +34,7 @@ editor.settings = {
         },
         'eval-document': {
             emacs: 'Ctrl-X Ctrl-A',
-            sublime: 'Ctrl-A-Enter'
+            sublime: 'Ctrl-Shift-Enter'
         },
         'open': {
             emacs: 'Ctrl-X F',
@@ -51,12 +52,23 @@ editor.settings = {
 
 CodeMirror.commands.eval_document = eval_document;
 CodeMirror.commands.eval_expression = eval_expression;
-let index = 0;
+
+function earlier(a, b) { return a.line <= b.line }
+function later(a, b) { return a.line >= b.line }
+function range(a, b, c) { return later(b, a) && earlier(b, c) }
 
 function toggle_view(cm) {
     if (cm !== editor) return;
-    index = (index + 1) % modes.length;
-    marks.forEach(mark => mark.find() && mark.expression.update(index) && mark.changed());
+
+    const start = editor.getCursor('from');
+    const end = editor.getCursor('to');
+    const update = ({from, to}) => range(start, from, end) || range(start, to, end);
+
+    const updates = marks.filter(mark => update(mark.find() || {from: -1, to: -1}));
+    if (updates.length > 0) {
+        const index = (updates[0].expression.index + 1) % modes.length;
+        updates.forEach(mark => mark.expression.update(index) && mark.changed());
+    }
 }
 
 function eval_expression(cm) {
@@ -69,8 +81,7 @@ function eval_expression(cm) {
 
 function eval_document(cm) {
     if (cm !== editor) return;
-    // const everything = editor.getValue();
-    // if (everything) eval_editor(everything, get_end(editor));
+
     const expressions = [];
 
     let open = false;
@@ -98,7 +109,9 @@ function eval_document(cm) {
 const traverse_tokens = (predicate, callback) => (cm, {line, ch}) => {
     let tokens = cm.getLineTokens(line);
     for (tokens = tokens.filter(token => token.start < ch); line > -1; tokens = cm.getLineTokens(--line))
-        for (let i = tokens.length - 1; i > -1; i--) if (predicate(tokens[i])) return callback(line, tokens[i]);
+        for (let i = tokens.length - 1; i > -1; i--)
+            if (predicate(tokens[i]))
+                return callback(line, tokens[i]);
 };
 
 function select_expression(line, token) {
@@ -110,14 +123,13 @@ function select_expression(line, token) {
 
 const get_outer_expression = traverse_tokens(token => token.state.depth === 0, select_expression);
 
-function get_paren_block(position, callback) {
+function get_paren_block(position) {
     const parens = editor.findMatchingBracket(position);
     if (parens && parens.match) {
         const start = parens.forward ? parens.from : parens.to;
         const end = parens.forward ? parens.to : parens.from;
         end.ch += 1;
         state.editor_position = {line: end.line + 1, ch: 0};
-        // if (state.editor_position.line >= editor.lineCount()) editor.replaceRange('\n', end, end);
         editor.setCursor(state.editor_position);
         editor.scrollIntoView();
         return {start, end}
@@ -140,7 +152,7 @@ function pop_expression() {
 function push_editor({string, latex}) {
     const position = state.editor_position;
     if (position) {
-        const expression = new Expression(string, latex, index);
+        const expression = new Expression(string, latex, default_mode_index);
         editor.setCursor(position);
         editor.replaceRange(`\n${string}\n`, position, position);
         state.editor_position = editor.getCursor();
@@ -155,5 +167,5 @@ function push_editor({string, latex}) {
     }
     if (state.expressions && state.expressions.length > 0) pop_expression();
 }
-document.foobar = editor;
+
 export {editor, push_editor, toggle_view}

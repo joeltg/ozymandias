@@ -5,6 +5,7 @@ logs
 *.~*~
 
 .idea/
+schroot/
 legacy/
 users/
 jail/
