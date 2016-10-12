@@ -23,3 +23,5 @@
     (list (point-id point)
           (eval-expr env (point-x point))
           (eval-expr env (point-y point)))))
+
+; case 1:
