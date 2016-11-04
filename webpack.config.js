@@ -8,7 +8,7 @@ module.exports = {
         vendor: ['katex', 'split.js', 'codemirror', 'jquery', 'jquery-ui']
     },
     output: {
-        path: path.resolve(__dirname, 'web', 'build'),
+        path: path.resolve(__dirname, 'build'),
         filename: '[name].js'
     },
     module: {

@@ -41,6 +41,7 @@ passport.use(strategy);
 
 const app = express();
 app.use(express.static(path.resolve(__dirname, 'web')));
+app.use(express.static(path.resolve(__dirname, 'build')));
 
 app.use(passport.initialize());
 app.use(passport.session());
