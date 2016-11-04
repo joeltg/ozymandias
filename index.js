@@ -17,9 +17,9 @@ const key = fs.readFileSync(path.resolve(__dirname, 'certs', 'lambda-key.pem'));
 const cert = fs.readFileSync(path.resolve(__dirname, 'certs', 'lambda_mit_edu_cert.cer'));
 const credentials = {key, cert};
 
-const idpCert = fs.readFileSync(path.resolve(__dirname, 'certs', 'cert_idp.pem', 'utf8'));
-const spKey = fs.readFileSync(path.resolve(__dirname, 'certs', 'sp-key.pem', 'utf8'));
-const spCert = fs.readFileSync(path.resolve(__dirname, 'certs', 'sp-cert.pem', 'utf8'));
+const idpCert = fs.readFileSync(path.resolve(__dirname, 'certs', 'cert_idp.pem'), 'utf8');
+const spKey = fs.readFileSync(path.resolve(__dirname, 'certs', 'sp-key.pem') ,'utf8');
+const spCert = fs.readFileSync(path.resolve(__dirname, 'certs', 'sp-cert.pem'), 'utf8');
 
 const config = {
     entryPoint: 'https://idp.mit.edu/idp/profile/SAML2/Redirect/SSO',
