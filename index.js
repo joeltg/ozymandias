@@ -19,6 +19,7 @@ const credentials = {key, cert};
 
 const idpCert = fs.readFileSync(path.resolve(__dirname, 'certs', 'cert_idp.pem'));
 const spKey = fs.readFileSync(path.resolve(__dirname, 'certs', 'sp-key.pem'));
+const spCert = fs.readFileSync(path.resolve(__dirname, 'certs', 'sp-cert.pem'));
 
 const config = {
     entryPoint: 'https://idp.mit.edu/idp/profile/SAML2/Redirect/SSO',
@@ -33,14 +34,14 @@ const config = {
     // passReqToCallback: true,
 };
 const strategy = new Strategy(config, (profile, done) => done(null, profile));
-const metadata = strategy.generateServiceProviderMetadata(fs.readFileSync(__dirname + '/certs/sp-cert.pem', 'utf8'));
+const metadata = strategy.generateServiceProviderMetadata(spCert);
 
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
 passport.use(strategy);
 
 const app = express();
-app.use(express.static(path.resolve(__dirname, 'web')));
+// app.use(express.static(path.resolve(__dirname, 'web')));
 app.use(express.static(path.resolve(__dirname, 'build')));
 
 app.use(passport.initialize());
