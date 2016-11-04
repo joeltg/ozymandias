@@ -1,5 +1,5 @@
 {
-  "name": "webscheme",
+  "name": "lambda",
   "version": "0.1.0",
   "description": "MIT Scheme IDE, mechanics utilities, and dark magic for the browser",
   "main": "index.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/joeltg/repl.git"
+    "url": "git+https://github.com/joeltg/lambda.git"
   },
   "keywords": [
     "scheme",
@@ -40,9 +40,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/joeltg/repl/issues"
+    "url": "https://github.com/joeltg/lambda/issues"
   },
-  "homepage": "https://github.com/joeltg/repl#readme",
+  "homepage": "https://github.com/joeltg/lambda#readme",
   "devDependencies": {
     "babel-core": "^6.13.2",
     "babel-loader": "^6.2.5",
@@ -64,7 +64,11 @@
     "webpack": "^1.13.2"
   },
   "dependencies": {
+    "cookie-parser": "^1.4.3",
     "express": "^4.14.0",
+    "express-session": "^1.14.2",
+    "passport": "^0.3.2",
+    "passport-saml": "^0.15.0",
     "uws": "^0.8.0"
   }
 }
