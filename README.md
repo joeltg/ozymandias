@@ -29,7 +29,7 @@ sudo apt-get install -y git schroot
 ```
 Clone this repo into `<path>`:
 ```
-git clone https://github.com/joeltg/
+git clone https://github.com/joeltg/lambda.git
 .git
 cd lambda
 npm install --production
