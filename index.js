@@ -14,7 +14,7 @@ const index = path.resolve(__dirname, 'web', 'dev.html');
 const children = {};
 
 const key = fs.readFileSync(path.resolve(__dirname, 'certs', 'lambda-key.pem'));
-const cert = fs.readFileSync(path.resolve(__dirname, 'certs', 'lambda_mit_edu.crt'));
+const cert = fs.readFileSync(path.resolve(__dirname, 'certs', 'lambda_mit_edu.cet'));
 const credentials = {key, cert};
 
 const idpCert = fs.readFileSync(path.resolve(__dirname, 'certs', 'cert_idp.pem'));
