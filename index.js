@@ -33,7 +33,7 @@ const config = {
     // passReqToCallback: true,
 };
 const strategy = new Strategy(config, (profile, done) => done(null, profile));
-const metadata = strategy.generateServiceProviderMetadata(fs.readFileSync(__dirname + '/cert/cert.pem', 'utf8'));
+const metadata = strategy.generateServiceProviderMetadata(fs.readFileSync(__dirname + '/certs/sp-cert.pem', 'utf8'));
 
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
