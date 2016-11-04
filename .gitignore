@@ -1,4 +1,5 @@
-# Certificates
+# Certificates and Keys
+keys/
 certs/
 
 # Logs
