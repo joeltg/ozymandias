@@ -1,4 +1,4 @@
-# repl
+# lambda
 
 Scheme is a beautiful language, but outside of Emacs it can be difficult to use. 
 This project delivers Scheme as a modern IDE experience in the browser.
@@ -6,7 +6,7 @@ Actual computation is done on a server, which interfaces with the client over th
 
 ## Usage
 
-By default, `repl` renders a split view of an editor and a repl. 
+By default, lambda renders a split view of an editor and a repl. 
 The lower repl pane is a direct stdio stream from the scheme subprocess: everything that is written to stdin and everything that comes out of stdout is also shown in the repl.
 It's useful for debugging and for one-liners.
 The upper editor pane is a high-level abstraction, where expressions can be evaluated inline and values can be visualized in generic ways.
@@ -29,12 +29,13 @@ sudo apt-get install -y git schroot
 ```
 Clone this repo into `<path>`:
 ```
-git clone https://github.com/joeltg/repl.git
-cd repl
+git clone https://github.com/joeltg/
+.git
+cd lambda
 npm install --production
 ```
 There's some setup that has to be done to configure the schroot jails.
-Here, `<path>` is the absolute path to the cloned `repl` directory (inclusive).
+Here, `<path>` is the absolute path to the cloned `lambda` directory (inclusive).
 ```
 sudo ./schroot.sh <path>
 ```
