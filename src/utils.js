@@ -2,16 +2,23 @@
  * Created by joel on 8/28/16.
  */
 
-const default_keyMap = 'sublime';
-const default_state = 'close';
-const default_theme = 'monokai';
-
-const default_width = 400, default_height = 300;
+const defaults = {
+    keyMap: 'sublime',
+    visibility: 'close',
+    theme: 'monokai',
+    mode_index: 0,
+    width: 400,
+    height: 300
+};
 
 const state = {
-    editor_position: false,
-    last_position: {line: 0, ch: 0},
-    windows: {}
+    position: false,
+    windows: {},
+    filename: false,
+
+    visibility: defaults.visibility,
+    theme: defaults.theme,
+    keyMap: defaults.keyMap
 };
 
 function get_end(cm) {
@@ -28,4 +35,4 @@ function strip_string(string) {
     return string;
 }
 
-export {default_keyMap, default_state, default_theme, get_end, strip_string, state, default_width, default_height};
+export {get_end, strip_string, state, defaults};

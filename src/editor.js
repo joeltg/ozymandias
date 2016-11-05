@@ -1,54 +1,26 @@
+/**
+ * Created by joel on 8/20/16.
+ */
+
 import CodeMirror from 'codemirror';
-import {default_keyMap, default_state, default_theme, strip_string, state} from './utils';
-import {push_repl} from './repl';
+import {defaults, strip_string, state} from './utils';
 import {Expression, modes} from './expression';
+import {send} from './connect';
 
 const marks = [];
-const default_mode_index = 0;
 
 const editor_element = document.getElementById('editor');
 const editor = CodeMirror(editor_element, {
     mode:  'scheme',
-    theme: default_theme,
+    theme: defaults.theme,
     styleActiveLine: true,
     autoCloseBrackets: true,
     autoMatchParens: true,
     matchBrackets: true,
     indentUnit: 2,
     indentWithTabs: false,
-    keyMap: default_keyMap,
-    extraKeys: CodeMirror.normalizeKeyMap({
-        'Meta-P': e => e,
-        'Meta-N': e => e,
-        'Up': 'goLineUp',
-        'Down': 'goLineDown'
-    })
+    keyMap: defaults.keyMap
 });
-
-editor.settings = {
-    name: 'editor',
-    labels: {
-        'eval-expression': {
-            emacs: 'Ctrl-X Ctrl-E',
-            sublime: 'Ctrl-Enter'
-        },
-        'eval-document': {
-            emacs: 'Ctrl-X Ctrl-A',
-            sublime: 'Ctrl-Shift-Enter'
-        },
-        'open': {
-            emacs: 'Ctrl-X F',
-            sublime: 'Ctrl-O'
-        },
-        'save': {
-            emacs: 'Ctrl-X S',
-            sublime: 'Ctrl-S'
-        }
-    },
-    state: default_state,
-    theme: default_theme,
-    keyMap: default_keyMap
-};
 
 CodeMirror.commands.eval_document = eval_document;
 CodeMirror.commands.eval_expression = eval_expression;
@@ -57,7 +29,7 @@ function earlier(a, b) { return a.line <= b.line }
 function later(a, b) { return a.line >= b.line }
 function range(a, b, c) { return later(b, a) && earlier(b, c) }
 
-function toggle_view(cm) {
+function view(cm) {
     if (cm !== editor) return;
 
     const start = editor.getCursor('from');
@@ -131,16 +103,16 @@ function get_paren_block(position) {
         const start = parens.forward ? parens.from : parens.to;
         const end = parens.forward ? parens.to : parens.from;
         end.ch += 1;
-        state.editor_position = {line: end.line + 1, ch: 0};
-        editor.setCursor(state.editor_position);
+        state.position = {line: end.line + 1, ch: 0};
+        editor.setCursor(state.position);
         editor.scrollIntoView();
         return {start, end}
     } else return false;
 }
 
 function eval_editor(value, position) {
-    state.editor_position = position;
-    push_repl(strip_string(value) + '\n', true);
+    state.position = position;
+    send('eval', strip_string(value) + '\n', true);
 }
 
 function pop_expression() {
@@ -151,22 +123,28 @@ function pop_expression() {
     eval_editor(text, to);
 }
 
-function push_editor({string, latex}) {
-    const position = state.editor_position;
+function push([text, latex, flex]) {
+    const {position} = state;
     if (position) {
-        const expression = new Expression(string, latex, default_mode_index);
         editor.setCursor(position);
-        editor.replaceRange(`\n#| ${string} |#\n`, position, position);
-        state.editor_position = editor.getCursor();
-        const mark = editor.markText(
-            {line: position.line + 1, ch: 0},
-            {line: state.editor_position.line - 1},
-            {replacedWith: expression.node}
-        );
-        expression.mark = mark;
-        mark.expression = expression;
-        marks.push(mark);
+        editor.replaceRange(`\n${text}\n`, position, position);
+        state.position = editor.getCursor();
+        if (latex) {
+            const expression = new Expression(text, latex, defaults.mode_index);
+            const mark = editor.markText(
+                {line: position.line + 1, ch: 0},
+                {line: state.position.line - 1},
+                {replacedWith: expression.node}
+            );
+            expression.mark = mark;
+            mark.expression = expression;
+            marks.push(mark);
+        }
+        if (flex) {
+            const [id, args, vals, out] = flex;
+        }
     }
     if (state.expressions && state.expressions.length > 0) pop_expression();
 }
-export {editor, push_editor, toggle_view}
+
+export {editor, editor_element, push, view}

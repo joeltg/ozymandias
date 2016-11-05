@@ -2,85 +2,61 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Web Scheme</title>
+    <title>Lambda</title>
     <link rel="icon" href="images/favicon.ico" type="image/x-icon"/>
     <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-    <div id="container" class="split">
-        <div id="editor">
-            <img height="32" width="32" class="icon" id="editor-icon" src=""/>
-            <div class="hint" id="editor-hint">
-                <h3>Editor <span id="editor_filename"></span></h3>
-                <div class="settings">
-                    <form>
-                        <input type="radio" class="editor-keyMap" id="editor-keyMap-emacs" name="radio">
-                        <label for="editor-keyMap-emacs">emacs</label>
-                        <input type="radio" class="editor-keyMap" id="editor-keyMap-sublime" name="radio" checked="checked">
-                        <label for="editor-keyMap-sublime">sublime</label>
-                    </form>
-                    <form>
-                        <input type="radio" class="editor-theme" id="editor-theme-light" name="radio">
-                        <label for="editor-theme-light">light</label>
-                        <input type="radio" class="editor-theme" id="editor-theme-dark" name="radio" checked="checked">
-                        <label for="editor-theme-dark">dark</label>
-                    </form>
-                </div>
-                <h4>Evaluation</h4>
-                <ul>
-                    <li>Eval document:<span class="key-binding eval-document"></span></li>
-                    <li>Eval expression:<span class="key-binding eval-expression"></span></li>
-                </ul>
-                <h4>Display</h4>
-                <ul>
-                    <li>Toggle Latex:<span class="key-binding toggle-latex"></span></li>
-                </ul>
-                <h4>I/O</h4>
-                <ul>
-                    <li>Open File:<span class="key-binding open"></span></li>
-                    <li>Save File:<span class="key-binding save"></span></li>
-                </ul>
-            </div>
-        </div>
-        <div id="repl">
-            <img height="32" width="32" class="icon" id="repl-icon" src=""/>
-            <div class="hint" id="repl-hint">
-                <h3>REPL</h3>
-                <div class="settings">
-                    <form>
-                        <input type="radio" class="repl-keyMap" id="repl-keyMap-emacs" name="radio">
-                        <label for="repl-keyMap-emacs">emacs</label>
-                        <input type="radio" class="repl-keyMap" id="repl-keyMap-sublime" name="radio" checked="checked">
-                        <label for="repl-keyMap-sublime">sublime</label>
-                    </form>
-                    <form>
-                        <input type="radio" class="repl-theme" id="repl-theme-light" name="radio">
-                        <label for="repl-theme-light">light</label>
-                        <input type="radio" class="repl-theme" id="repl-theme-dark" name="radio" checked="checked">
-                        <label for="repl-theme-dark">dark</label>
-                    </form>
-                </div>
-                <h4>Evaluation</h4>
-                <ul>
-                    <li>Eval line:<span class="key-binding eval-line"></span></li>
-                </ul>
-                <h4>Control</h4>
-                <ul>
-                    <li>Quit:<span class="key-binding quit"></span></li>
-                </ul>
-                <h4>History</h4>
-                <ul>
-                    <li>Previous:<span class="key-binding history-previous"></span></li>
-                    <li>Next:<span class="key-binding history-next"></span></li>
-                </ul>
-            </div>
-        </div>
+<div id="editor">
+    <div id="icons">
+        <img height="32" class="icon" width="32" id="icon-close-black" src="images/ic_close_black_36px.svg"/>
+        <img height="32" class="icon" width="32" id="icon-close-white" src="images/ic_close_white_36px.svg"/>
+        <img height="32" class="icon" width="32" id="icon-settings-black" src="images/ic_settings_black_36px.svg"/>
+        <img height="32" class="icon" width="32" id="icon-settings-white" src="images/ic_settings_white_36px.svg"/>
     </div>
+    <div id="hint">
+        <h3>Lambda <span id="filename"></span></h3>
+        <div id="settings">
+            <form id="keyMap">
+                <input type="radio" class="keyMap" id="keyMap-emacs" name="radio">
+                <label for="keyMap-emacs">emacs</label>
+                <input type="radio" class="keyMap" id="keyMap-sublime" name="radio" checked="checked">
+                <label for="keyMap-sublime">sublime</label>
+            </form>
+            <form id="theme">
+                <input type="radio" class="theme" id="theme-light" name="radio">
+                <label for="theme-light">light</label>
+                <input type="radio" class="theme" id="theme-dark" name="radio" checked="checked">
+                <label for="theme-dark">dark</label>
+            </form>
+        </div>
+        <h4>Evaluation</h4>
+        <ul>
+            <li>Eval document:<span id="eval-document" class="key-binding"></span></li>
+            <li>Eval expression:<span id="eval-expression" class="key-binding"></span></li>
+        </ul>
+        <h4>Display</h4>
+        <ul>
+            <li>Toggle View:<span id="view" class="key-binding"></span></li>
+        </ul>
+        <h4>I/O</h4>
+        <ul>
+            <li>Open File:<span id="open" class="key-binding"></span></li>
+            <li>Save File:<span id="save" class="key-binding"></span></li>
+        </ul>
+        <h4>Control</h4>
+        <ul>
+            <li>Previous:<span id="history-previous" class="key-binding"></span></li>
+            <li>Previous:<span id="history-next" class="key-binding"></span></li>
+            <li>Quit:<span id="quit" class="key-binding"></span></li>
+        </ul>
+    </div>
+</div>
     <div id="dialogs">
-        <div id="open"></div>
-        <div id="save" style="padding: 16px !important;">
+        <div id="open-dialog"></div>
+        <div id="save-dialog" style="padding: 16px !important;">
             <h2 style="margin-top: 0;">Name:</h2>
-            <input title="Name: " type="text" id="filename"/>
+            <input title="Name: " type="text" id="filename-input"/>
             <span>.scm</span>
         </div>
     </div>

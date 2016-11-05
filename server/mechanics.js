@@ -6,7 +6,7 @@ const fs = require('fs');
 
 const file_type = '.scm';
 
-const logging = false;
+const logging = true;
 
 function config(user, location, id) {
     if (user) {
@@ -27,13 +27,24 @@ function mechanics(user, id, send, sources, children) {
     const {user_path, util_path, args} = config(user, location, id);
     const initialize = path.resolve(util_path, 'initialize.sh');
     const start = path.resolve(util_path, 'start.sh');
-    const pipe_path = path.resolve(user_path, 'pipes', id.toString());
+    const pipe_path = path.resolve(user_path, 'pipes');
+    const data_path = path.resolve(pipe_path, 'data.' + id.toString());
+    const eval_path = path.resolve(pipe_path, 'eval.' + id.toString());
 
     cp.execFile(initialize, args, {}, err => {
-        if (err) return send('repl', err.toString());
+        if (err) return send('output', err.toString());
 
-        const pipe = fs.createReadStream(pipe_path);
-        pipe.on('data', data => send('pipe', data.toString()));
+        const delimiter = '\n';
+        const buffers = {data: '', eval: ''};
+        const data = fs.createReadStream(data_path);
+        data.on('data', data => buffer('data', data.toString()));
+        const eval = fs.createReadStream(eval_path);
+        eval.on('data', eval => buffer('eval', eval.toString()));
+        function buffer(source, content) {
+            const values = (buffers[source] + content).split(delimiter);
+            buffers[source] = values.pop();
+            values.forEach(value => send(source, value));
+        }
 
         const scheme = cp.spawn(start, args, {});
         children[scheme.pid] = scheme;
@@ -42,12 +53,12 @@ function mechanics(user, id, send, sources, children) {
         scheme.on('close', (code, signal) => logging && console.log('scheme closed'));
         scheme.on('error', err => logging && console.error('scheme error', err));
 
-        scheme.stdout.on('data', data => send('repl', data.toString()));
-        scheme.stdout.on('error', err => logging && console.log('scheme stdout error', err));
+        scheme.stdout.on('data', data => logging && process.stdout.write(data.toString()));
+        scheme.stdout.on('error', err => logging && console.err('scheme stdout error', err));
 
         const file = name => path.resolve(user_path, 'files', name.replace('/', '-') + file_type);
 
-        sources.repl = data => (scheme.pid in children) && scheme.stdin.write(data);
+        sources.eval = data => (scheme.pid in children) && scheme.stdin.write(data);
         sources.kill = data => (scheme.pid in children) && cp.exec(`pkill -${data} -P ${scheme.pid}`);
         sources.save = ({name, text}) => fs.writeFile(file(name), text, 'utf8', err => send('save', !err));
         sources.load = ({name}) => fs.readFile(file(name), 'utf8', (err, text) => send('load', text));

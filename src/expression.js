@@ -1,10 +1,15 @@
 /**
  * Created by joel on 9/26/16.
  */
+
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 
-const modes = ['render_string', 'render_latex_inline', 'render_latex_display'];
+const modes = [
+    'render_string',
+    // 'render_latex_inline',
+    'render_latex_display'
+];
 
 const key = '\\matrix';
 const len = key.length;
@@ -50,7 +55,7 @@ class Expression {
         this.update(index);
     }
     render_string() {
-        this.node.textContent = '#| ' + this.string + ' |#';
+        this.node.textContent = this.string;
         this.node.className = 'cm-comment';
     }
     render_latex(mode) {

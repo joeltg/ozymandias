@@ -1,17 +1,23 @@
 (define arguments (command-line))
 (assert (pair? arguments))
-(define pipe-path (string-append "/pipes/" (car arguments)))
-(define pipe-port (open-i/o-file pipe-path))
-(define id-counter 0)
+(define id (car arguments))
 
+(define data-path (string-append "/pipes/data." id))
+(define data-port (open-i/o-file data-path))
+
+(define eval-path (string-append "/pipes/eval." id))
+(define eval-port (open-i/o-file eval-path))
+
+(define id-counter 0)
 (define delimiter #\newline)
+
 (define delimiter-char-set (char-set delimiter))
 
 (define (get-id)
   (set! id-counter (+ id-counter 1))
   id-counter)
 
-(define (send-json data #!optional push)
-  (write-string data pipe-port)
-  (write-char delimiter pipe-port)
-  (if push (flush-output pipe-port)))
+(define (send-json data)
+  (write-string data data-port)
+  (write-char delimiter data-port)
+  (flush-output data-port))
