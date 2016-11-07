@@ -138,7 +138,7 @@ const save_notification = document.createElement('span');
 function save(data) {
     if (data) save_notification.textContent = 'Saved successfully';
     else save_notification.textContent = 'Save failed';
-    editor.openNotification(save_notification, {duration: 2000});
+    editor.openNotification(save_notification, {duration: 3000});
 }
 
 const open_prompt = document.createElement('span');

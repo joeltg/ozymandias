@@ -56,40 +56,49 @@ function view(cm, delta) {
     return true;
 }
 
+const complain_notification = document.createElement('span');
+complain_notification.textContent = 'Resolve error before continuing evaluation';
+function complain() {
+
+}
+
 function eval_expression(cm) {
-    if (cm !== editor) return;
-    const position = editor.getCursor();
-    const {start, end} = get_outer_expression(editor, position);
-    const value = editor.getRange(start, end);
-    eval_editor(value, end);
+    if (state.error) editor.openNotification(complain_notification, {duration: 3000});
+    else {
+        const position = editor.getCursor();
+        const {start, end} = get_outer_expression(editor, position);
+        const value = editor.getRange(start, end);
+        state.expressions = false;
+        eval_editor(value, end);
+    }
 }
 
 function eval_document(cm) {
-    if (cm !== editor) return;
+    if (state.error) editor.openNotification(complain_notification, {duration: 3000});
+    else {
+        const expressions = [];
+        let open = false;
+        editor.eachLine(line_handle => {
+            const line = editor.getLineNumber(line_handle);
+            const tokens = editor.getLineTokens(line);
+            tokens.forEach(token => {
+                const {start, end, type, state: {depth, mode}} = token;
+                if (depth === 0 && mode !== 'comment') {
+                    if (type === 'bracket') {
+                        if (open) {
+                            expressions.push({start: open, end: {line_handle, end}});
+                            open = false;
+                        } else open = {line_handle, start};
+                    } else if (type === 'comment') {
 
-    const expressions = [];
-
-    let open = false;
-    editor.eachLine(line_handle => {
-        const line = editor.getLineNumber(line_handle);
-        const tokens = editor.getLineTokens(line);
-        tokens.forEach(token => {
-            const {start, end, type, state: {depth, mode}} = token;
-            if (depth === 0 && mode !== 'comment') {
-                if (type === 'bracket') {
-                    if (open) {
-                        expressions.push({start: open, end: {line_handle, end}});
-                        open = false;
-                    } else open = {line_handle, start};
-                } else if (type === 'comment') {
-
-                } else expressions.push({start: {line_handle, start}, end: {line_handle, end}});
-            }
+                    } else expressions.push({start: {line_handle, start}, end: {line_handle, end}});
+                }
+            });
         });
-    });
-    if (expressions.length > 0) {
-        state.expressions = expressions;
-        pop_expression();
+        if (expressions.length > 0) {
+            state.expressions = expressions;
+            pop_expression();
+        } else state.expressions = false;
     }
 }
 
@@ -137,27 +146,77 @@ function pop_expression() {
 }
 
 function push([text, latex, flex]) {
-    const {position} = state;
-    if (position) {
-        editor.setCursor(position);
-        editor.replaceRange(`\n${text}\n`, position, position);
-        state.position = editor.getCursor();
-        if (latex) {
-            const expression = new Expression(text, latex, defaults.mode_index);
-            const mark = editor.markText(
-                {line: position.line + 1, ch: 0},
-                {line: state.position.line - 1},
-                {replacedWith: expression.node}
-            );
-            expression.mark = mark;
-            mark.expression = expression;
-            marks.push(mark);
+    if (state.error) {
+
+    } else {
+        const {position} = state;
+        if (position) {
+            editor.setCursor(position);
+            editor.replaceRange(`\n${text}\n`, position, position);
+            state.position = editor.getCursor();
+            if (latex) {
+                const expression = new Expression(text, latex, defaults.mode_index);
+                const mark = editor.markText(
+                    {line: position.line + 1, ch: 0},
+                    {line: state.position.line - 1},
+                    {replacedWith: expression.node}
+                );
+                expression.mark = mark;
+                mark.expression = expression;
+                marks.push(mark);
+            }
+            if (flex) {
+                const [id, args, vals, out] = flex;
+            }
         }
-        if (flex) {
-            const [id, args, vals, out] = flex;
-        }
+        if (state.expressions && state.expressions.length > 0) pop_expression();
     }
-    if (state.expressions && state.expressions.length > 0) pop_expression();
 }
 
-export {editor, push, view}
+function error([text, restarts]) {
+    state.error = true;
+    const div = document.createElement('div');
+    const h4 = document.createElement('h4');
+    h4.textContent = text;
+    div.appendChild(h4);
+    div.className = 'error-panel';
+    const ul = document.createElement('ul');
+    div.appendChild(ul);
+    const panel = editor.addPanel(div, {position: 'bottom'});
+    restarts.forEach(([name, report], index) => {
+        const li = document.createElement('li');
+        const action = document.createElement('span');
+        action.textContent = report;
+        const button = document.createElement('input');
+        button.type = 'button';
+        button.value = name;
+        button.onclick = e => {
+            send('eval', '(restart ' + (restarts.length - index) + ')\n');
+            if (name === 'use-value' || name === 'store-value') {
+                button.type = 'text';
+                button.value = '';
+                button.onclick = e => e;
+                button.onkeydown = e => {
+                    if (e.keyCode === 13) {
+                        send('eval', button.value + '\n');
+                        panel.clear();
+                        editor.focus();
+                        state.error = false;
+                    }
+                }
+            } else {
+                panel.clear();
+                editor.focus();
+                state.error = false;
+                if (name === 'abort') state.expressions = false;
+            }
+        };
+        li.appendChild(button);
+        li.appendChild(action);
+        ul.appendChild(li);
+        if (index === 0) button.focus();
+    });
+    panel.changed();
+}
+
+export {editor, push, view, error}

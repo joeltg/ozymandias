@@ -8,7 +8,8 @@ const defaults = {
     theme: 'monokai',
     mode_index: 0,
     width: 400,
-    height: 300
+    height: 300,
+    error: false
 };
 
 const state = {

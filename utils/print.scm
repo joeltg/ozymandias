@@ -3,7 +3,7 @@
     (lambda () (expression->tex-string object))))
 
 (define (print-string string port)
-  (write-string (string-append "[" (string->json string) "]") port)
+  (write-string (string-append "[0," (string->json string) "]") port)
   (write-char delimiter port)
   (flush-output port))
 
@@ -20,7 +20,7 @@
 (define (print-complex val port)
   (let ((string (open-output-string))
         (latex (get-latex val)))
-    (write-string "[" port)
+    (write-string "[0," port)
     (write-string "#|\n" string)
     (pp val string)
     (write-string "|#" string)
@@ -46,7 +46,7 @@
 
 (define (lambda/repl-write object s-expression environment repl)
   ;(let ((port (cmdl/port repl)))
-  (let ((port eval-port))
+  (let ((port data-port))
     (cond
       ((and (symbol? object) (eq? '*silence* object)))
       ((unsimplifiable? object)

@@ -19,9 +19,9 @@ import 'codemirror/addon/search/matchesonscrollbar.css';
 import 'codemirror/addon/scroll/annotatescrollbar';
 import 'codemirror/addon/scroll/simplescrollbars';
 import 'codemirror/addon/scroll/simplescrollbars.css';
-
 import 'codemirror/addon/dialog/dialog';
 import 'codemirror/addon/dialog/dialog.css';
+import 'codemirror/addon/display/panel';
 import 'codemirror/addon/selection/active-line';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
@@ -29,30 +29,24 @@ import './scheme';
 import './emacs';
 import './sublime';
 
-import {push, view} from './editor';
-// import {canvas} from './graphics/canvas';
-// import {latex} from './graphics/latex';
+import {push, view, error} from './editor';
 import {cm_open, cm_save, open, save, load} from './config';
 
-function pipe(message) {
-    switch (message.type) {
-        // case 'canvas':
-        //     return canvas(message);
-        // case 'latex':
-        //     return latex(message);
-        case 'editor':
-            return push(message);
+const pipe = ({source, content}) => sources[source](content);
+const auth = content => send('auth', {user: false});
+function data(message) {
+    switch (message[0]) {
+        case 0:
+            return push(message.slice(1));
+        case 1:
+            return error(message.slice(1));
         default:
-            console.error('message type not recognized', message);
+            console.error(message);
     }
 }
 
-const data = ({source, content}) => sources[source](content);
-const auth = content => send('auth', {user: false});
-
 const sources = {
-    data: content => console.log(content) || pipe(JSON.parse(content)),
-    eval: content => console.log(content) || push(JSON.parse(content)),
+    data,
     auth,
     open,
     save,
@@ -67,5 +61,5 @@ CodeMirror.commands.view = view;
 console.log('connecting to server... ');
 
 socket.onopen    = event => console.log('connected.');
-socket.onmessage = event => data(JSON.parse(event.data));
+socket.onmessage = event => pipe(JSON.parse(event.data));
 socket.onclose   = event => console.log('lost connection to server.');

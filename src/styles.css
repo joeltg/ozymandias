@@ -97,7 +97,7 @@ form, input, label {
     font-size: 16px;
 }
 
-.CodeMirror-dialog button {
+.CodeMirror-dialog button, .error-panel input {
     margin: 4px;
     font-family: monospace;
     font-size: inherit !important;
@@ -111,8 +111,22 @@ form, input, label {
     cursor: pointer;
 }
 
-.CodeMirror-dialog button:focus {
+.error-panel input {
+    width: 128px;
+}
+
+.CodeMirror-dialog button:focus, .error-panel input:focus {
     border-width: 2px;
     font-style: italic;
     font-weight: bold;
+}
+
+.error-panel {
+    background: #aaa;
+    height: 144px;
+    overflow: auto;
+}
+
+.error-panel p {
+    margin-left: 16px;
 }

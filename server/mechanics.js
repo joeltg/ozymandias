@@ -25,24 +25,22 @@ function mechanics(user, id, send, sources, children) {
     const {user_path, util_path, args} = config(user, location, id);
     const initialize = path.resolve(util_path, 'initialize.sh');
     const start = path.resolve(util_path, 'start.sh');
-    const pipe_path = path.resolve(user_path, 'pipes');
-    const data_path = path.resolve(pipe_path, 'data-' + id.toString());
-    const eval_path = path.resolve(pipe_path, 'eval-' + id.toString());
+    const pipe_path = path.resolve(user_path, 'pipes', id.toString());
 
     cp.execFile(initialize, args, {}, err => {
         if (err) return send('error', err.toString());
 
         const delimiter = '\n';
-        const buffers = {data: '', eval: ''};
-        const data = fs.createReadStream(data_path);
-        data.on('data', data => buffer('data', data.toString()));
-        const eval = fs.createReadStream(eval_path);
-        eval.on('data', eval => buffer('eval', eval.toString()));
-        function buffer(source, content) {
-            const values = (buffers[source] + content).split(delimiter);
-            buffers[source] = values.pop();
-            values.forEach(value => send(source, value));
-        }
+        let buffer = '';
+        const pipe = fs.createReadStream(pipe_path);
+        pipe.on('data', data => {
+            const values = (buffer + data).split(delimiter);
+            buffer = values.pop();
+            values.forEach(value => {
+                try { send('data', JSON.parse(value)); }
+                catch (e) { console.error(e); }
+            });
+        });
 
         const scheme = cp.spawn(start, args, {});
         children[scheme.pid] = scheme;
@@ -52,8 +50,7 @@ function mechanics(user, id, send, sources, children) {
             if (logging) console.log('scheme exited with signal', signal);
             if (scheme.pid in children) {
                 delete children[scheme.pid];
-                fs.unlink(data_path, err => err && console.error(err));
-                fs.unlink(eval_path, err => err && console.error(err));
+                fs.unlink(pipe_path, err => err && console.error(err));
             }
         });
 
