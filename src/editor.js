@@ -6,11 +6,12 @@ import CodeMirror from 'codemirror';
 import {defaults, strip_string, state} from './utils';
 import {Expression, modes} from './expression';
 import {send} from './connect';
+import {keywords} from './keywords';
 
 const marks = [];
 
 const editor = CodeMirror(document.getElementById('editor'), {
-    mode:  'scheme',
+    mode: 'scheme',
     theme: defaults.theme,
     styleActiveLine: true,
     autoCloseBrackets: true,
@@ -19,30 +20,40 @@ const editor = CodeMirror(document.getElementById('editor'), {
     indentUnit: 2,
     indentWithTabs: false,
     keyMap: defaults.keyMap,
-    value: ';;;; Lambda v0.1\n'
+    value: ';;;; Lambda v0.1\n\n',
+    extraKeys: CodeMirror.normalizeKeyMap({
+        'Tab': cm => view(cm, 1) || hint(cm) || cm.execCommand('indentMore'),
+        'Shift-Tab': cm => view(cm, -1) || cm.execCommand('indentLess'),
+    })
 });
 
-editor.setCursor(1, 0);
+editor.setCursor(2, 0);
 
 CodeMirror.commands.eval_document = eval_document;
 CodeMirror.commands.eval_expression = eval_expression;
+CodeMirror.registerHelper('hintWords', 'scheme', keywords);
 
 function earlier(a, b) { return a.line <= b.line }
 function later(a, b) { return a.line >= b.line }
 function range(a, b, c) { return later(b, a) && earlier(b, c) }
+function hint(cm) {
+    const start = cm.getCursor('from');
+    const end = cm.getCursor('to');
+    if (start.line === end.line && start.ch === end.ch && /^ *$/.test(cm.getLine(start.line).substring(0, start.ch))) return false;
+    cm.showHint();
+    return true;
+}
 
-function view(cm) {
-    if (cm !== editor) return;
-
+function view(cm, delta) {
     const start = editor.getCursor('from');
     const end = editor.getCursor('to');
     const update = ({from, to}) => range(start, from, end) || range(start, to, end);
 
     const updates = marks.filter(mark => update(mark.find() || {from: -1, to: -1}));
-    if (updates.length > 0) {
-        const index = (updates[0].expression.index + 1) % modes.length;
-        updates.forEach(mark => mark.expression.update(index) && mark.changed());
-    }
+    if (updates.length === 0) return false;
+    const index = Math.abs((updates[0].expression.index + delta) % modes.length);
+    updates.forEach(mark => mark.expression.update(index) && mark.changed());
+    return true;
 }
 
 function eval_expression(cm) {

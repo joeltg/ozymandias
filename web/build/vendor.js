@@ -98,7 +98,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	__webpack_require__(35);
+	__webpack_require__(38);
 	module.exports = __webpack_require__(7);
 
 
@@ -9236,7 +9236,10 @@
 /* 32 */,
 /* 33 */,
 /* 34 */,
-/* 35 */
+/* 35 */,
+/* 36 */,
+/* 37 */,
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* eslint no-console:0 */
@@ -9248,12 +9251,12 @@
 	 * errors in the expression, or errors in javascript handling.
 	 */
 
-	var ParseError = __webpack_require__(36);
-	var Settings = __webpack_require__(37);
+	var ParseError = __webpack_require__(39);
+	var Settings = __webpack_require__(40);
 
-	var buildTree = __webpack_require__(38);
-	var parseTree = __webpack_require__(51);
-	var utils = __webpack_require__(43);
+	var buildTree = __webpack_require__(41);
+	var parseTree = __webpack_require__(54);
+	var utils = __webpack_require__(46);
 
 	/**
 	 * Parse and build an expression, and place that expression in the DOM node
@@ -9316,7 +9319,7 @@
 
 
 /***/ },
-/* 36 */
+/* 39 */
 /***/ function(module, exports) {
 
 	/**
@@ -9362,7 +9365,7 @@
 
 
 /***/ },
-/* 37 */
+/* 40 */
 /***/ function(module, exports) {
 
 	/**
@@ -9396,15 +9399,15 @@
 
 
 /***/ },
-/* 38 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var buildHTML = __webpack_require__(39);
-	var buildMathML = __webpack_require__(48);
-	var buildCommon = __webpack_require__(41);
-	var Options = __webpack_require__(50);
-	var Settings = __webpack_require__(37);
-	var Style = __webpack_require__(40);
+	var buildHTML = __webpack_require__(42);
+	var buildMathML = __webpack_require__(51);
+	var buildCommon = __webpack_require__(44);
+	var Options = __webpack_require__(53);
+	var Settings = __webpack_require__(40);
+	var Style = __webpack_require__(43);
 
 	var makeSpan = buildCommon.makeSpan;
 
@@ -9442,7 +9445,7 @@
 
 
 /***/ },
-/* 39 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* eslint no-console:0 */
@@ -9453,14 +9456,14 @@
 	 * called, to produce a final HTML tree.
 	 */
 
-	var ParseError = __webpack_require__(36);
-	var Style = __webpack_require__(40);
+	var ParseError = __webpack_require__(39);
+	var Style = __webpack_require__(43);
 
-	var buildCommon = __webpack_require__(41);
-	var delimiter = __webpack_require__(47);
-	var domTree = __webpack_require__(42);
-	var fontMetrics = __webpack_require__(44);
-	var utils = __webpack_require__(43);
+	var buildCommon = __webpack_require__(44);
+	var delimiter = __webpack_require__(50);
+	var domTree = __webpack_require__(45);
+	var fontMetrics = __webpack_require__(47);
+	var utils = __webpack_require__(46);
 
 	var makeSpan = buildCommon.makeSpan;
 
@@ -10850,7 +10853,7 @@
 
 
 /***/ },
-/* 40 */
+/* 43 */
 /***/ function(module, exports) {
 
 	/**
@@ -10936,7 +10939,7 @@
 	var SS = 6;
 	var SSc = 7;
 
-	// String names for the different sizes
+	// String names.js for the different sizes
 	var sizeNames = [
 	    "displaystyle textstyle",
 	    "textstyle",
@@ -10944,7 +10947,7 @@
 	    "scriptscriptstyle",
 	];
 
-	// Reset names for the different sizes
+	// Reset names.js for the different sizes
 	var resetNames = [
 	    "reset-textstyle",
 	    "reset-textstyle",
@@ -10982,7 +10985,7 @@
 
 
 /***/ },
-/* 41 */
+/* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* eslint no-console:0 */
@@ -10991,10 +10994,10 @@
 	 * different kinds of domTree nodes in a consistent manner.
 	 */
 
-	var domTree = __webpack_require__(42);
-	var fontMetrics = __webpack_require__(44);
-	var symbols = __webpack_require__(46);
-	var utils = __webpack_require__(43);
+	var domTree = __webpack_require__(45);
+	var fontMetrics = __webpack_require__(47);
+	var symbols = __webpack_require__(49);
+	var utils = __webpack_require__(46);
 
 	var greekCapitals = [
 	    "\\Gamma",
@@ -11438,7 +11441,7 @@
 
 
 /***/ },
-/* 42 */
+/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -11451,7 +11454,7 @@
 	 * Similar functions for working with MathML nodes exist in mathMLTree.js.
 	 */
 
-	var utils = __webpack_require__(43);
+	var utils = __webpack_require__(46);
 
 	/**
 	 * Create an HTML className based on a list of classes. In addition to joining
@@ -11713,7 +11716,7 @@
 
 
 /***/ },
-/* 43 */
+/* 46 */
 /***/ function(module, exports) {
 
 	/**
@@ -11825,12 +11828,12 @@
 
 
 /***/ },
-/* 44 */
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* eslint no-unused-vars:0 */
 
-	var Style = __webpack_require__(40);
+	var Style = __webpack_require__(43);
 
 	/**
 	 * This file contains metrics regarding fonts and individual symbols. The sigma
@@ -11902,7 +11905,7 @@
 	var doubleRuleSep = 2.0 / ptPerEm;
 
 	/**
-	 * This is just a mapping from common names to real metrics
+	 * This is just a mapping from common names.js to real metrics
 	 */
 	var metrics = {
 	    xHeight: sigma5,
@@ -11949,7 +11952,7 @@
 	// metrics, including height, depth, italic correction, and skew (kern from the
 	// character to the corresponding \skewchar)
 	// This map is generated via `make metrics`. It should not be changed manually.
-	var metricMap = __webpack_require__(45);
+	var metricMap = __webpack_require__(48);
 
 	/**
 	 * This function is a convenience function for looking up information in the
@@ -11978,7 +11981,7 @@
 
 
 /***/ },
-/* 45 */
+/* 48 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -13736,7 +13739,7 @@
 
 
 /***/ },
-/* 46 */
+/* 49 */
 /***/ function(module, exports) {
 
 	/**
@@ -14362,7 +14365,7 @@
 
 
 /***/ },
-/* 47 */
+/* 50 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -14387,13 +14390,13 @@
 	 * used in `\left` and `\right`.
 	 */
 
-	var ParseError = __webpack_require__(36);
-	var Style = __webpack_require__(40);
+	var ParseError = __webpack_require__(39);
+	var Style = __webpack_require__(43);
 
-	var buildCommon = __webpack_require__(41);
-	var fontMetrics = __webpack_require__(44);
-	var symbols = __webpack_require__(46);
-	var utils = __webpack_require__(43);
+	var buildCommon = __webpack_require__(44);
+	var fontMetrics = __webpack_require__(47);
+	var symbols = __webpack_require__(49);
+	var utils = __webpack_require__(46);
 
 	var makeSpan = buildCommon.makeSpan;
 
@@ -14910,7 +14913,7 @@
 
 
 /***/ },
-/* 48 */
+/* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -14919,12 +14922,12 @@
 	 * parser.
 	 */
 
-	var buildCommon = __webpack_require__(41);
-	var fontMetrics = __webpack_require__(44);
-	var mathMLTree = __webpack_require__(49);
-	var ParseError = __webpack_require__(36);
-	var symbols = __webpack_require__(46);
-	var utils = __webpack_require__(43);
+	var buildCommon = __webpack_require__(44);
+	var fontMetrics = __webpack_require__(47);
+	var mathMLTree = __webpack_require__(52);
+	var ParseError = __webpack_require__(39);
+	var symbols = __webpack_require__(49);
+	var utils = __webpack_require__(46);
 
 	var makeSpan = buildCommon.makeSpan;
 	var fontMap = buildCommon.fontMap;
@@ -15449,7 +15452,7 @@
 
 
 /***/ },
-/* 49 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -15462,7 +15465,7 @@
 	 * domTree.js, creating namespaced DOM nodes and HTML text markup respectively.
 	 */
 
-	var utils = __webpack_require__(43);
+	var utils = __webpack_require__(46);
 
 	/**
 	 * This node represents a general purpose MathML node of any type. The
@@ -15557,7 +15560,7 @@
 
 
 /***/ },
-/* 50 */
+/* 53 */
 /***/ function(module, exports) {
 
 	/**
@@ -15674,7 +15677,7 @@
 	};
 
 	/**
-	 * A map of color names to CSS colors.
+	 * A map of color names.js to CSS colors.
 	 * TODO(emily): Remove this when we have real macros
 	 */
 	var colorMap = {
@@ -15752,7 +15755,7 @@
 
 
 /***/ },
-/* 51 */
+/* 54 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -15760,7 +15763,7 @@
 	 * TODO(emily): Remove this
 	 */
 
-	var Parser = __webpack_require__(52);
+	var Parser = __webpack_require__(55);
 
 	/**
 	 * Parses an expression using a Parser, then returns the parsed result.
@@ -15775,18 +15778,18 @@
 
 
 /***/ },
-/* 52 */
+/* 55 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* eslint no-constant-condition:0 */
-	var functions = __webpack_require__(53);
-	var environments = __webpack_require__(54);
-	var Lexer = __webpack_require__(56);
-	var symbols = __webpack_require__(46);
-	var utils = __webpack_require__(43);
+	var functions = __webpack_require__(56);
+	var environments = __webpack_require__(57);
+	var Lexer = __webpack_require__(59);
+	var symbols = __webpack_require__(49);
+	var utils = __webpack_require__(46);
 
-	var parseData = __webpack_require__(55);
-	var ParseError = __webpack_require__(36);
+	var parseData = __webpack_require__(58);
+	var ParseError = __webpack_require__(39);
 
 	/**
 	 * This file contains the parser used to parse out a TeX expression from the
@@ -16518,16 +16521,16 @@
 
 
 /***/ },
-/* 53 */
+/* 56 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var utils = __webpack_require__(43);
-	var ParseError = __webpack_require__(36);
+	var utils = __webpack_require__(46);
+	var ParseError = __webpack_require__(39);
 
 	/* This file contains a list of functions that we parse, identified by
 	 * the calls to defineFunction.
 	 *
-	 * The first argument to defineFunction is a single name or a list of names.
+	 * The first argument to defineFunction is a single name or a list of names.js.
 	 * All functions named in such a list will share a single implementation.
 	 *
 	 * Each declared function can have associated properties, which
@@ -17104,13 +17107,13 @@
 
 
 /***/ },
-/* 54 */
+/* 57 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* eslint no-constant-condition:0 */
-	var fontMetrics = __webpack_require__(44);
-	var parseData = __webpack_require__(55);
-	var ParseError = __webpack_require__(36);
+	var fontMetrics = __webpack_require__(47);
+	var parseData = __webpack_require__(58);
+	var ParseError = __webpack_require__(39);
 
 	var ParseNode = parseData.ParseNode;
 
@@ -17150,7 +17153,7 @@
 
 	/*
 	 * An environment definition is very similar to a function definition:
-	 * it is declared with a name or a list of names, a set of properties
+	 * it is declared with a name or a list of names.js, a set of properties
 	 * and a handler containing the actual implementation.
 	 *
 	 * The properties include:
@@ -17165,7 +17168,7 @@
 	 *  - context: information and references provided by the parser
 	 *  - args: an array of arguments passed to \begin{name}
 	 * The context contains the following properties:
-	 *  - envName: the name of the environment, one of the listed names.
+	 *  - envName: the name of the environment, one of the listed names.js.
 	 *  - parser: the parser object
 	 *  - lexer: the lexer object
 	 *  - positions: the positions associated with these arguments from args.
@@ -17331,7 +17334,7 @@
 
 
 /***/ },
-/* 55 */
+/* 58 */
 /***/ function(module, exports) {
 
 	/**
@@ -17350,7 +17353,7 @@
 
 
 /***/ },
-/* 56 */
+/* 59 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -17366,9 +17369,9 @@
 	 * kinds.
 	 */
 
-	var matchAt = __webpack_require__(57);
+	var matchAt = __webpack_require__(60);
 
-	var ParseError = __webpack_require__(36);
+	var ParseError = __webpack_require__(39);
 
 	// The main lexer class
 	function Lexer(input) {
@@ -17518,7 +17521,7 @@
 
 
 /***/ },
-/* 57 */
+/* 60 */
 /***/ function(module, exports) {
 
 	/** @flow */

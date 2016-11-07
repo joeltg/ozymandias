@@ -11,7 +11,7 @@ const indented_keywords = [
 ];
 
 const keywords = [
-    'λ',
+    'lambda',
     'case-lambda',
     'call/cc',
     'class',
@@ -56,7 +56,6 @@ const keywords = [
     'else',
     'for-each',
     'if',
-    'lambda',
     'let',
     'let*',
     'let-syntax',

@@ -4,7 +4,6 @@ const path = require('path');
 const cp = require('child_process');
 const fs = require('fs');
 
-const file_type = '.scm';
 const logging = false;
 
 function config(user, location, id) {
