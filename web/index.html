@@ -3,65 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <title>Lambda</title>
-    <link rel="icon" href="images/favicon.ico" type="image/x-icon"/>
-    <link rel="stylesheet" href="styles.css"/>
+    <!--<link rel="icon" href="images/favicon.ico" type="image/x-icon"/>-->
+    <link rel="icon" href="images/lambda.png?v=2" type="image/png"/>
+    <link rel="stylesheet" href="build/styles.css"/>
 </head>
 <body>
-<div id="editor">
-    <div id="icons">
-        <img height="32" class="icon" width="32" id="icon-close-black" src="images/ic_close_black_36px.svg"/>
-        <img height="32" class="icon" width="32" id="icon-close-white" src="images/ic_close_white_36px.svg"/>
-        <img height="32" class="icon" width="32" id="icon-settings-black" src="images/ic_settings_black_36px.svg"/>
-        <img height="32" class="icon" width="32" id="icon-settings-white" src="images/ic_settings_white_36px.svg"/>
-    </div>
-    <div id="hint">
-        <h3>Lambda <span id="filename"></span></h3>
-        <div id="settings">
-            <form id="keyMap">
-                <input type="radio" class="keyMap" id="keyMap-emacs" name="radio">
-                <label for="keyMap-emacs">emacs</label>
-                <input type="radio" class="keyMap" id="keyMap-sublime" name="radio" checked="checked">
-                <label for="keyMap-sublime">sublime</label>
-            </form>
-            <form id="theme">
-                <input type="radio" class="theme" id="theme-light" name="radio">
-                <label for="theme-light">light</label>
-                <input type="radio" class="theme" id="theme-dark" name="radio" checked="checked">
-                <label for="theme-dark">dark</label>
-            </form>
+    <div id="editor">
+        <div id="icons">
+            <img height="32" class="icon" width="32" id="icon-close-black" src="images/ic_close_black_36px.svg"/>
+            <img height="32" class="icon" width="32" id="icon-close-white" src="images/ic_close_white_36px.svg"/>
+            <img height="32" class="icon" width="32" id="icon-settings-black" src="images/ic_settings_black_36px.svg"/>
+            <img height="32" class="icon" width="32" id="icon-settings-white" src="images/ic_settings_white_36px.svg"/>
         </div>
-        <h4>Evaluation</h4>
-        <ul>
-            <li>Eval document:<span id="eval-document" class="key-binding"></span></li>
-            <li>Eval expression:<span id="eval-expression" class="key-binding"></span></li>
-        </ul>
-        <h4>Display</h4>
-        <ul>
-            <li>Toggle View:<span id="view" class="key-binding"></span></li>
-        </ul>
-        <h4>I/O</h4>
-        <ul>
-            <li>Open File:<span id="open" class="key-binding"></span></li>
-            <li>Save File:<span id="save" class="key-binding"></span></li>
-        </ul>
-        <h4>Control</h4>
-        <ul>
-            <li>Previous:<span id="history-previous" class="key-binding"></span></li>
-            <li>Previous:<span id="history-next" class="key-binding"></span></li>
-            <li>Quit:<span id="quit" class="key-binding"></span></li>
-        </ul>
-    </div>
-</div>
-    <div id="dialogs">
-        <div id="open-dialog"></div>
-        <div id="save-dialog" style="padding: 16px !important;">
-            <h2 style="margin-top: 0;">Name:</h2>
-            <input title="Name: " type="text" id="filename-input"/>
-            <span>.scm</span>
+        <div id="hint">
+            <h3>Lambda<span id="filename"></span></h3>
+            <div id="settings">
+                <form id="keyMap">
+                    <input type="radio" class="keyMap" id="keyMap-emacs" name="radio">
+                    <label for="keyMap-emacs">emacs</label>
+                    <input type="radio" class="keyMap" id="keyMap-sublime" name="radio" checked="checked">
+                    <label for="keyMap-sublime">sublime</label>
+                </form>
+                <form id="theme">
+                    <input type="radio" class="theme" id="theme-light" name="radio">
+                    <label for="theme-light">light</label>
+                    <input type="radio" class="theme" id="theme-dark" name="radio" checked="checked">
+                    <label for="theme-dark">dark</label>
+                </form>
+            </div>
+            <h4>Evaluation</h4>
+            <ul>
+                <li>Eval document:<span id="eval-document" class="key-binding"></span></li>
+                <li>Eval expression:<span id="eval-expression" class="key-binding"></span></li>
+            </ul>
+            <h4>Display</h4>
+            <ul>
+                <li>Toggle View:<span id="view" class="key-binding"></span></li>
+            </ul>
+            <h4>I/O</h4>
+            <ul>
+                <li>Open File:<span id="open" class="key-binding"></span></li>
+                <li>Save File:<span id="save" class="key-binding"></span></li>
+            </ul>
+            <h4>Control</h4>
+            <ul>
+                <li>Previous:<span id="previous" class="key-binding"></span></li>
+                <li>Next:<span id="next" class="key-binding"></span></li>
+                <li>Quit:<span id="quit" class="key-binding"></span></li>
+            </ul>
         </div>
     </div>
     <script src="connect.js"></script>
-    <script src="vendor.js"></script>
-    <script src="main.js"></script>
+    <script src="build/vendor.js"></script>
+    <script src="build/main.js"></script>
 </body>
 </html>

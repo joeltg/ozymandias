@@ -2,44 +2,12 @@
  * Created by joel on 8/20/16.
  */
 
-import $ from 'jquery';
-
-import 'jquery-ui/ui/widget';
-import 'jquery-ui/ui/position';
-import 'jquery-ui/ui/data';
-import 'jquery-ui/ui/disable-selection';
-import 'jquery-ui/ui/focusable';
-import 'jquery-ui/ui/form-reset-mixin';
-import 'jquery-ui/ui/keycode';
-import 'jquery-ui/ui/labels';
-import 'jquery-ui/ui/scroll-parent';
-import 'jquery-ui/ui/tabbable';
-import 'jquery-ui/ui/unique-id';
-
-import 'jquery-ui/ui/widgets/draggable';
-import 'jquery-ui/ui/widgets/resizable';
-import 'jquery-ui/ui/widgets/checkboxradio';
-import 'jquery-ui/ui/widgets/controlgroup';
-import 'jquery-ui/ui/widgets/mouse';
-import 'jquery-ui/ui/widgets/button';
-import 'jquery-ui/ui/widgets/dialog';
-
-import 'jquery-ui/themes/base/core.css';
-import 'jquery-ui/themes/base/base.css';
-import 'jquery-ui/themes/base/theme.css';
-import 'jquery-ui/themes/base/button.css';
-import 'jquery-ui/themes/base/dialog.css';
-import 'jquery-ui/themes/base/resizable.css';
-import 'jquery-ui/themes/base/draggable.css';
-import 'jquery-ui/themes/base/controlgroup.css';
-import 'jquery-ui/themes/base/checkboxradio.css';
-
 import {send} from './connect';
-import {editor, editor_element} from './editor';
+import {editor} from './editor';
 import {state, defaults} from './utils';
 
 const icon_elements = [];
-const icon_collection = editor_element.getElementsByClassName('icon');
+const icon_collection = document.getElementsByClassName('icon');
 for (let i = 0; icon_collection[i]; i++) icon_elements.push(icon_collection[i]);
 const icons = {
     settings: {
@@ -79,12 +47,12 @@ const labels = [
         sublime: 'Ctrl-S'
     },
     {
-        element: document.getElementById('history-previous'),
+        element: document.getElementById('previous'),
         emacs: 'Meta-P',
         sublime: 'Up'
     },
     {
-        element: document.getElementById('history-next'),
+        element: document.getElementById('next'),
         emacs: 'Meta-N',
         sublime: 'Down'
     },
@@ -96,8 +64,6 @@ const labels = [
 ];
 
 function set_theme(theme) {
-    if (theme === 'light') theme = 'default';
-    if (theme === 'dark') theme = 'monokai';
     state.theme = theme;
     icon_elements.forEach(element => element.style.visibility = 'hidden');
     icons[state.visibility][theme].style.visibility = 'visible';
@@ -106,8 +72,8 @@ function set_theme(theme) {
 
 function set_visibility(visibility) {
     state.visibility = visibility;
-    if (visibility === 'settings') $(`#hint`).fadeOut(50);
-    else if (visibility === 'close') $(`#hint`).fadeIn(50);
+    if (visibility === 'settings') hint.style.display = 'none';
+    else if (visibility === 'close') hint.style.display = 'block';
     icon_elements.forEach(element => element.style.visibility = 'hidden');
     icons[visibility][state.theme].style.visibility = 'visible';
 }
@@ -123,113 +89,103 @@ function set_keyMap(keyMap) {
 }
 
 document.getElementById('icons').onclick = toggle_visibility;
-$('.theme').click(e => set_theme(e.currentTarget.nextElementSibling.innerText));
-$('.keyMap').click(e => set_keyMap(e.currentTarget.nextElementSibling.innerText));
+document.getElementById('keyMap-emacs').onclick = e => set_keyMap('emacs');
+document.getElementById('keyMap-sublime').onclick = e => set_keyMap('sublime');
+document.getElementById('theme-light').onclick = e => set_theme('default');
+document.getElementById('theme-dark').onclick = e => set_theme('monokai');
 set_visibility(defaults.visibility);
 set_keyMap(defaults.keyMap);
 set_theme(defaults.theme);
 
 editor.focus();
 
-const open_dialog = document.getElementById('open-dialog');
-const save_dialog = document.getElementById('save-dialog');
-const filename_input = document.getElementById('filename-input');
 const filename = document.getElementById('filename');
 
 let clean = true;
+let dialog = false;
 
 editor.on('change', (cm, change) => {
     if (state.filename && !editor.isClean() && clean) {
-        filename.textContent = ` > ${state.filename}.scm*`;
+        filename.textContent = ': ' + state.filename + '*';
         clean = false;
     }
 });
 
-$(open_dialog).dialog({
-    title: 'Open file',
-    autoOpen: false,
-    width: defaults.width,
-    resizable: true,
-    buttons: [
-        {text: 'Cancel (Esc)', click: function() {$(this).dialog('close')}}
-    ]
-});
-
-$(save_dialog).dialog({
-    title: 'Save file',
-    autoOpen: false,
-    width: defaults.width,
-    resizable: true,
-    buttons: [
-        {text: 'Cancel (Esc)', click: function() {$(this).dialog('close')}},
-        {text: 'Save (Enter)', click: send_save}
-    ]
-});
-
 function open(files) {
-    $(open_dialog).empty();
-    files.forEach((label, index) => {
+    open_files.innerHTML = '';
+    files.forEach((name, index) => {
         const button = document.createElement('button');
-        button.className = 'filename';
+        button.textContent = name;
         button.addEventListener('click', e => {
-            const name = e.target.textContent;
+            if (dialog) dialog();
+            dialog = false;
             state.filename = name;
             send('load', {name});
         });
-        $(open_dialog).append(button);
-        $(button).button({label});
+        open_files.appendChild(button);
         if (index === 0) button.focus();
     });
 }
 
 function load(data) {
-    $(open_dialog).dialog('close');
     editor.setValue(data || '');
     editor.markClean();
-    filename.textContent = ` > ${state.filename}.scm`;
+    filename.textContent = ': ' + state.filename;
     clean = true;
 }
 
+const save_notification = document.createElement('span');
 function save(data) {
-    console.log('saved');
+    if (data) save_notification.textContent = 'Saved successfully';
+    else save_notification.textContent = 'Save failed';
+    editor.openNotification(save_notification, {duration: 2000});
 }
+
+const open_prompt = document.createElement('span');
+open_prompt.textContent = 'Open file: ';
+const open_files = document.createElement('span');
+open_prompt.appendChild(open_files);
+function cm_open(cm) {
+    if (dialog) dialog();
+    send('open', true);
+    dialog = cm.openNotification(open_prompt, {duration: 0});
+}
+
+const save_prompt = document.createElement('span');
+save_prompt.textContent = 'Save file: /files/';
+const save_input = document.createElement('input');
+save_input.type = 'text';
+save_prompt.appendChild(save_input);
 
 function send_save(event) {
-    const name = filename_input.value;
-    const text = editor.getValue();
-    state.filename = name;
-    filename.textContent = ` > ${name}.scm`;
-    clean = true;
-    if (name) {
+    if (save_input.value) {
+        const name = save_input.value;
+        const text = editor.getValue();
+        state.filename = name;
+        filename.textContent = ': ' + name;
+        clean = true;
         editor.markClean();
         send('save', {name, text});
-        $(save_dialog).dialog('close');
     }
 }
 
-function send_open() {
-    send('open', true);
-}
-
-function cm_open(cm) {
-    $(open_dialog).dialog('open');
-    send_open();
+function strip(name) {
+    return name.split('/').join('');
 }
 
 function cm_save(cm) {
     if (!editor.isClean()) {
-        if (state.filename) filename_input.value = state.filename;
-        $(save_dialog).dialog('open');
+        if (state.filename) save_input.value = state.filename;
+        const onInput = (event, value) => save_input.value = strip(value);
+        cm.openDialog(save_prompt, send_save, {onInput});
     }
 }
 
-$(document).keyup(e => {
+document.addEventListener('keyup', e => {
     if (e.keyCode === 27) {
-        $(save_dialog).dialog('close');
-        $(open_dialog).dialog('close');
+        if (dialog) dialog();
+        dialog = false;
     }
 });
-$(filename_input).keyup(e => e.keyCode === 13 && send_save(e.target.value));
-$('input').addClass("ui-widget ui-widget-content ui-corner-all");
 
 export {cm_open, cm_save, open, save, load}

@@ -12,9 +12,9 @@
 
 (define (print-primitive object port environment)
   (let ((string (open-output-string)))
-    (write-string "#|" string)
+    (write-string "#| " string)
     (write object string environment)
-    (write-string "|#" string)
+    (write-string " |#" string)
     (print-string (get-output-string string) port)))
 
 (define (print-complex val port)

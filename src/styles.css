@@ -5,7 +5,10 @@ html, body {
     font-family: monospace;
 }
 
-h3 {  margin: 8px;  }
+h3 {
+    margin: 8px;
+    font-size: 16px;
+}
 h4 {  margin: 8px;  }
 h4 + ul {  margin-top: 0;  }
 
@@ -32,7 +35,6 @@ form, input, label {
 
 #hint {
     z-index: 1;
-    display: none;
     margin: 16px;
     width: 300px;
     position: fixed;
@@ -92,8 +94,25 @@ form, input, label {
 
 #filename {
     height: 24px;
-    font-size: 18px;
+    font-size: 16px;
 }
-.filename {
-    margin: 8px;
+
+.CodeMirror-dialog button {
+    margin: 4px;
+    font-family: monospace;
+    font-size: inherit !important;
+    background: none;
+    color: inherit;
+    border: 1px solid;
+    border-radius: 2px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    cursor: pointer;
+}
+
+.CodeMirror-dialog button:focus {
+    border-width: 2px;
+    font-style: italic;
+    font-weight: bold;
 }

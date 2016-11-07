@@ -9,8 +9,7 @@ import {send} from './connect';
 
 const marks = [];
 
-const editor_element = document.getElementById('editor');
-const editor = CodeMirror(editor_element, {
+const editor = CodeMirror(document.getElementById('editor'), {
     mode:  'scheme',
     theme: defaults.theme,
     styleActiveLine: true,
@@ -19,8 +18,11 @@ const editor = CodeMirror(editor_element, {
     matchBrackets: true,
     indentUnit: 2,
     indentWithTabs: false,
-    keyMap: defaults.keyMap
+    keyMap: defaults.keyMap,
+    value: ';;;; Lambda v0.1\n'
 });
+
+editor.setCursor(1, 0);
 
 CodeMirror.commands.eval_document = eval_document;
 CodeMirror.commands.eval_expression = eval_expression;
@@ -147,4 +149,4 @@ function push([text, latex, flex]) {
     if (state.expressions && state.expressions.length > 0) pop_expression();
 }
 
-export {editor, editor_element, push, view}
+export {editor, push, view}

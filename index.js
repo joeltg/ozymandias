@@ -18,18 +18,11 @@ const children = {};
 
 const app = express();
 app.use(express.static(path.resolve(__dirname, 'web')));
-app.use(express.static(path.resolve(__dirname, 'build')));
 
 if (dev) {
   app.get('/', (req, res) => res.sendFile(index));
   app.listen(server_port);
   console.log('http server listening on port', server_port);
-
-  // WebSocket Server
-  const socket = new ws.Server({port: socket_port});
-  socket.on('connection', socket => connection(socket, children));
-  console.log('socket listening on port', socket_port);
-
 } else {
   const key = fs.readFileSync(path.resolve(__dirname, 'certs', 'lambda-key.pem'));
   const cert = fs.readFileSync(path.resolve(__dirname, 'certs', 'lambda_mit_edu_cert.cer'));
@@ -73,16 +66,16 @@ if (dev) {
   app.get('/shibboleth', (req, res) => res.type('application/xml').status(200).send(metadata));
 
   https.createServer(credentials, app).listen(443);
-  console.log('https server listening on port 443');
 }
 
+// WebSocket Server
+const socket = new ws.Server({port: socket_port});
+socket.on('connection', socket => connection(socket, children));
+if (dev) console.log('socket listening on port', socket_port);
 
 process.on('SIGINT', e => process.exit()).on('SIGTERM', e => process.exit());
 process.on('exit', function(signal, code) {
-    console.log('process exiting');
-    Object.keys(children).forEach(pid => {
-        console.log('killing', pid);
-        process.kill(pid, 'SIGTERM');
-    });
+    if (dev) console.log('process exiting');
+    Object.keys(children).forEach(pid => (dev && console.log('killing', pid)) || process.kill(pid, 'SIGTERM'));
     process.kill(process.pid, 'SIGKILL');
 });

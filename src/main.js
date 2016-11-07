@@ -7,6 +7,7 @@ import './styles.css';
 import {send, socket} from './connect';
 
 import CodeMirror from 'codemirror';
+import 'codemirror/addon/comment/comment';
 import 'codemirror/addon/edit/matchbrackets';
 import 'codemirror/addon/edit/closebrackets';
 import 'codemirror/addon/search/search';
@@ -27,16 +28,16 @@ import './emacs';
 import './sublime';
 
 import {push, view} from './editor';
-import {canvas} from './graphics/canvas';
-import {latex} from './graphics/latex';
+// import {canvas} from './graphics/canvas';
+// import {latex} from './graphics/latex';
 import {cm_open, cm_save, open, save, load} from './config';
 
 function pipe(message) {
     switch (message.type) {
-        case 'canvas':
-            return canvas(message);
-        case 'latex':
-            return latex(message);
+        // case 'canvas':
+        //     return canvas(message);
+        // case 'latex':
+        //     return latex(message);
         case 'editor':
             return push(message);
         default:
