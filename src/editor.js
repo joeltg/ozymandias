@@ -195,6 +195,8 @@ function error([text, restarts]) {
             if (name === 'use-value' || name === 'store-value') {
                 button.type = 'text';
                 button.value = '';
+                button.style.fontStyle = 'normal';
+                button.style.fontWeight = 'normal';
                 button.onclick = e => e;
                 button.onkeydown = e => {
                     if (e.keyCode === 13) {

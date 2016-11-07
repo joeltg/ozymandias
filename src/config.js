@@ -46,16 +46,16 @@ const labels = [
         emacs: 'Ctrl-X S',
         sublime: 'Ctrl-S'
     },
-    {
-        element: document.getElementById('previous'),
-        emacs: 'Meta-P',
-        sublime: 'Up'
-    },
-    {
-        element: document.getElementById('next'),
-        emacs: 'Meta-N',
-        sublime: 'Down'
-    },
+    // {
+    //     element: document.getElementById('previous'),
+    //     emacs: 'Meta-P',
+    //     sublime: 'Up'
+    // },
+    // {
+    //     element: document.getElementById('next'),
+    //     emacs: 'Meta-N',
+    //     sublime: 'Down'
+    // },
     {
         element: document.getElementById('quit'),
         emacs: 'Ctrl-G',
@@ -125,6 +125,7 @@ function open(files) {
         open_files.appendChild(button);
         if (index === 0) button.focus();
     });
+    if (files.length === 0) open_files.textContent = 'No files found';
 }
 
 function load(data) {

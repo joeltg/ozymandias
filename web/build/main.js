@@ -4036,6 +4036,8 @@ webpackJsonp([0],[
 	            if (name === 'use-value' || name === 'store-value') {
 	                button.type = 'text';
 	                button.value = '';
+	                button.style.fontStyle = 'normal';
+	                button.style.fontWeight = 'normal';
 	                button.onclick = function (e) {
 	                    return e;
 	                };
@@ -4392,15 +4394,18 @@ webpackJsonp([0],[
 	    element: document.getElementById('save'),
 	    emacs: 'Ctrl-X S',
 	    sublime: 'Ctrl-S'
-	}, {
-	    element: document.getElementById('previous'),
-	    emacs: 'Meta-P',
-	    sublime: 'Up'
-	}, {
-	    element: document.getElementById('next'),
-	    emacs: 'Meta-N',
-	    sublime: 'Down'
-	}, {
+	},
+	// {
+	//     element: document.getElementById('previous'),
+	//     emacs: 'Meta-P',
+	//     sublime: 'Up'
+	// },
+	// {
+	//     element: document.getElementById('next'),
+	//     emacs: 'Meta-N',
+	//     sublime: 'Down'
+	// },
+	{
 	    element: document.getElementById('quit'),
 	    emacs: 'Ctrl-G',
 	    sublime: 'Ctrl-Q'
@@ -4481,6 +4486,7 @@ webpackJsonp([0],[
 	        open_files.appendChild(button);
 	        if (index === 0) button.focus();
 	    });
+	    if (files.length === 0) open_files.textContent = 'No files found';
 	}
 
 	function load(data) {
