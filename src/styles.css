@@ -129,3 +129,7 @@ form, input, label {
 .error-panel p {  margin: 0 16px;  }
 .error-panel input {  width: 128px;  }
 .error-panel span {  margin: 0 4px;  }
+
+.CodeMirror-hints {
+    background: #aaa !important;
+}

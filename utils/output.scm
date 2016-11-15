@@ -2,12 +2,12 @@
 (assert (pair? arguments))
 (define id (car arguments))
 
-(define print-path (string-append "/pipes/print-" id))
 (define data-path (string-append "/pipes/data-" id))
-(define print-port (open-output-file print-path))
 (define data-port (open-i/o-file data-path))
-(set-current-output-port! print-port)
 
+(define print-path (string-append "/pipes/print-" id))
+(define print-port (open-output-file print-path))
+(set-current-output-port! print-port)
 (define old-pp pp)
 (set! pp
   (lambda (object #!optional port . rest)
