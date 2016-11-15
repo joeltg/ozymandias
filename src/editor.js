@@ -174,7 +174,6 @@ function push([text, latex, flex]) {
 }
 
 function error([text, restarts]) {
-    state.error = true;
     const div = document.createElement('div');
     const h4 = document.createElement('h4');
     h4.textContent = text;
@@ -183,6 +182,14 @@ function error([text, restarts]) {
     const ul = document.createElement('ul');
     div.appendChild(ul);
     const panel = editor.addPanel(div, {position: 'bottom'});
+    const last = editor.lastLine();
+    editor.setOption('readOnly', 'nocursor');
+    state.error = e => {
+        panel.clear();
+        editor.setOption('readOnly', false);
+        editor.focus();
+        state.error = false;
+    };
     restarts.forEach(([name, report], index) => {
         const li = document.createElement('li');
         const action = document.createElement('span');
@@ -201,15 +208,11 @@ function error([text, restarts]) {
                 button.onkeydown = e => {
                     if (e.keyCode === 13) {
                         send('eval', button.value + '\n');
-                        panel.clear();
-                        editor.focus();
-                        state.error = false;
+                        state.error();
                     }
                 }
             } else {
-                panel.clear();
-                editor.focus();
-                state.error = false;
+                state.error();
                 if (name === 'abort') state.expressions = false;
             }
         };

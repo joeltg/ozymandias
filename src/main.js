@@ -30,6 +30,7 @@ import './emacs';
 import './sublime';
 
 import {push, view, error} from './editor';
+import {state} from './utils';
 import {cm_open, cm_save, open, save, load} from './config';
 
 const pipe = ({source, content}) => sources[source](content);
@@ -53,10 +54,13 @@ const sources = {
     load
 };
 
-CodeMirror.commands.kill = cm => send('kill', 'INT');
+CodeMirror.commands.view = view;
 CodeMirror.commands.save = cm_save;
 CodeMirror.commands.open = cm_open;
-CodeMirror.commands.view = view;
+CodeMirror.commands.interrupt = cm => {
+    if (state.error) state.error();
+    send('kill', 'INT');
+};
 
 console.log('connecting to server... ');
 

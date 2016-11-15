@@ -56,10 +56,15 @@ const labels = [
     //     emacs: 'Meta-N',
     //     sublime: 'Down'
     // },
+    // {
+    //     element: document.getElementById('quit'),
+    //     emacs: 'Ctrl-G',
+    //     sublime: 'Ctrl-Q'
+    // },
     {
-        element: document.getElementById('quit'),
-        emacs: 'Ctrl-G',
-        sublime: 'Ctrl-Q'
+        element: document.getElementById('interrupt'),
+        emacs: 'Ctrl-C',
+        sublime: 'Ctrl-B'
     }
 ];
 

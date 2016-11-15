@@ -570,7 +570,8 @@ map["Shift-F3"] = "findPrev";
 
 map["Ctrl-G"] = e => e;
 map["Ctrl-S"] = "save";
-map["Ctrl-Q"] = "kill";
+// map["Ctrl-Q"] = "quit";
+map["Ctrl-B"] = "interrupt";
 map["Ctrl-Up"] = "previous";
 map["Ctrl-Down"] = "next";
 

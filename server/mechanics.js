@@ -4,7 +4,7 @@ const path = require('path');
 const cp = require('child_process');
 const fs = require('fs');
 
-const logging = false;
+const logging = true;
 
 function config(user, location, id) {
     if (user) {
@@ -37,8 +37,12 @@ function mechanics(user, id, send, sources, children) {
             const values = (buffer + data).split(delimiter);
             buffer = values.pop();
             values.forEach(value => {
-                try { send('data', JSON.parse(value)); }
-                catch (e) { console.error(e); }
+                try {
+                    send('data', JSON.parse(value));
+                }
+                catch (e) {
+                    console.error(e);
+                }
             });
         });
 
@@ -59,11 +63,12 @@ function mechanics(user, id, send, sources, children) {
 
         const file = name => path.resolve(user_path, 'files', name.split('/').join(''));
 
-        sources.eval = data => (scheme.pid in children) && scheme.stdin.write(data);
+        sources.eval = data => (scheme.pid in children) && scheme.stdin.write(data) && logging && process.stdout.write(data);
         sources.kill = data => (scheme.pid in children) && cp.exec(`pkill -${data} -P ${scheme.pid}`);
         sources.save = ({name, text}) => fs.writeFile(file(name), text, 'utf8', err => send('save', !err));
         sources.load = ({name}) => fs.readFile(file(name), 'utf8', (err, text) => send('load', text));
         sources.open = open => fs.readdir(path.resolve(user_path, 'files'), (err, files) => send('open', files));
+        sources.ctrl = name => (scheme.pid in children) && scheme.stdin.write(null, {ctrl: true, name});
     });
 }
 

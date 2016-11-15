@@ -357,7 +357,8 @@ var keyMap = CodeMirror.keyMap.emacs = CodeMirror.normalizeKeyMap({
   "Ctrl-Z": repeated("undo"), "Cmd-Z": repeated("undo"),
   "Shift-Alt-,": "goDocStart", "Shift-Alt-.": "goDocEnd",
   "Ctrl-S": "findNext", "Ctrl-R": "findPrev",
-  "Ctrl-G": 'kill', "Shift-Alt-5": "replace",
+  // "Ctrl-G": 'quit',
+    "Shift-Alt-5": "replace",
   "Alt-/": "autocomplete",
   "Ctrl-J": "newlineAndIndent", "Enter": false, "Tab": "indentAuto",
 
@@ -394,7 +395,8 @@ var keyMap = CodeMirror.keyMap.emacs = CodeMirror.normalizeKeyMap({
   "Ctrl-X Ctrl-A": "eval_document",
   "Ctrl-X Ctrl-R": "eval_selection",
   "Ctrl-X Ctrl-E": "eval_expression",
-  "Shift-Tab": "view"
+  "Shift-Tab": "view",
+  "Ctrl-C": "interrupt"
 });
 
 var prefixMap = {"Ctrl-G": clearPrefix};

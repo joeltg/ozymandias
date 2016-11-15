@@ -64,19 +64,20 @@ webpackJsonp([0],[
 
 	var _editor = __webpack_require__(36);
 
+	var _utils = __webpack_require__(37);
+
 	var _config = __webpack_require__(128);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	/**
-	 * Created by joel on 8/20/16.
-	 */
 
 	var pipe = function pipe(_ref) {
 	    var source = _ref.source,
 	        content = _ref.content;
 	    return sources[source](content);
-	};
+	}; /**
+	    * Created by joel on 8/20/16.
+	    */
+
 	var auth = function auth(content) {
 	    return (0, _connect.send)('auth', { user: false });
 	};
@@ -99,12 +100,13 @@ webpackJsonp([0],[
 	    load: _config.load
 	};
 
-	_codemirror2.default.commands.kill = function (cm) {
-	    return (0, _connect.send)('kill', 'INT');
-	};
+	_codemirror2.default.commands.view = _editor.view;
 	_codemirror2.default.commands.save = _config.cm_save;
 	_codemirror2.default.commands.open = _config.cm_open;
-	_codemirror2.default.commands.view = _editor.view;
+	_codemirror2.default.commands.interrupt = function (cm) {
+	    if (_utils.state.error) _utils.state.error();
+	    (0, _connect.send)('kill', 'INT');
+	};
 
 	console.log('connecting to server... ');
 
@@ -3092,7 +3094,8 @@ webpackJsonp([0],[
 	  "Ctrl-Z": repeated("undo"), "Cmd-Z": repeated("undo"),
 	  "Shift-Alt-,": "goDocStart", "Shift-Alt-.": "goDocEnd",
 	  "Ctrl-S": "findNext", "Ctrl-R": "findPrev",
-	  "Ctrl-G": 'kill', "Shift-Alt-5": "replace",
+	  // "Ctrl-G": 'quit',
+	  "Shift-Alt-5": "replace",
 	  "Alt-/": "autocomplete",
 	  "Ctrl-J": "newlineAndIndent", "Enter": false, "Tab": "indentAuto",
 
@@ -3130,7 +3133,8 @@ webpackJsonp([0],[
 	  "Ctrl-X Ctrl-A": "eval_document",
 	  "Ctrl-X Ctrl-R": "eval_selection",
 	  "Ctrl-X Ctrl-E": "eval_expression",
-	  "Shift-Tab": "view"
+	  "Shift-Tab": "view",
+	  "Ctrl-C": "interrupt"
 	});
 
 	var prefixMap = { "Ctrl-G": clearPrefix };
@@ -3756,7 +3760,8 @@ webpackJsonp([0],[
 	  return e;
 	};
 	map["Ctrl-S"] = "save";
-	map["Ctrl-Q"] = "kill";
+	// map["Ctrl-Q"] = "quit";
+	map["Ctrl-B"] = "interrupt";
 	map["Ctrl-Up"] = "previous";
 	map["Ctrl-Down"] = "next";
 
@@ -4011,7 +4016,6 @@ webpackJsonp([0],[
 	        text = _ref6[0],
 	        restarts = _ref6[1];
 
-	    _utils.state.error = true;
 	    var div = document.createElement('div');
 	    var h4 = document.createElement('h4');
 	    h4.textContent = text;
@@ -4020,6 +4024,14 @@ webpackJsonp([0],[
 	    var ul = document.createElement('ul');
 	    div.appendChild(ul);
 	    var panel = editor.addPanel(div, { position: 'bottom' });
+	    var last = editor.lastLine();
+	    editor.setOption('readOnly', 'nocursor');
+	    _utils.state.error = function (e) {
+	        panel.clear();
+	        editor.setOption('readOnly', false);
+	        editor.focus();
+	        _utils.state.error = false;
+	    };
 	    restarts.forEach(function (_ref7, index) {
 	        var _ref8 = _slicedToArray(_ref7, 2),
 	            name = _ref8[0],
@@ -4044,15 +4056,11 @@ webpackJsonp([0],[
 	                button.onkeydown = function (e) {
 	                    if (e.keyCode === 13) {
 	                        (0, _connect.send)('eval', button.value + '\n');
-	                        panel.clear();
-	                        editor.focus();
-	                        _utils.state.error = false;
+	                        _utils.state.error();
 	                    }
 	                };
 	            } else {
-	                panel.clear();
-	                editor.focus();
-	                _utils.state.error = false;
+	                _utils.state.error();
 	                if (name === 'abort') _utils.state.expressions = false;
 	            }
 	        };
@@ -4405,10 +4413,15 @@ webpackJsonp([0],[
 	//     emacs: 'Meta-N',
 	//     sublime: 'Down'
 	// },
+	// {
+	//     element: document.getElementById('quit'),
+	//     emacs: 'Ctrl-G',
+	//     sublime: 'Ctrl-Q'
+	// },
 	{
-	    element: document.getElementById('quit'),
-	    emacs: 'Ctrl-G',
-	    sublime: 'Ctrl-Q'
+	    element: document.getElementById('interrupt'),
+	    emacs: 'Ctrl-C',
+	    sublime: 'Ctrl-B'
 	}];
 
 	function set_theme(theme) {

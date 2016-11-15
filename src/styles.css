@@ -100,10 +100,6 @@ form, input, label {
     font-size: 16px;
 }
 
-/*.CodeMirror-dialog {*/
-    /*z-index: 2*/
-/*}*/
-
 .CodeMirror-dialog button, .error-panel input {
     margin: 4px;
     font-family: monospace;
@@ -118,10 +114,6 @@ form, input, label {
     cursor: pointer;
 }
 
-.error-panel input {
-    width: 128px;
-}
-
 .CodeMirror-dialog button:focus, .error-panel input:focus {
     border-width: 2px;
     font-style: italic;
@@ -134,6 +126,6 @@ form, input, label {
     overflow: auto;
 }
 
-.error-panel p {
-    margin-left: 16px;
-}
+.error-panel p {  margin: 0 16px;  }
+.error-panel input {  width: 128px;  }
+.error-panel span {  margin: 0 4px;  }
