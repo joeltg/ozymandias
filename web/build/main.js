@@ -97,7 +97,10 @@ webpackJsonp([0],[
 	    auth: auth,
 	    open: _config.open,
 	    save: _config.save,
-	    load: _config.load
+	    load: _config.load,
+	    print: function print(p) {
+	        return (0, _editor.push)([p]);
+	    }
 	};
 
 	_codemirror2.default.commands.view = _editor.view;
@@ -3990,7 +3993,7 @@ webpackJsonp([0],[
 
 	        if (position) {
 	            editor.setCursor(position);
-	            editor.replaceRange('\n' + text + '\n', position, position);
+	            editor.replaceRange('' + (position.ch ? '\n' : '') + text + '\n', position, position);
 	            _utils.state.position = editor.getCursor();
 	            if (latex) {
 	                var expression = new _expression.Expression(text, latex, _utils.defaults.mode_index);

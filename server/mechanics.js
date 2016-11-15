@@ -4,7 +4,7 @@ const path = require('path');
 const cp = require('child_process');
 const fs = require('fs');
 
-const logging = true;
+const logging = false;
 
 function config(user, location, id) {
     if (user) {
@@ -25,7 +25,8 @@ function mechanics(user, id, send, sources, children) {
     const {user_path, util_path, args} = config(user, location, id);
     const initialize = path.resolve(util_path, 'initialize.sh');
     const start = path.resolve(util_path, 'start.sh');
-    const pipe_path = path.resolve(user_path, 'pipes', id.toString());
+    const print_path = path.resolve(user_path, 'pipes', 'print-' + id.toString());
+    const pipe_path = path.resolve(user_path, 'pipes', 'data-' + id.toString());
 
     cp.execFile(initialize, args, {}, err => {
         if (err) return send('error', err.toString());
@@ -45,6 +46,9 @@ function mechanics(user, id, send, sources, children) {
                 }
             });
         });
+
+        const print = fs.createReadStream(print_path);
+        print.on('data', data => send('print', data.toString()));
 
         const scheme = cp.spawn(start, args, {});
         children[scheme.pid] = scheme;

@@ -51,7 +51,8 @@ const sources = {
     auth,
     open,
     save,
-    load
+    load,
+    print: p => push([p])
 };
 
 CodeMirror.commands.view = view;

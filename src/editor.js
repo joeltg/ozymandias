@@ -152,7 +152,7 @@ function push([text, latex, flex]) {
         const {position} = state;
         if (position) {
             editor.setCursor(position);
-            editor.replaceRange(`\n${text}\n`, position, position);
+            editor.replaceRange(`${position.ch ? '\n' : ''}${text}\n`, position, position);
             state.position = editor.getCursor();
             if (latex) {
                 const expression = new Expression(text, latex, defaults.mode_index);
