@@ -58,6 +58,7 @@ const sources = {
 CodeMirror.commands.view = view;
 CodeMirror.commands.save = cm_save;
 CodeMirror.commands.open = cm_open;
+CodeMirror.commands.debug = cm => console.log('debug');
 CodeMirror.commands.interrupt = cm => {
     if (state.error) state.error();
     send('kill', 'INT');

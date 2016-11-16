@@ -31,7 +31,7 @@ editor.setCursor(2, 0);
 
 CodeMirror.commands.eval_document = eval_document;
 CodeMirror.commands.eval_expression = eval_expression;
-CodeMirror.registerHelper('hintWords', 'scheme', keywords);
+CodeMirror.registerHelper('hintWords', 'scheme', keywords.sort());
 
 function earlier(a, b) { return a.line <= b.line }
 function later(a, b) { return a.line >= b.line }

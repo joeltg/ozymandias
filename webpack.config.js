@@ -4,7 +4,7 @@ const CommonsChunkPlugin = require('webpack/lib/optimize/CommonsChunkPlugin');
 
 module.exports = {
     entry: {
-        main: path.resolve(__dirname, 'src', 'main.js'),
+        main: path.resolve(__dirname, 'client', 'main.js'),
         vendor: ['katex', 'codemirror']
     },
     output: {

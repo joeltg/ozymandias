@@ -33,8 +33,8 @@ const labels = [
     },
     {
         element: document.getElementById('view'),
-        emacs: 'Shift-Tab',
-        sublime: 'Shift-Tab'
+        emacs: 'Tab',
+        sublime: 'Tab'
     },
     {
         element: document.getElementById('open'),
@@ -56,15 +56,15 @@ const labels = [
     //     emacs: 'Meta-N',
     //     sublime: 'Down'
     // },
-    // {
-    //     element: document.getElementById('quit'),
-    //     emacs: 'Ctrl-G',
-    //     sublime: 'Ctrl-Q'
-    // },
     {
         element: document.getElementById('interrupt'),
         emacs: 'Ctrl-C',
         sublime: 'Ctrl-B'
+    },
+    {
+        element: document.getElementById('debug'),
+        emacs: 'Ctrl-I',
+        sublime: 'Ctrl-E'
     }
 ];
 

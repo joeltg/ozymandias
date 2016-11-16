@@ -396,7 +396,8 @@ var keyMap = CodeMirror.keyMap.emacs = CodeMirror.normalizeKeyMap({
   "Ctrl-X Ctrl-R": "eval_selection",
   "Ctrl-X Ctrl-E": "eval_expression",
   "Shift-Tab": "view",
-  "Ctrl-C": "interrupt"
+  "Ctrl-C": "interrupt",
+  "Ctrl-I": "debug"
 });
 
 var prefixMap = {"Ctrl-G": clearPrefix};
