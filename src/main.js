@@ -52,7 +52,7 @@ const sources = {
     open,
     save,
     load,
-    print: p => push(['#|\n' + p + '\n|#'])
+    print: p => push([p])
 };
 
 CodeMirror.commands.view = view;

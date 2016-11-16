@@ -99,7 +99,7 @@ webpackJsonp([0],[
 	    save: _config.save,
 	    load: _config.load,
 	    print: function print(p) {
-	        return (0, _editor.push)(['#|\n' + p + '\n|#']);
+	        return (0, _editor.push)([p]);
 	    }
 	};
 
