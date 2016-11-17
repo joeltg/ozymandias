@@ -7,19 +7,21 @@
 
 (define print-path (string-append "/pipes/print-" id))
 (define print-port (open-output-file print-path))
-(set-current-output-port! print-port)
-(define old-pp pp)
-(set! pp
-  (lambda (object #!optional port . rest)
-    (apply old-pp object port rest)
-    (if (or (default-object? port) (eq? port print-port))
-      (flush-output print-port))))
-(define old-display display)
-(set! display
-  (lambda (object #!optional port environment)
-    (old-display object port environment)
-    (if (or (default-object? port) (eq? port print-port))
-      (flush-output print-port))))
+
+;(define old-output-port (current-output-port))
+;(set-current-output-port! print-port)
+;(define old-pp pp)
+;(set! pp
+;  (lambda (object #!optional port . rest)
+;    (apply old-pp object port rest)
+;    (if (or (default-object? port) (eq? port print-port))
+;      (flush-output print-port))))
+;(define old-display display)
+;(set! display
+;  (lambda (object #!optional port environment)
+;    (old-display object port environment)
+;    (if (or (default-object? port) (eq? port print-port))
+;      (flush-output print-port))))
 
 (define id-counter 0)
 (define delimiter #\newline)

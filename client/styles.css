@@ -112,6 +112,7 @@ form, input, label {
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     cursor: pointer;
+    padding: 2px;
 }
 
 .CodeMirror-dialog button:focus, .error-panel input:focus {
@@ -131,6 +132,4 @@ form, input, label {
 .error-panel span {  margin: 0 4px;  }
 
 .CodeMirror-hints {  background: #bbb !important;  }
-li.CodeMirror-hint-active {
-    background: #272822 !important;
-}
+li.CodeMirror-hint-active {  background: #272822 !important;  }

@@ -4,7 +4,7 @@ const path = require('path');
 const cp = require('child_process');
 const fs = require('fs');
 
-const logging = false;
+const logging = true;
 
 function config(user, location, id) {
     if (user) {

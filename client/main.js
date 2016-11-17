@@ -2,10 +2,6 @@
  * Created by joel on 8/20/16.
  */
 
-import './styles.css';
-
-import {send, socket} from './connect';
-
 import CodeMirror from 'codemirror';
 import 'codemirror/addon/comment/comment';
 import 'codemirror/addon/edit/matchbrackets';
@@ -25,13 +21,18 @@ import 'codemirror/addon/display/panel';
 import 'codemirror/addon/selection/active-line';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
+
+import './sublime';
 import './scheme';
 import './emacs';
-import './sublime';
 
-import {push, view, error} from './editor';
-import {state} from './utils';
+import './styles.css';
+
+import {send, socket} from './connect';
 import {cm_open, cm_save, open, save, load} from './config';
+import {push, view} from './editor';
+import {error} from './error';
+import {state} from './utils';
 
 const pipe = ({source, content}) => sources[source](content);
 const auth = content => send('auth', {user: false});

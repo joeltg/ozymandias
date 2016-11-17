@@ -173,55 +173,57 @@ function push([text, latex, flex]) {
     }
 }
 
-function error([text, restarts]) {
-    const div = document.createElement('div');
-    const h4 = document.createElement('h4');
-    h4.textContent = text;
-    div.appendChild(h4);
-    div.className = 'error-panel';
-    const ul = document.createElement('ul');
-    div.appendChild(ul);
-    const panel = editor.addPanel(div, {position: 'bottom'});
-    const last = editor.lastLine();
-    editor.setOption('readOnly', 'nocursor');
-    state.error = e => {
-        panel.clear();
-        editor.setOption('readOnly', false);
-        editor.focus();
-        state.error = false;
-    };
-    restarts.forEach(([name, report], index) => {
-        const li = document.createElement('li');
-        const action = document.createElement('span');
-        action.textContent = report;
-        const button = document.createElement('input');
-        button.type = 'button';
-        button.value = name;
-        button.onclick = e => {
-            send('eval', '(restart ' + (restarts.length - index) + ')\n');
-            if (name === 'use-value' || name === 'store-value') {
-                button.type = 'text';
-                button.value = '';
-                button.style.fontStyle = 'normal';
-                button.style.fontWeight = 'normal';
-                button.onclick = e => e;
-                button.onkeydown = e => {
-                    if (e.keyCode === 13) {
-                        send('eval', button.value + '\n');
-                        state.error();
-                    }
-                }
-            } else {
-                state.error();
-                if (name === 'abort') state.expressions = false;
-            }
-        };
-        li.appendChild(button);
-        li.appendChild(action);
-        ul.appendChild(li);
-        if (index === 0) button.focus();
-    });
-    panel.changed();
-}
+// function error([text, restarts]) {
+//     console.log(restarts.length, restarts);
+//     const div = document.createElement('div');
+//     const h4 = document.createElement('h4');
+//     h4.textContent = text;
+//     div.appendChild(h4);
+//     div.className = 'error-panel';
+//     const ul = document.createElement('ul');
+//     div.appendChild(ul);
+//     const panel = editor.addPanel(div, {position: 'bottom'});
+//     const last = editor.lastLine();
+//     editor.setOption('readOnly', 'nocursor');
+//     state.error = e => {
+//         panel.clear();
+//         editor.setOption('readOnly', false);
+//         editor.focus();
+//         state.error = false;
+//     };
+//     restarts.forEach(([name, report], index) => {
+//         const li = document.createElement('li');
+//         const action = document.createElement('span');
+//         action.textContent = report;
+//         const button = document.createElement('input');
+//         button.type = 'button';
+//         button.value = name;
+//         button.onclick = e => {
+//             if (name === 'use-value' || name === 'store-value') {
+//                 button.type = 'text';
+//                 button.value = '';
+//                 button.style.fontStyle = 'normal';
+//                 button.style.cursor = 'auto';
+//                 button.onclick = e => e;
+//                 button.onkeydown = e => {
+//                     if (e.keyCode === 13) {
+//                         send('eval', `(global-restart ${index} ${button.value})\n`);
+//                         state.error();
+//                     }
+//                 }
+//             } else {
+//                 send('eval', '(global-restart ' + index + ')\n');
+//                 state.error();
+//                 // if (name === 'abort') state.expressions = false;
+//             }
+//             state.expressions = false;
+//         };
+//         li.appendChild(button);
+//         li.appendChild(action);
+//         ul.appendChild(li);
+//         if (index === 0) button.focus();
+//     });
+//     panel.changed();
+// }
 
-export {editor, push, view, error}
+export {editor, push, view}
