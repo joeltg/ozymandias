@@ -130,7 +130,10 @@ form, input, label {
 .error-panel input {  width: 128px;  }
 .error-panel span {  margin: 0 4px;  }
 
-.CodeMirror-hints {  background: #bbb !important;  }.CodeMirror-hints {
+.CodeMirror-hints {  background: #bbb !important;  }
+li.CodeMirror-hint-active {
+    background: #272822 !important;
+}.CodeMirror-hints {
   position: absolute;
   z-index: 10;
   overflow: hidden;

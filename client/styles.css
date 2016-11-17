@@ -131,3 +131,6 @@ form, input, label {
 .error-panel span {  margin: 0 4px;  }
 
 .CodeMirror-hints {  background: #bbb !important;  }
+li.CodeMirror-hint-active {
+    background: #272822 !important;
+}
