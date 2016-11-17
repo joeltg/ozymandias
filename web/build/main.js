@@ -12905,7 +12905,7 @@
 /* 35 */
 /***/ function(module, exports) {
 
-	'use strict';
+	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -12914,10 +12914,9 @@
 	 * Created by joel on 8/28/16.
 	 */
 
-	var socket = new WebSocket(websocket_url || 'ws://' + window.location.hostname + ':1947');
+	var socket = new WebSocket(websocket_url || "ws://" + window.location.hostname + ":1947");
 
 	function send(source, content) {
-	    console.log('sending');
 	    if (socket.readyState === 1) {
 	        socket.send(JSON.stringify({ source: source, content: content }));
 	    }
@@ -22044,57 +22043,59 @@
 	        text = _ref2[0],
 	        restarts = _ref2[1];
 
-	    console.log(restarts.length, restarts);
-	    var div = document.createElement('div');
-	    var h4 = document.createElement('h4');
-	    h4.textContent = text;
+	    var div = document.createElement('div'),
+	        h4 = document.createElement('h4'),
+	        ul = document.createElement('ul');
 	    div.appendChild(h4);
-	    div.className = 'error-panel';
-	    var ul = document.createElement('ul');
 	    div.appendChild(ul);
+	    h4.textContent = text;
+	    div.className = 'error-panel';
 	    var panel = _editor.editor.addPanel(div, { position: 'bottom' });
-	    var last = _editor.editor.lastLine();
 	    _editor.editor.setOption('readOnly', 'nocursor');
-	    _utils.state.error = function (e) {
+	    function clear() {
 	        panel.clear();
 	        _editor.editor.setOption('readOnly', false);
 	        _editor.editor.focus();
 	        _utils.state.error = false;
-	    };
+	    }
+	    _utils.state.error = clear;
 	    restarts.forEach(function (_ref3, index) {
 	        var _ref4 = _slicedToArray(_ref3, 2),
 	            name = _ref4[0],
 	            report = _ref4[1];
 
-	        var li = document.createElement('li');
-	        var action = document.createElement('span');
-	        action.textContent = report;
-	        var button = document.createElement('input');
-	        button.type = 'button';
-	        button.value = name;
-	        button.onclick = function (e) {
-	            (0, _connect.send)('eval', '(global-restart ' + index + ')\n');
+	        var li = document.createElement('li'),
+	            span = document.createElement('span'),
+	            input = document.createElement('input');
+	        span.textContent = report;
+	        input.type = 'input';
+	        input.value = name;
+	        function restart() {
+	            _utils.state.expressions = false;
 	            if (name === 'use-value' || name === 'store-value') {
-	                button.type = 'text';
-	                button.value = '';
-	                button.style.fontStyle = 'normal';
-	                button.style.cursor = 'auto';
-	                button.onclick = function (e) {
+	                input.type = 'text';
+	                input.value = '';
+	                input.style.fontStyle = 'normal';
+	                input.style.cursor = 'auto';
+	                input.onclick = function (e) {
 	                    return e;
 	                };
-	                button.onkeydown = function (e) {
+	                input.onkeydown = function (e) {
 	                    if (e.keyCode === 13) {
-	                        (0, _connect.send)('eval', button.value + '\n');
-	                        _utils.state.error();
+	                        (0, _connect.send)('eval', '(global-restart ' + index + ')\n' + input.value + '\n');
+	                        clear();
 	                    }
 	                };
-	            } else _utils.state.error();
-	            _utils.state.expressions = false;
-	        };
-	        li.appendChild(button);
-	        li.appendChild(action);
+	            } else {
+	                (0, _connect.send)('eval', '(global-restart ' + index + ')\n');
+	                clear();
+	            }
+	        }
+	        input.onclick = restart;
+	        li.appendChild(input);
+	        li.appendChild(span);
 	        ul.appendChild(li);
-	        if (index === 0) button.focus();
+	        if (index === 0) input.focus();
 	    });
 	    panel.changed();
 	}

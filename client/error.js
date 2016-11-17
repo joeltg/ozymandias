@@ -7,51 +7,49 @@ import {state} from './utils';
 import {send} from './connect';
 
 function error([text, restarts]) {
-    console.log(restarts.length, restarts);
-    const div = document.createElement('div');
-    const h4 = document.createElement('h4');
-    h4.textContent = text;
+    const div = document.createElement('div'), h4 = document.createElement('h4'), ul = document.createElement('ul');
     div.appendChild(h4);
-    div.className = 'error-panel';
-    const ul = document.createElement('ul');
     div.appendChild(ul);
+    h4.textContent = text;
+    div.className = 'error-panel';
     const panel = editor.addPanel(div, {position: 'bottom'});
-    const last = editor.lastLine();
     editor.setOption('readOnly', 'nocursor');
-    state.error = e => {
+    function clear() {
         panel.clear();
         editor.setOption('readOnly', false);
         editor.focus();
         state.error = false;
-    };
+    }
+    state.error = clear;
     restarts.forEach(([name, report], index) => {
-        const li = document.createElement('li');
-        const action = document.createElement('span');
-        action.textContent = report;
-        const button = document.createElement('input');
-        button.type = 'button';
-        button.value = name;
-        button.onclick = e => {
-            send('eval', `(global-restart ${index})\n`);
+        const li = document.createElement('li'), span = document.createElement('span'), input = document.createElement('input');
+        span.textContent = report;
+        input.type = 'input';
+        input.value = name;
+        function restart() {
+            state.expressions = false;
             if (name === 'use-value' || name === 'store-value') {
-                button.type = 'text';
-                button.value = '';
-                button.style.fontStyle = 'normal';
-                button.style.cursor = 'auto';
-                button.onclick = e => e;
-                button.onkeydown = e => {
+                input.type = 'text';
+                input.value = '';
+                input.style.fontStyle = 'normal';
+                input.style.cursor = 'auto';
+                input.onclick = e => e;
+                input.onkeydown = e => {
                     if (e.keyCode === 13) {
-                        send('eval', button.value + '\n');
-                        state.error();
+                        send('eval', `(global-restart ${index})\n${input.value}\n`);
+                        clear();
                     }
                 }
-            } else state.error();
-            state.expressions = false;
-        };
-        li.appendChild(button);
-        li.appendChild(action);
+            } else {
+                send('eval', `(global-restart ${index})\n`);
+                clear();
+            }
+        }
+        input.onclick = restart;
+        li.appendChild(input);
+        li.appendChild(span);
         ul.appendChild(li);
-        if (index === 0) button.focus();
+        if (index === 0) input.focus();
     });
     panel.changed();
 }
