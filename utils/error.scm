@@ -7,15 +7,20 @@
 (define (restarts->json restarts)
   (array->json (map restart->json restarts)))
 
+;(define (global-restart index . arguments)
+;  (apply invoke-restart (list-ref global-restarts index) arguments))
+
 (define (global-restart index)
-  (pp "hello world")
-  (invoke-restart-interactively (list-ref global-restarts index)))
+  (let ((restart (list-ref global-restarts index)))
+    (pp "index")
+    (lambda arguments
+      (pp "arguments")
+      (apply invoke-restart restart arguments))))
 
 (set! standard-error-hook
   (lambda (condition)
     (let ((report (condition/report-string condition))
           (restarts (condition/restarts condition)))
-      (pp restarts)
       (send-error report restarts))))
 
 (define (send-error report restarts)

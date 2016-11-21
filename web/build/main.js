@@ -22038,6 +22038,36 @@
 
 	var _connect = __webpack_require__(35);
 
+	function clear(panel) {
+	    panel.clear();
+	    _editor.editor.setOption('readOnly', false);
+	    _editor.editor.focus();
+	    _utils.state.error = false;
+	}
+
+	function restart(input, name, index) {
+	    if (name === 'use-value' || name === 'store-value') return function () {
+	        _utils.state.expressions = false;
+	        input.type = 'text';
+	        input.value = '';
+	        input.style.fontStyle = 'normal';
+	        input.style.cursor = 'auto';
+	        input.onclick = function (e) {
+	            return e;
+	        };
+	        input.onkeydown = function (e) {
+	            if (e.keyCode === 13) {
+	                (0, _connect.send)('eval', '(define *restart* (global-restart ' + index + '))\n(*restart* ' + input.value + ')\n');
+	                clear();
+	            }
+	        };
+	    };else return function () {
+	        _utils.state.expressions = false;
+	        (0, _connect.send)('eval', '((global-restart ' + index + '))\n');
+	        clear();
+	    };
+	}
+
 	function error(_ref) {
 	    var _ref2 = _slicedToArray(_ref, 2),
 	        text = _ref2[0],
@@ -22052,13 +22082,9 @@
 	    div.className = 'error-panel';
 	    var panel = _editor.editor.addPanel(div, { position: 'bottom' });
 	    _editor.editor.setOption('readOnly', 'nocursor');
-	    function clear() {
-	        panel.clear();
-	        _editor.editor.setOption('readOnly', false);
-	        _editor.editor.focus();
-	        _utils.state.error = false;
-	    }
-	    _utils.state.error = clear;
+	    _utils.state.error = function () {
+	        return clear(panel);
+	    };
 	    restarts.forEach(function (_ref3, index) {
 	        var _ref4 = _slicedToArray(_ref3, 2),
 	            name = _ref4[0],
@@ -22068,30 +22094,9 @@
 	            span = document.createElement('span'),
 	            input = document.createElement('input');
 	        span.textContent = report;
-	        input.type = 'input';
+	        input.type = 'button';
 	        input.value = name;
-	        function restart() {
-	            _utils.state.expressions = false;
-	            if (name === 'use-value' || name === 'store-value') {
-	                input.type = 'text';
-	                input.value = '';
-	                input.style.fontStyle = 'normal';
-	                input.style.cursor = 'auto';
-	                input.onclick = function (e) {
-	                    return e;
-	                };
-	                input.onkeydown = function (e) {
-	                    if (e.keyCode === 13) {
-	                        (0, _connect.send)('eval', '(global-restart ' + index + ')\n' + input.value + '\n');
-	                        clear();
-	                    }
-	                };
-	            } else {
-	                (0, _connect.send)('eval', '(global-restart ' + index + ')\n');
-	                clear();
-	            }
-	        }
-	        input.onclick = restart;
+	        input.onclick = restart(input, name, index);
 	        li.appendChild(input);
 	        li.appendChild(span);
 	        ul.appendChild(li);

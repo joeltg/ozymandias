@@ -4,7 +4,7 @@ const path = require('path');
 const cp = require('child_process');
 const fs = require('fs');
 
-const logging = true;
+const logging = false;
 
 function config(user, location, id) {
     if (user) {
@@ -50,7 +50,7 @@ function mechanics(user, id, send, sources, children) {
         const print = fs.createReadStream(print_path);
         print.on('data', data => send('print', data.toString()));
 
-        const scheme = cp.spawn(start, args, {});
+        const scheme = cp.spawn(start, args, {shell: true});
         children[scheme.pid] = scheme;
         scheme.on('error', err => logging && console.error('scheme error:', err));
         scheme.on('close', (code, signal) => logging && console.log('scheme closed with signal', signal));
@@ -73,6 +73,8 @@ function mechanics(user, id, send, sources, children) {
         sources.load = ({name}) => fs.readFile(file(name), 'utf8', (err, text) => send('load', text));
         sources.open = open => fs.readdir(path.resolve(user_path, 'files'), (err, files) => send('open', files));
         sources.ctrl = name => (scheme.pid in children) && scheme.stdin.write(null, {ctrl: true, name});
+
+        // setTimeout(() => scheme.stdin.write(String.fromCharCode(3)), 2000)
     });
 }
 
