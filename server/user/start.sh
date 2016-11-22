@@ -4,9 +4,9 @@ path=$1
 pipe=$2
 user=$3
 
-dir=${path}/users/${user}
-cmd=/bin/scheme
-lib=/lib
-load=/utils/load.scm
+name=${path}/users/${user}
+args=/pipes/${pipe}
 
-exec schroot -c scheme -d / -o foo.bar=${dir} -- ${cmd} --library ${lib} --load ${load} --args ${pipe}
+scheme="/bin/scheme --silent --library /lib --load /utils/load --args ${pipe}"
+
+exec schroot -c scheme -d / -o foo.bar=${name} -- ${scheme}

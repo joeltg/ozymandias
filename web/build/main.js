@@ -143,8 +143,8 @@
 	    open: _config.open,
 	    save: _config.save,
 	    load: _config.load,
-	    print: function print(p) {
-	        return (0, _editor.push)([p]);
+	    stdout: function stdout(e) {
+	        return console.log(e);
 	    }
 	};
 
@@ -22045,7 +22045,7 @@
 	    _utils.state.error = false;
 	}
 
-	function restart(input, name, index) {
+	function restart(panel, input, name, index) {
 	    if (name === 'use-value' || name === 'store-value') return function () {
 	        _utils.state.expressions = false;
 	        input.type = 'text';
@@ -22057,14 +22057,14 @@
 	        };
 	        input.onkeydown = function (e) {
 	            if (e.keyCode === 13) {
-	                (0, _connect.send)('eval', '(define *restart* (global-restart ' + index + '))\n(*restart* ' + input.value + ')\n');
-	                clear();
+	                (0, _connect.send)('eval', '(' + index + ' ' + input.value + ')\n');
+	                clear(panel);
 	            }
 	        };
 	    };else return function () {
 	        _utils.state.expressions = false;
-	        (0, _connect.send)('eval', '((global-restart ' + index + '))\n');
-	        clear();
+	        (0, _connect.send)('eval', '(' + index + ')\n');
+	        clear(panel);
 	    };
 	}
 
@@ -22096,7 +22096,7 @@
 	        span.textContent = report;
 	        input.type = 'button';
 	        input.value = name;
-	        input.onclick = restart(input, name, index);
+	        input.onclick = restart(panel, input, name, index);
 	        li.appendChild(input);
 	        li.appendChild(span);
 	        ul.appendChild(li);

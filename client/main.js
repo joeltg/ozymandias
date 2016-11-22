@@ -53,7 +53,7 @@ const sources = {
     open,
     save,
     load,
-    print: p => push([p])
+    stdout: e => console.log(e)
 };
 
 CodeMirror.commands.view = view;

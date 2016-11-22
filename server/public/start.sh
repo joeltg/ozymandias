@@ -3,8 +3,8 @@
 path=$1
 pipe=$2
 
-cmd=/bin/scheme
-lib=/lib
-load=/utils/load.scm
+args=/pipes/${pipe}
 
-exec schroot -c scheme -d / -- ${cmd} --library ${lib} --load ${load} --args ${pipe}
+scheme="/bin/scheme --silent --library /lib --load /utils/load --args ${args}"
+
+exec schroot -c scheme -d / -- ${scheme}

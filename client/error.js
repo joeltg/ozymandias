@@ -13,7 +13,7 @@ function clear(panel) {
     state.error = false;
 }
 
-function restart(input, name, index) {
+function restart(panel, input, name, index) {
     if (name === 'use-value' || name === 'store-value') return function() {
         state.expressions = false;
         input.type = 'text';
@@ -23,15 +23,15 @@ function restart(input, name, index) {
         input.onclick = e => e;
         input.onkeydown = e => {
             if (e.keyCode === 13) {
-                send('eval', `(define *restart* (global-restart ${index}))\n(*restart* ${input.value})\n`);
-                clear();
+                send('eval', `(${index} ${input.value})\n`);
+                clear(panel);
             }
         }
     };
     else return function() {
         state.expressions = false;
-        send('eval', `((global-restart ${index}))\n`);
-        clear();
+        send('eval', `(${index})\n`);
+        clear(panel);
     };
 }
 
@@ -49,7 +49,7 @@ function error([text, restarts]) {
         span.textContent = report;
         input.type = 'button';
         input.value = name;
-        input.onclick = restart(input, name, index);
+        input.onclick = restart(panel, input, name, index);
         li.appendChild(input);
         li.appendChild(span);
         ul.appendChild(li);
