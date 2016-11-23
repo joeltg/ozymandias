@@ -1,70 +1,53 @@
+(define canvases '())
+(define size 300)
 
 (define-structure
-  (canvas (constructor silently-make-canvas (#!optional xmin xmax ymin ymax
-                                             frame-width frame-height
-                                             frame-x-position frame-y-position
-                                             name)))
-  (name (string-append "window-" (number->string (get-id))))
-  (xmin -1)
-  (xmax 1)
-  (ymin -1)
-  (ymax 1)
-  (frame-width 400)
-  (frame-height 300)
-  (frame-x-position -1)
-  (frame-y-position -1))
+  (canvas (constructor silently-make-canvas (#!optional xmin xmax ymin ymax)))
+  (id (get-id))
+  (xmin 0)
+  (xmax size)
+  (ymin 0)
+  (ymax size)
+  (frame-width size)
+  (frame-height size)
+  (frame-x-position 0)
+  (frame-y-position 0))
 
-(define (canvas->json canvas #!optional action value)
-  (dict->json `((name ,(canvas-name canvas))
-                (type canvas)
-                (action ,action)
-                (value ,value))))
+(define (get-canvas id)
+  (cdr (assq id canvases)))
 
-(define (send-canvas canvas #!optional action value push)
-  (send-json (canvas->json canvas action value) push))
+(define (send-canvas canvas action #!optional value)
+  (send 2 (symbol->json action) (number->string (canvas-id canvas)) (json value)))
 
-(define (make-canvas  . args)
+(define (make-canvas . args)
   (define canvas (apply silently-make-canvas args))
-  (send-canvas canvas 'create
-    `((xmin ,(canvas-xmin canvas)) (xmax ,(canvas-xmax canvas))
-      (ymin ,(canvas-ymin canvas)) (ymax ,(canvas-ymax canvas))
-      (frame_width ,(canvas-frame-width canvas))
-      (frame_height ,(canvas-frame-height canvas))
-      (frame_x_position ,(canvas-frame-x-position canvas))
-      (frame_y_position ,(canvas-frame-y-position canvas))))
+  (set! canvases (cons (cons (canvas-id canvas) canvas) canvases))
+  (send-canvas canvas 'open (canvas-coordinate-limits canvas))
   canvas)
 
 (define (canvas-available? . args) #t)
 
 (define (canvas-coordinate-limits canvas)
-  (list (canvas-xmin canvas) (canvas-xmax canvas)
-        (canvas-ymin canvas) (canvas-ymax canvas)))
+  (list (canvas-xmin canvas) (canvas-ymax canvas)
+        (canvas-xmax canvas) (canvas-ymin canvas)))
 
 (define (canvas-device-coordinate-limits canvas)
   (list (canvas-frame-width canvas) (canvas-frame-height canvas)))
 
 (define (canvas-set-coordinate-limits canvas x-left y-bottom x-right y-top)
-  (send-canvas canvas 'set_coordinate_limits
-    `((x_left ,x-left)
-      (y_bottom ,y-bottom)
-      (x_right ,x-right)
-      (y_top ,y-top))))
+  (send-canvas canvas 'set_coordinate_limits (list x-left y-bottom x-right y-top)))
 
 (define (canvas-drag-cursor canvas x y)
-  (send-canvas canvas 'drag_cursor `((x ,x) (y ,y))))
+  (send-canvas canvas 'drag_cursor (list x y)))
 
 (define (canvas-move-cursor canvas x y)
-  (send-canvas canvas 'move_cursor `((x ,x) (y ,y))))
+  (send-canvas canvas 'move_cursor (list x y)))
 
 (define (canvas-reset-clip-rectangle canvas)
-  (send-canvas canvas 'reset_clip_rectangle))
+  (send-canvas canvas 'reset_clip_rectangle (canvas-coordinate-limits canvas)))
 
 (define (canvas-set-clip-rectangle canvas x-left y-bottom x-right y-top)
-  (send-canvas canvas 'set_clip_rectangle
-    `((x_left ,x-left)
-      (y_bottom ,y-bottom)
-      (x_right ,x-right)
-      (y_top ,y-top))))
+  (send-canvas canvas 'set_clip_rectangle (list x-left y-bottom x-right y-top)))
 
 (define (canvas-set-drawing-mode canvas mode)
   (send-canvas canvas 'set_drawing_mode `((mode ,mode))))
@@ -75,40 +58,41 @@
 (define (canvas-clear canvas)
   (send-canvas canvas 'clear))
 
+(define (canvas-flush canvas)
+  '*silence*)
+
 (define (canvas-close canvas)
   (send-canvas canvas 'close))
 
-(define (canvas-flush canvas)
-  (flush-output output-port))
+(define (canvas-draw-rect canvas x y width height)
+  (send-canvas canvas 'draw_rect (list x y width height)))
+
+(define (canvas-erase-rect canvas x y width height)
+  (send-canvas canvas 'erase_rect (list x y width height)))
+
+(define (canvas-draw-rects canvas rects)
+  (send-canvas canvas 'draw_rects rects))
+
+(define (canvas-erase-rects canvas rects)
+  (send-canvas canvas 'erase_rects rects))
 
 (define (canvas-draw-point canvas x y)
-  (send-canvas canvas 'draw_point `((x ,x) (y ,y))))
+  (send-canvas canvas 'draw_point (list x y)))
 
 (define (canvas-draw-points canvas points)
-  (send-canvas canvas 'draw_points `((points ,points))))
+  (send-canvas canvas 'draw_points points))
 
 (define (canvas-erase-point canvas x y)
-  (send-canvas canvas 'erase_point `((x ,x) (y ,y))))
+  (send-canvas canvas 'erase_point (list x y)))
+
+(define (canvas-erase-points canvas points)
+  (send-canvas canvas 'erase_points points))
 
 (define (canvas-draw-line canvas x-start y-start x-end y-end)
-  (send-canvas canvas 'draw_line
-    `((x_start ,x-start)
-      (y_start ,y-start)
-      (x_end ,x-end)
-      (y_end ,y-end))))
+  (send-canvas canvas 'draw_line (list x-start y-start x-end y-end)))
 
 (define (canvas-draw-text canvas x y string)
-  (send-canvas canvas 'draw_text
-    `((x ,x) (y ,y) (string ,string))))
+  (send-canvas canvas 'draw_text (list x y string)))
 
 (define (canvas-set-font canvas font-name)
-  (send-canvas canvas 'set_font `((font_name ,font-name))))
-
-(define (canvas-resize canvas width height)
-  (set-canvas-width! canvas width)
-  (set-canvas-height! canvas height)
-  (send-canvas canvas 'resize `((width ,width) (height ,height))))
-
-(define (canvas-rename canvas name)
-  (send-canvas canvas 'rename `((name ,name)))
-  (set-canvas-name! canvas name))
+  (send-canvas canvas 'set_font font-name))

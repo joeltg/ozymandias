@@ -33,13 +33,12 @@ CodeMirror.commands.eval_document = eval_document;
 CodeMirror.commands.eval_expression = eval_expression;
 CodeMirror.registerHelper('hintWords', 'scheme', keywords.sort());
 
-function earlier(a, b) { return a.line <= b.line }
-function later(a, b) { return a.line >= b.line }
-function range(a, b, c) { return later(b, a) && earlier(b, c) }
+const range = (a, b, c) => (b.line >= a.line) && (b.line <= c.line);
+const eq = (a, b) => (a.line === b.line) && (a.ch === b.ch);
 function hint(cm) {
     const start = cm.getCursor('from');
     const end = cm.getCursor('to');
-    if (start.line === end.line && start.ch === end.ch && /^ *$/.test(cm.getLine(start.line).substring(0, start.ch))) return false;
+    if (eq(start, end) && /^ *$/.test(cm.getLine(start.line).substring(0, start.ch))) return false;
     cm.showHint();
     return true;
 }
@@ -58,12 +57,10 @@ function view(cm, delta) {
 
 const complain_notification = document.createElement('span');
 complain_notification.textContent = 'Resolve error before continuing evaluation';
-function complain() {
-
-}
+const complain = () => editor.openNotification(complain_notification, {duration: 3000});
 
 function eval_expression(cm) {
-    if (state.error) editor.openNotification(complain_notification, {duration: 3000});
+    if (state.error) complain();
     else {
         const position = editor.getCursor();
         const {start, end} = get_outer_expression(editor, position);
@@ -74,7 +71,7 @@ function eval_expression(cm) {
 }
 
 function eval_document(cm) {
-    if (state.error) editor.openNotification(complain_notification, {duration: 3000});
+    if (state.error) complain();
     else {
         const expressions = [];
         let open = false;
@@ -172,58 +169,5 @@ function push([text, latex, flex]) {
         if (state.expressions && state.expressions.length > 0) pop_expression();
     }
 }
-
-// function error([text, restarts]) {
-//     console.log(restarts.length, restarts);
-//     const div = document.createElement('div');
-//     const h4 = document.createElement('h4');
-//     h4.textContent = text;
-//     div.appendChild(h4);
-//     div.className = 'error-panel';
-//     const ul = document.createElement('ul');
-//     div.appendChild(ul);
-//     const panel = editor.addPanel(div, {position: 'bottom'});
-//     const last = editor.lastLine();
-//     editor.setOption('readOnly', 'nocursor');
-//     state.error = e => {
-//         panel.clear();
-//         editor.setOption('readOnly', false);
-//         editor.focus();
-//         state.error = false;
-//     };
-//     restarts.forEach(([name, report], index) => {
-//         const li = document.createElement('li');
-//         const action = document.createElement('span');
-//         action.textContent = report;
-//         const button = document.createElement('input');
-//         button.type = 'button';
-//         button.value = name;
-//         button.onclick = e => {
-//             if (name === 'use-value' || name === 'store-value') {
-//                 button.type = 'text';
-//                 button.value = '';
-//                 button.style.fontStyle = 'normal';
-//                 button.style.cursor = 'auto';
-//                 button.onclick = e => e;
-//                 button.onkeydown = e => {
-//                     if (e.keyCode === 13) {
-//                         send('eval', `(global-restart ${index} ${button.value})\n`);
-//                         state.error();
-//                     }
-//                 }
-//             } else {
-//                 send('eval', '(global-restart ' + index + ')\n');
-//                 state.error();
-//                 // if (name === 'abort') state.expressions = false;
-//             }
-//             state.expressions = false;
-//         };
-//         li.appendChild(button);
-//         li.appendChild(action);
-//         ul.appendChild(li);
-//         if (index === 0) button.focus();
-//     });
-//     panel.changed();
-// }
 
 export {editor, push, view}

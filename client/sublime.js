@@ -568,7 +568,6 @@ map[ctrl + "H"] = "replace";
 map["F3"] = "findNext";
 map["Shift-F3"] = "findPrev";
 
-map["Ctrl-G"] = e => e;
 map["Ctrl-S"] = "save";
 map["Ctrl-B"] = "interrupt";
 map["Ctrl-Up"] = "previous";
@@ -578,7 +577,7 @@ map["Ctrl-Enter"] = "eval_expression";
 map["Ctrl-Shift-Enter"] = "eval_document";
 
 map["Ctrl-O"] = "open";
-map["Ctrl-E"] = "debug";
+map["Ctrl-G"] = "graphics";
 
 map["Shift-Tab"] = "view";
 

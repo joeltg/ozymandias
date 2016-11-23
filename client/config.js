@@ -61,10 +61,15 @@ const labels = [
         emacs: 'Ctrl-C',
         sublime: 'Ctrl-B'
     },
+    // {
+    //     element: document.getElementById('debug'),
+    //     emacs: 'Ctrl-I',
+    //     sublime: 'Ctrl-E'
+    // },
     {
-        element: document.getElementById('debug'),
+        element: document.getElementById('graphics'),
         emacs: 'Ctrl-I',
-        sublime: 'Ctrl-E'
+        sublime: 'Ctrl-G'
     }
 ];
 

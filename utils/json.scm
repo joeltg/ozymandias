@@ -117,6 +117,7 @@
 
 (define (json-list object)
   (cond
+    ((default-object? object) (null->json-list object))
     ((boolean? object) (boolean->json-list object))
     ((symbol? object) (symbol->json-list object))
     ((string? object) (string->json-list object))

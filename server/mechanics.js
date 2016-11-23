@@ -20,6 +20,21 @@ function config(user, location, id) {
     }
 }
 
+function pipe(send) {
+    let buffer = '';
+    return function(data) {
+        const values = (buffer + data).split(delimiter);
+        buffer = values.pop();
+        values.forEach(function(value) {
+            try {
+                send('data', JSON.parse(value));
+            } catch (e) {
+                console.error(e);
+            }
+        });
+    }
+}
+
 function mechanics(user, id, send, sources, children) {
     const location = path.resolve(__dirname, '..');
     const {user_path, util_path, args} = config(user, location, id);
@@ -30,20 +45,7 @@ function mechanics(user, id, send, sources, children) {
     cp.execFile(initialize, args, {}, function(err) {
         if (err) return console.err(err);
 
-        let buffer = '';
-
-        fs.createReadStream(pipe_path).on('data', function(data) {
-            const values = (buffer + data).split(delimiter);
-            buffer = values.pop();
-            values.forEach(function(value) {
-                try {
-                    send('data', JSON.parse(value));
-                }
-                catch (e) {
-                    console.error(e);
-                }
-            });
-        });
+        fs.createReadStream(pipe_path).on('data', pipe(send));
 
         const scheme = cp.spawn(start, args, {});
         children[scheme.pid] = scheme;
@@ -66,7 +68,6 @@ function mechanics(user, id, send, sources, children) {
         sources.save = ({name, text}) => fs.writeFile(file(name), text, 'utf8', err => send('save', !err));
         sources.load = ({name}) => fs.readFile(file(name), 'utf8', (err, text) => send('load', text));
         sources.open = open => fs.readdir(path.resolve(user_path, 'files'), (err, files) => send('open', files));
-        sources.ctrl = name => (scheme.pid in children) && scheme.stdin.write(null, {ctrl: true, name});
     });
 }
 

@@ -41,7 +41,7 @@ function error([text, restarts]) {
     div.appendChild(ul);
     h4.textContent = text;
     div.className = 'error-panel';
-    const panel = editor.addPanel(div, {position: 'bottom'});
+    const panel = editor.addPanel(div, {position: 'before-bottom'});
     editor.setOption('readOnly', 'nocursor');
     state.error = () => clear(panel);
     restarts.forEach(([name, report], index) => {

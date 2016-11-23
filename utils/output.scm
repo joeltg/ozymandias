@@ -5,6 +5,11 @@
 (define *the-environment* (the-environment))
 (define silence '*silence*)
 
+(define *id* 0)
+(define (get-id)
+  (set! *id* (+ 1 *id*))
+  *id*)
+
 (define (send . args)
   (assert (> (length args) 1))
   (write-char #\[ pipe)

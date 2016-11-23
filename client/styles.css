@@ -3,6 +3,7 @@ html, body {
     width: 100%;
     height: 100%;
     font-family: monospace;
+    overflow-y: hidden;
 }
 
 h3 {
@@ -130,6 +131,20 @@ form, input, label {
 .error-panel p {  margin: 0 16px;  }
 .error-panel input {  width: 128px;  }
 .error-panel span {  margin: 0 4px;  }
+
+#graphics-panel {
+    height: 340px;
+    background: #bbb;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    padding: 0 10px;
+}
+
+#graphics-panel canvas {
+    margin: 20px 10px;
+    background: white;
+}
 
 .CodeMirror-hints {  background: #bbb !important;  }
 li.CodeMirror-hint-active {  background: #272822 !important;  }
