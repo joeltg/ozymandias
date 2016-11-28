@@ -7,7 +7,7 @@ mkdir -p ${path}/jail/etc ${path}/jail/pipes
 mkdir -p ${path}/schroot
 
 config="
-CHROOT_DIRECTORY=\${FOO_BAR}
+CHROOT_DIRECTORY=\${USER_NAME}
 
 SETUP_COPYFILES=\"../..${path}/schroot/copyfiles\"
 SETUP_NSSDATABASES=\"../..${path}/schroot/nssdatabases\"
@@ -34,8 +34,8 @@ groups=users
 root-groups=root,sudo
 profile=../../${path}/schroot
 shell=/bin/bash
-foo.bar=${path}/jail/
-user-modifiable-keys=foo.bar
+user.name=${path}/jail/
+user-modifiable-keys=user.name
 "
 
 echo "${scheme}" > /etc/schroot/chroot.d/scheme.conf

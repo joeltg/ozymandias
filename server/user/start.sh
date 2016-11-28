@@ -9,4 +9,4 @@ args=/pipes/${pipe}
 
 scheme="/bin/scheme --silent --library /lib --load /utils/load --args ${pipe}"
 
-exec schroot -c scheme -d / -o foo.bar=${name} -- ${scheme}
+exec schroot -c scheme -d / -o user.name=${name} -- ${scheme}
