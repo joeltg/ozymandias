@@ -9,6 +9,10 @@ const point = 1;
 const div = document.createElement('div');
 div.id = 'graphics-panel';
 div.style.height = size + (2 * margin);
+const span = document.createElement('span');
+span.id = 'placeholder';
+span.textContent = 'no windows open';
+div.appendChild(span);
 
 let panel = false;
 
@@ -28,6 +32,7 @@ const actions = {
         const element = document.createElement('canvas');
         const context = element.getContext('2d');
         element.height = element.width = size;
+        if (Object.keys(canvases).length === 0) span.textContent = '';
         div.appendChild(element);
         const x_scale = d3.scaleLinear().domain([xmin, xmax]).range([0, element.width]).clamp(true);
         const y_scale = d3.scaleLinear().domain([ymin, ymax]).range([0, element.height]).clamp(true);
@@ -42,6 +47,7 @@ const actions = {
         const {element} = canvases[id];
         element.parentNode.removeChild(element);
         delete canvases[id];
+        if (Object.keys(canvases).length === 0) span.textContent = 'no windows open';
         if (panel) toggle(editor);
     },
     set_coordinate_limits(id, value) {
@@ -130,7 +136,7 @@ const actions = {
         x_scale.domain([xmin, xmax]).range([0, element.width]);
         y_scale.domain([ymin, ymax]).range([0, element.height]);
     }
-}
+};
 
 function canvas([action, id, value]) {
     if (action in actions) actions[action](id, value);

@@ -100,16 +100,16 @@ function set_keyMap(keyMap) {
 
 const collapse = document.getElementById('collapse');
 
-let collapsed = 1;
+let collapsed = true;
 function toggle_console() {
-    if (collapsed === 0) {
+    if (collapsed) {
         collapse.innerText = '▼';
         stdout.style.display = 'none';
-        collapsed = 1;
+        collapsed = false;
     } else {
         collapse.innerText = '▲';
         stdout.style.display = 'block';
-        collapsed = 0;
+        collapsed = true;
     }
 }
 

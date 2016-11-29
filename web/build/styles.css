@@ -687,11 +687,20 @@ form, input, label {
     overflow-y: hidden;
     white-space: nowrap;
     padding: 0 10px;
+
+    text-align: center;
+    vertical-align: middle;
 }
 
 #graphics-panel canvas {
     margin: 20px 10px;
     background: white;
+}
+
+#graphics-panel span {
+    color: #666;
+    line-height: 340px;
+    font-size: 48px;
 }
 
 .CodeMirror-hints {  background: #bbb !important;  }

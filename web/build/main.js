@@ -13041,16 +13041,16 @@
 
 	var collapse = document.getElementById('collapse');
 
-	var collapsed = 1;
+	var collapsed = true;
 	function toggle_console() {
-	    if (collapsed === 0) {
+	    if (collapsed) {
 	        collapse.innerText = '▼';
 	        _utils.stdout.style.display = 'none';
-	        collapsed = 1;
+	        collapsed = false;
 	    } else {
 	        collapse.innerText = '▲';
 	        _utils.stdout.style.display = 'block';
-	        collapsed = 0;
+	        collapsed = true;
 	    }
 	}
 
@@ -22114,6 +22114,10 @@
 	var div = document.createElement('div');
 	div.id = 'graphics-panel';
 	div.style.height = size + 2 * margin;
+	var span = document.createElement('span');
+	span.id = 'placeholder';
+	span.textContent = 'no windows open';
+	div.appendChild(span);
 
 	var panel = false;
 
@@ -22138,6 +22142,7 @@
 	        var element = document.createElement('canvas');
 	        var context = element.getContext('2d');
 	        element.height = element.width = size;
+	        if (Object.keys(canvases).length === 0) span.textContent = '';
 	        div.appendChild(element);
 	        var x_scale = d3.scaleLinear().domain([xmin, xmax]).range([0, element.width]).clamp(true);
 	        var y_scale = d3.scaleLinear().domain([ymin, ymax]).range([0, element.height]).clamp(true);
@@ -22156,6 +22161,7 @@
 
 	        element.parentNode.removeChild(element);
 	        delete canvases[id];
+	        if (Object.keys(canvases).length === 0) span.textContent = 'no windows open';
 	        if (panel) toggle(_editor.editor);
 	    },
 	    set_coordinate_limits: function set_coordinate_limits(id, value) {
