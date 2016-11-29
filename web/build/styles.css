@@ -555,6 +555,7 @@ form, input, label {
     -ms-user-select: none;
     user-select: none;
     margin: 0;
+    cursor: pointer;
 }
 
 #stdout {
