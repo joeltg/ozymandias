@@ -4,7 +4,7 @@
 
 import {send} from './connect';
 import {editor} from './editor';
-import {state, defaults} from './utils';
+import {state, defaults, stdout} from './utils';
 
 const icon_elements = [];
 const icon_collection = document.getElementsByClassName('icon');
@@ -98,11 +98,27 @@ function set_keyMap(keyMap) {
     editor.setOption('keyMap', keyMap);
 }
 
+const collapse = document.getElementById('collapse');
+
+let collapsed = 1;
+function toggle_console() {
+    if (collapsed === 0) {
+        collapse.innerText = '▼';
+        stdout.style.display = 'none';
+        collapsed = 1;
+    } else {
+        collapse.innerText = '▲';
+        stdout.style.display = 'block';
+        collapsed = 0;
+    }
+}
+
 document.getElementById('icons').onclick = toggle_visibility;
 document.getElementById('keyMap-emacs').onclick = e => set_keyMap('emacs');
 document.getElementById('keyMap-sublime').onclick = e => set_keyMap('sublime');
 document.getElementById('theme-light').onclick = e => set_theme('default');
 document.getElementById('theme-dark').onclick = e => set_theme('monokai');
+document.getElementById('console-title').onclick = toggle_console;
 set_visibility(defaults.visibility);
 set_keyMap(defaults.keyMap);
 set_theme(defaults.theme);

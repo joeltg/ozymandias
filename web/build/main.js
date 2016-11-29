@@ -149,9 +149,7 @@
 	    open: _config.open,
 	    save: _config.save,
 	    load: _config.load,
-	    stdout: function stdout(e) {
-	        return console.log(e);
-	    }
+	    stdout: _utils.log
 	};
 
 	_codemirror2.default.commands.view = _editor.view;
@@ -166,16 +164,16 @@
 	    (0, _connect.send)('kill', 'INT');
 	};
 
-	console.log('connecting to server... ');
+	(0, _utils.log)('connecting to server...\n');
 
 	_connect.socket.onopen = function (event) {
-	    return console.log('connected.');
+	    return (0, _utils.log)('connected.\n');
 	};
 	_connect.socket.onmessage = function (event) {
 	    return pipe(JSON.parse(event.data));
 	};
 	_connect.socket.onclose = function (event) {
-	    return console.log('lost connection to server.');
+	    return (0, _utils.log)('lost connection to server.\n');
 	};
 
 /***/ },
@@ -13041,6 +13039,21 @@
 	    _editor.editor.setOption('keyMap', keyMap);
 	}
 
+	var collapse = document.getElementById('collapse');
+
+	var collapsed = 1;
+	function toggle_console() {
+	    if (collapsed === 0) {
+	        collapse.innerText = '▼';
+	        _utils.stdout.style.display = 'none';
+	        collapsed = 1;
+	    } else {
+	        collapse.innerText = '▲';
+	        _utils.stdout.style.display = 'block';
+	        collapsed = 0;
+	    }
+	}
+
 	document.getElementById('icons').onclick = toggle_visibility;
 	document.getElementById('keyMap-emacs').onclick = function (e) {
 	    return set_keyMap('emacs');
@@ -13054,6 +13067,7 @@
 	document.getElementById('theme-dark').onclick = function (e) {
 	    return set_theme('monokai');
 	};
+	document.getElementById('console-title').onclick = toggle_console;
 	set_visibility(_utils.defaults.visibility);
 	set_keyMap(_utils.defaults.keyMap);
 	set_theme(_utils.defaults.theme);
@@ -13444,10 +13458,17 @@
 	    }return string;
 	}
 
+	var stdout = document.getElementById('stdout');
+	function log(text) {
+	    stdout.innerText += text;
+	}
+
 	exports.get_end = get_end;
 	exports.strip_string = strip_string;
 	exports.state = state;
 	exports.defaults = defaults;
+	exports.stdout = stdout;
+	exports.log = log;
 
 /***/ },
 /* 39 */
@@ -22086,13 +22107,13 @@
 
 	var canvases = {};
 
-	var size = 340;
+	var size = 300;
 	var margin = 20;
 	var point = 1;
 
 	var div = document.createElement('div');
 	div.id = 'graphics-panel';
-	div.style.height = size;
+	div.style.height = size + 2 * margin;
 
 	var panel = false;
 
@@ -22116,7 +22137,7 @@
 
 	        var element = document.createElement('canvas');
 	        var context = element.getContext('2d');
-	        element.height = element.width = size - 2 * margin;
+	        element.height = element.width = size;
 	        div.appendChild(element);
 	        var x_scale = d3.scaleLinear().domain([xmin, xmax]).range([0, element.width]).clamp(true);
 	        var y_scale = d3.scaleLinear().domain([ymin, ymax]).range([0, element.height]).clamp(true);

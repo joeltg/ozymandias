@@ -38,7 +38,8 @@
             </ul>
             <h4>Display</h4>
             <ul>
-                <li>Toggle View:<span id="view" class="key-binding"></span></li>
+                <li>Toggle Expression View:<span id="view" class="key-binding"></span></li>
+                <li>Toggle Graphics Pane:<span id="graphics" class="key-binding"></span></li>
             </ul>
             <h4>I/O</h4>
             <ul>
@@ -52,10 +53,10 @@
                 <li>Interrupt:<span id="interrupt" class="key-binding"></span></li>
                 <!-- <li>Debug:<span id="debug" class="key-binding"></span></li> -->
             </ul>
-            <h4>Graphics</h4>
-            <ul>
-                <li>Toggle Drawer <span id="graphics" class="key-binding"></span></li>
-            </ul>
+            <div id="console">
+                <h4 id="console-title">Console <span id="collapse">▲</span></h4>
+                <div id="stdout"></div>
+            </div>
         </div>
     </div>
     <script src="connect.js"></script>

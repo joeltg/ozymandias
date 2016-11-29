@@ -30,11 +30,13 @@ import './styles.css';
 
 import {send, socket} from './connect';
 import {cm_open, cm_save, open, save, load} from './config';
-import {state} from './utils';
+import {state, log} from './utils';
 
 import {push, view} from './editor';
 import {error} from './error';
 import {toggle, canvas} from './canvas';
+
+
 
 const pipe = ({source, content}) => sources[source](content);
 const auth = content => send('auth', {user: false});
@@ -57,7 +59,7 @@ const sources = {
     open,
     save,
     load,
-    stdout: e => console.log(e)
+    stdout: log
 };
 
 CodeMirror.commands.view = view;
@@ -70,8 +72,8 @@ CodeMirror.commands.interrupt = cm => {
     send('kill', 'INT');
 };
 
-console.log('connecting to server... ');
+log('connecting to server...\n');
 
-socket.onopen    = event => console.log('connected.');
+socket.onopen    = event => log('connected.\n');
 socket.onmessage = event => pipe(JSON.parse(event.data));
-socket.onclose   = event => console.log('lost connection to server.');
+socket.onclose   = event => log('lost connection to server.\n');

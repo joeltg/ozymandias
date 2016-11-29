@@ -4,4 +4,4 @@
 (load "utils/error")
 
 (load "utils/canvas/canvas")
-(load "utils/canvas/graphics")
+(load "utils/canvas/install")

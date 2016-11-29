@@ -2,13 +2,13 @@ import * as d3 from 'd3';
 import {editor} from './editor';
 const canvases = {};
 
-const size = 340;
+const size = 300;
 const margin = 20;
 const point = 1;
 
 const div = document.createElement('div');
 div.id = 'graphics-panel';
-div.style.height = size;
+div.style.height = size + (2 * margin);
 
 let panel = false;
 
@@ -27,7 +27,7 @@ const actions = {
         const [xmin, ymax, xmax, ymin] = value;
         const element = document.createElement('canvas');
         const context = element.getContext('2d');
-        element.height = element.width = size - (2 * margin);
+        element.height = element.width = size;
         div.appendChild(element);
         const x_scale = d3.scaleLinear().domain([xmin, xmax]).range([0, element.width]).clamp(true);
         const y_scale = d3.scaleLinear().domain([ymin, ymax]).range([0, element.height]).clamp(true);

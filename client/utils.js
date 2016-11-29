@@ -36,4 +36,9 @@ function strip_string(string) {
     return string;
 }
 
-export {get_end, strip_string, state, defaults};
+const stdout = document.getElementById('stdout');
+function log(text) {
+    stdout.innerText += text;
+}
+
+export {get_end, strip_string, state, defaults, stdout, log};
