@@ -98,3 +98,22 @@
       window)))
 
 (define frame make-display-frame)
+(define window-coordinates graphics-coordinate-limits)
+(define (window-size window) (map 1+ (cddr (graphics-device-coordinate-limits window))))
+
+(define (plot-function window f #!optional x0 x1 dx)
+  (if (default-object? x0)
+      (let ((bounds (window-coordinates window)) (size (window-size window)))
+        (set! x0 (car bounds))
+        (set! x1 (cadr bounds))
+        (set! dx (/ (- x1 x0) (car size)))))
+  (if *gnuplotting*
+      (newline *gnuplotting*))
+  (let loop ((x x0) (fx (f x0)))
+    (if *gnuplotting*
+        (begin (newline *gnuplotting*) (write x *gnuplotting*) (display " " *gnuplotting*) (write fx *gnuplotting*)))
+    (let ((nx (+ x dx)))
+      (let ((nfx (f nx)))
+        (plot-line-internal window x fx nx nfx)
+        (if (< (* (- nx x0) (- nx x1)) 0.)
+            (loop nx nfx))))))

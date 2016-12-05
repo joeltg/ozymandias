@@ -32,7 +32,7 @@
         (canvas-xmax canvas) (canvas-ymin canvas)))
 
 (define (canvas-device-coordinate-limits canvas)
-  (list (canvas-frame-width canvas) (canvas-frame-height canvas)))
+  (list 0 0 (canvas-frame-width canvas) (canvas-frame-height canvas)))
 
 (define (canvas-set-coordinate-limits canvas x-left y-bottom x-right y-top)
   (set-canvas-xmin! canvas x-left)
