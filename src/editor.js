@@ -118,7 +118,7 @@ function eval_document(cm) {
     }
 }
 
-const traverse_tokens = (predicate, callback) => (cm, {line, ch}) => {
+const traverse_tokens = (predicate, callback) => function(cm, {line, ch}) {
     let tokens = cm.getLineTokens(line);
     for (tokens = tokens.filter(token => token.start < ch); line > -1; tokens = cm.getLineTokens(--line))
         for (let i = tokens.length - 1; i > -1; i--)
@@ -169,7 +169,7 @@ function push([text, latex, flex]) {
         const {position} = state;
         if (position) {
             editor.setCursor(position);
-            editor.replaceRange(`${position.ch ? '\n' : ''}${text}\n`, position, position);
+            editor.replaceRange('\n' + strip(text) + '\n', position, position);
             state.position = editor.getCursor();
             if (latex) {
                 const expression = new Expression(text, latex, defaults.mode_index);

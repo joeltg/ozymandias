@@ -173,7 +173,7 @@
 	    return pipe(JSON.parse(event.data));
 	};
 	_connect.socket.onclose = function (event) {
-	    return (0, _utils.log)('lost connection to server.\n');
+	    return (0, _utils.log)('\nlost connection to server.\n');
 	};
 
 /***/ },
@@ -13354,7 +13354,7 @@
 
 	        if (position) {
 	            editor.setCursor(position);
-	            editor.replaceRange('' + (position.ch ? '\n' : '') + text + '\n', position, position);
+	            editor.replaceRange('\n' + (0, _utils.strip)(text) + '\n', position, position);
 	            _utils.state.position = editor.getCursor();
 	            if (latex) {
 	                var expression = new _expression.Expression(text, latex, _utils.defaults.mode_index);
