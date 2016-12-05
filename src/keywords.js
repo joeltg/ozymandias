@@ -7,6 +7,7 @@ const indented_keywords = [
     'let',
     'letrec',
     'let*',
+    'fluid-let',
     'lambda'
 ];
 
@@ -61,6 +62,7 @@ const keywords = [
     'let-syntax',
     'letrec',
     'letrec-syntax',
+    'fluid-let',
     'map',
     'or',
     'syntax-rules',

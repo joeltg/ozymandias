@@ -130,8 +130,8 @@ const filename = document.getElementById('filename');
 let clean = true;
 let dialog = false;
 
-editor.on('change', (cm, change) => {
-    if (state.filename && !editor.isClean() && clean) {
+editor.on('change', function(cm, change) {
+    if (state.filename && !cm.isClean() && clean) {
         filename.textContent = ': ' + state.filename + '*';
         clean = false;
     }
@@ -139,10 +139,10 @@ editor.on('change', (cm, change) => {
 
 function open(files) {
     open_files.innerHTML = '';
-    files.forEach((name, index) => {
+    files.forEach(function(name, index) {
         const button = document.createElement('button');
         button.textContent = name;
-        button.addEventListener('click', e => {
+        button.addEventListener('click', function(e) {
             if (dialog) dialog();
             dialog = false;
             state.filename = name;
@@ -184,7 +184,7 @@ const save_input = document.createElement('input');
 save_input.type = 'text';
 save_prompt.appendChild(save_input);
 
-function send_save(event) {
+function send_save() {
     if (save_input.value) {
         const name = save_input.value;
         const text = editor.getValue();
@@ -196,21 +196,20 @@ function send_save(event) {
     }
 }
 
-function strip(name) {
-    return name.split('/').join('');
+function onInput(event, value) {
+    save_input.value = value.split('/').join('');
 }
 
 function cm_save(cm) {
-    if (!editor.isClean()) {
+    if (!cm.isClean()) {
         if (state.filename) save_input.value = state.filename;
-        const onInput = (event, value) => save_input.value = strip(value);
         cm.openDialog(save_prompt, send_save, {onInput});
     }
 }
 
-document.addEventListener('keyup', e => {
-    if (e.keyCode === 27) {
-        if (dialog) dialog();
+document.addEventListener('keyup', function(e) {
+    if ((e.keyCode === 27) && dialog) {
+        dialog();
         dialog = false;
     }
 });

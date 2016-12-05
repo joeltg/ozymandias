@@ -1,32 +1,32 @@
 ;;;; json.scm
 
 ;; scheme      json
-;; ----------------
-;; symbol  ->  string    'foo   -> "\"foo\""
-;; string  ->  string    "bar"  -> "\"bar\""
-;; number  ->  number    .1337  -> "0.1337"
-;; boolean ->  boolean   #t     -> "true"
-;; null    ->  null      '()    -> "null"
-;; list    ->  array     '(1 2) -> "[1 2]"
-;; alist   ->  object    '((foo 0) (bar 42)) -> "{\"foo\": 0, \"bar\": 42}"
-;; ----------------
+;; ----------------------
+;; symbol     ->  string    'foo   -> "\"foo\""
+;; string     ->  string    "bar"  -> "\"bar\""
+;; number     ->  number    .1337  -> "0.1337"
+;; boolean    ->  boolean   #t     -> "true"
+;; list       ->  array     '(1 2) -> "[1 2]"
+;; null       ->  null      '()    -> "null"
+;; default    ->  null      #!default    -> "null"
+;; unspecific ->  null      #!unspecific -> "null"
+;; alist      ->  object    '((foo 0) (bar 42)) -> "{\"foo\": 0, \"bar\": 42}"
+;; ----------------------
 
 ;; Set a max. length for decimal numbers. Comment out if you don't care.
 (define digit-cutoff 5)
 (set! flonum-unparser-cutoff `(relative ,digit-cutoff))
 
-;; Scheme is very loose with its numbers, especially their string representations.
+;; Scheme is loose with its many number types, especially their string representations.
 ;; JSON is very strict. number->json might produce invalid JSON for some edge cases.
-
-;(define (number->json number)
-;  (let ((number (integer? number) number (exact->inexact number)))
-;    (list "\"" (number->string number) "\"")))
+;; Deal with it, or make it better.
 
 (define (number->json number)
   (apply string-append (number->json-list number)))
 
 (define (number->json-list number)
-  (if (integer? number) (list (number->string number))
+  (if (and (exact? number) (integer? number))
+    (list (number->string number))
     (let* ((string (number->string (exact->inexact number)))
            (length-of-string (string-length string)))
       (cond ((string=? "." (substring string 0 1))
@@ -117,6 +117,7 @@
 
 (define (json-list object)
   (cond
+    ((eq? #!unspecific object) (null->json-list object))
     ((default-object? object) (null->json-list object))
     ((boolean? object) (boolean->json-list object))
     ((symbol? object) (symbol->json-list object))

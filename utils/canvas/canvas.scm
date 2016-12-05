@@ -35,6 +35,10 @@
   (list (canvas-frame-width canvas) (canvas-frame-height canvas)))
 
 (define (canvas-set-coordinate-limits canvas x-left y-bottom x-right y-top)
+  (set-canvas-xmin! canvas x-left)
+  (set-canvas-ymin! canvas y-bottom)
+  (set-canvas-xmax! canvas x-right)
+  (set-canvas-ymax! canvas y-top)
   (send-canvas canvas 'set_coordinate_limits (list x-left y-bottom x-right y-top)))
 
 (define (canvas-drag-cursor canvas x y)
@@ -96,3 +100,9 @@
 
 (define (canvas-set-font canvas font-name)
   (send-canvas canvas 'set_font font-name))
+
+(define (canvas-set-background-color canvas color)
+  (send-canvas canvas 'set_background_color color))
+  
+(define (canvas-set-foreground-color canvas color)
+  (send-canvas canvas 'set_foreground_color color))

@@ -525,16 +525,15 @@ html, body {
     overflow-y: hidden;
 }
 
+h4 {  margin: 8px;  }
+h4 + ul {  margin-top: 0;  }
 h3 {
     margin: 8px;
     font-size: 16px;
 }
-h4 {  margin: 8px;  }
-h4 + ul {  margin-top: 0;  }
 
 form {  float: left;  }
 form + form {  float: right;  }
-
 form, input, label {
     -moz-user-select: none;
     -webkit-user-select: none;
@@ -546,7 +545,7 @@ form, input, label {
     border: 1px solid black;
     border-radius: 2px;
     padding: 4px;
-    margin: 4px;
+    margin: 0 4px 4px 4px;
 }
 
 #console-title {
@@ -601,7 +600,7 @@ form, input, label {
     padding: 8px 2px;
 }
 
-#hint ul { padding: 0 24px; }
+#hint ul { padding: 0 8px 0 24px; }
 #hint input { display: none; }
 #hint input + label {
     cursor: pointer;
@@ -695,6 +694,7 @@ form, input, label {
 #graphics-panel canvas {
     margin: 20px 10px;
     background: white;
+    float: left;
 }
 
 #graphics-panel span {

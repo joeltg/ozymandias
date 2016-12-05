@@ -36,8 +36,6 @@ import {push, view} from './editor';
 import {error} from './error';
 import {toggle, canvas} from './canvas';
 
-
-
 const pipe = ({source, content}) => sources[source](content);
 const auth = content => send('auth', {user: false});
 function data(message) {

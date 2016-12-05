@@ -3,12 +3,18 @@
  */
 
 import CodeMirror from 'codemirror';
-import {defaults, strip_string, state} from './utils';
+import {defaults, strip, state} from './utils';
 import {Expression, modes} from './expression';
 import {send} from './connect';
 import {keywords} from './keywords';
 
 const marks = [];
+
+function tab(sign) {
+    const direction = sign ? 1 : -1;
+    const indentation = sign ? 'indentMore' : 'indentLess';
+    return cm => view(cm, direction) || hint(cm, sign) || cm.execCommand(indentation);
+}
 
 const editor = CodeMirror(document.getElementById('editor'), {
     mode: 'scheme',
@@ -22,8 +28,8 @@ const editor = CodeMirror(document.getElementById('editor'), {
     keyMap: defaults.keyMap,
     value: ';;;; Lambda v0.1\n\n',
     extraKeys: CodeMirror.normalizeKeyMap({
-        'Tab': cm => view(cm, 1) || hint(cm) || cm.execCommand('indentMore'),
-        'Shift-Tab': cm => view(cm, -1) || cm.execCommand('indentLess'),
+        'Tab': tab(true),
+        'Shift-Tab': tab(false),
     })
 });
 
@@ -33,19 +39,27 @@ CodeMirror.commands.eval_document = eval_document;
 CodeMirror.commands.eval_expression = eval_expression;
 CodeMirror.registerHelper('hintWords', 'scheme', keywords.sort());
 
-const range = (a, b, c) => (b.line >= a.line) && (b.line <= c.line);
-const eq = (a, b) => (a.line === b.line) && (a.ch === b.ch);
-function hint(cm) {
-    const start = cm.getCursor('from');
-    const end = cm.getCursor('to');
-    if (eq(start, end) && /^ *$/.test(cm.getLine(start.line).substring(0, start.ch))) return false;
-    cm.showHint();
-    return true;
+function range(a, b, c) {
+    return (b.line >= a.line) && (b.line <= c.line);
+}
+
+function eq(a, b) {
+    return (a.line === b.line) && (a.ch === b.ch);
+}
+
+function hint(cm, sign) {
+    if (sign) {
+        const start = cm.getCursor('from');
+        const end = cm.getCursor('to');
+        if (eq(start, end) && /^ *$/.test(cm.getLine(start.line).substring(0, start.ch))) return false;
+        cm.showHint();
+    }
+    return sign;
 }
 
 function view(cm, delta) {
-    const start = editor.getCursor('from');
-    const end = editor.getCursor('to');
+    const start = cm.getCursor('from');
+    const end = cm.getCursor('to');
     const update = ({from, to}) => range(start, from, end) || range(start, to, end);
 
     const updates = marks.filter(mark => update(mark.find() || {from: -1, to: -1}));
@@ -56,28 +70,33 @@ function view(cm, delta) {
 }
 
 const complain_notification = document.createElement('span');
+
 complain_notification.textContent = 'Resolve error before continuing evaluation';
-const complain = () => editor.openNotification(complain_notification, {duration: 3000});
+
+function complain(cm) {
+    cm.openNotification(complain_notification, {duration: 3000});
+}
 
 function eval_expression(cm) {
-    if (state.error) complain();
+    if (state.error) complain(cm);
     else {
-        const position = editor.getCursor();
-        const {start, end} = get_outer_expression(editor, position);
-        const value = editor.getRange(start, end);
+        const position = cm.getCursor();
+        const {start, end} = get_outer_expression(cm, position);
+        const {line} = end;
+        const value = cm.getRange(start, end);
         state.expressions = false;
-        eval_editor(value, end);
+        evaluate(value, {line});
     }
 }
 
 function eval_document(cm) {
-    if (state.error) complain();
+    if (state.error) complain(cm);
     else {
         const expressions = [];
         let open = false;
-        editor.eachLine(line_handle => {
-            const line = editor.getLineNumber(line_handle);
-            const tokens = editor.getLineTokens(line);
+        cm.eachLine(line_handle => {
+            const line = cm.getLineNumber(line_handle);
+            const tokens = cm.getLineTokens(line);
             tokens.forEach(token => {
                 const {start, end, type, state: {depth, mode}} = token;
                 if (depth === 0 && mode !== 'comment') {
@@ -129,9 +148,9 @@ function get_paren_block(position) {
     } else return false;
 }
 
-function eval_editor(value, position) {
+function evaluate(value, position) {
     state.position = position;
-    send('eval', strip_string(value) + '\n', true);
+    send('eval', strip(value) + '\n', true);
 }
 
 function pop_expression() {
@@ -139,7 +158,8 @@ function pop_expression() {
     const from = {line: editor.getLineNumber(start.line_handle), ch: start.start};
     const to = {line: editor.getLineNumber(end.line_handle), ch: end.end};
     const text = editor.getRange(from, to);
-    eval_editor(text, to);
+    const {line} = to;
+    evaluate(text, {line});
 }
 
 function push([text, latex, flex]) {
@@ -153,11 +173,13 @@ function push([text, latex, flex]) {
             state.position = editor.getCursor();
             if (latex) {
                 const expression = new Expression(text, latex, defaults.mode_index);
-                const mark = editor.markText(
-                    {line: position.line + 1, ch: 0},
-                    {line: state.position.line - 1},
-                    {replacedWith: expression.node}
-                );
+                const start = {line: position.line + 1, ch: 0};
+                const end = {line: state.position.line - 1};
+                const mark = editor.markText(start, end, {
+                    replacedWith: expression.node,
+                    inclusiveLeft: false,
+                    inclusiveRight: true
+                });
                 expression.mark = mark;
                 mark.expression = expression;
                 marks.push(mark);

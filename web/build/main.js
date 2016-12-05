@@ -12150,21 +12150,26 @@
 
 	/**
 	 * Author: Koh Zi Han, based on implementation by Koh Zi Chun
-	 * edited 17 July 2016 by joelg
+	 * extended 17 July 2016 by joelg
 	 */
 
-	_codemirror2.default.defineMode("scheme", function () {
-	    var BUILTIN = "builtin",
-	        COMMENT = "comment",
-	        STRING = "string",
-	        ATOM = "atom",
-	        NUMBER = "number",
-	        BRACKET = "bracket";
+	_codemirror2.default.defineMode('scheme', function () {
+	    var BUILTIN = 'builtin',
+	        COMMENT = 'comment',
+	        STRING = 'string',
+	        ATOM = 'atom',
+	        NUMBER = 'number',
+	        BRACKET = 'bracket';
 	    var INDENT_WORD_SKIP = 2;
+
+	    var binaryMatcher = new RegExp(/^(?:[-+]i|[-+][01]+#*(?:\/[01]+#*)?i|[-+]?[01]+#*(?:\/[01]+#*)?@[-+]?[01]+#*(?:\/[01]+#*)?|[-+]?[01]+#*(?:\/[01]+#*)?[-+](?:[01]+#*(?:\/[01]+#*)?)?i|[-+]?[01]+#*(?:\/[01]+#*)?)(?=[()\s;"]|$)/i);
+	    var octalMatcher = new RegExp(/^(?:[-+]i|[-+][0-7]+#*(?:\/[0-7]+#*)?i|[-+]?[0-7]+#*(?:\/[0-7]+#*)?@[-+]?[0-7]+#*(?:\/[0-7]+#*)?|[-+]?[0-7]+#*(?:\/[0-7]+#*)?[-+](?:[0-7]+#*(?:\/[0-7]+#*)?)?i|[-+]?[0-7]+#*(?:\/[0-7]+#*)?)(?=[()\s;"]|$)/i);
+	    var hexMatcher = new RegExp(/^(?:[-+]i|[-+][\da-f]+#*(?:\/[\da-f]+#*)?i|[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?@[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?|[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?[-+](?:[\da-f]+#*(?:\/[\da-f]+#*)?)?i|[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?)(?=[()\s;"]|$)/i);
+	    var decimalMatcher = new RegExp(/^(?:[-+]i|[-+](?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)i|[-+]?(?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)@[-+]?(?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)|[-+]?(?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)[-+](?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)?i|(?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*))(?=[()\s;"]|$)/i);
 
 	    function makeKeywords(str) {
 	        var obj = {},
-	            words = str.split(" ");
+	            words = str.split(' ');
 	        for (var i = 0; i < words.length; ++i) {
 	            obj[words[i]] = true;
 	        }return obj;
@@ -12173,25 +12178,13 @@
 	    var keys = makeKeywords(_keywords.keywords.join(' '));
 	    var indentKeys = makeKeywords(_keywords.indented_keywords.join(' '));
 
-	    function stateStack(indent, type, prev) {
-	        // represents a state stack object
-	        this.indent = indent;
-	        this.type = type;
-	        this.prev = prev;
-	    }
-
 	    function pushStack(state, indent, type) {
-	        state.indentStack = new stateStack(indent, type, state.indentStack);
+	        state.indentStack = { indent: indent, type: type, prev: state.indentStack };
 	    }
 
 	    function popStack(state) {
 	        state.indentStack = state.indentStack.prev;
 	    }
-
-	    var binaryMatcher = new RegExp(/^(?:[-+]i|[-+][01]+#*(?:\/[01]+#*)?i|[-+]?[01]+#*(?:\/[01]+#*)?@[-+]?[01]+#*(?:\/[01]+#*)?|[-+]?[01]+#*(?:\/[01]+#*)?[-+](?:[01]+#*(?:\/[01]+#*)?)?i|[-+]?[01]+#*(?:\/[01]+#*)?)(?=[()\s;"]|$)/i);
-	    var octalMatcher = new RegExp(/^(?:[-+]i|[-+][0-7]+#*(?:\/[0-7]+#*)?i|[-+]?[0-7]+#*(?:\/[0-7]+#*)?@[-+]?[0-7]+#*(?:\/[0-7]+#*)?|[-+]?[0-7]+#*(?:\/[0-7]+#*)?[-+](?:[0-7]+#*(?:\/[0-7]+#*)?)?i|[-+]?[0-7]+#*(?:\/[0-7]+#*)?)(?=[()\s;"]|$)/i);
-	    var hexMatcher = new RegExp(/^(?:[-+]i|[-+][\da-f]+#*(?:\/[\da-f]+#*)?i|[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?@[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?|[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?[-+](?:[\da-f]+#*(?:\/[\da-f]+#*)?)?i|[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?)(?=[()\s;"]|$)/i);
-	    var decimalMatcher = new RegExp(/^(?:[-+]i|[-+](?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)i|[-+]?(?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)@[-+]?(?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)|[-+]?(?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)[-+](?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*)?i|(?:(?:(?:\d+#+\.?#*|\d+\.\d*#*|\.\d+#*|\d+)(?:[esfdl][-+]?\d+)?)|\d+#*\/\d+#*))(?=[()\s;"]|$)/i);
 
 	    function isBinaryNumber(stream) {
 	        return stream.match(binaryMatcher);
@@ -12202,9 +12195,7 @@
 	    }
 
 	    function isDecimalNumber(stream, backup) {
-	        if (backup === true) {
-	            stream.backUp(1);
-	        }
+	        if (backup === true) stream.backUp(1);
 	        return stream.match(decimalMatcher);
 	    }
 
@@ -12223,54 +12214,46 @@
 	                increment: false
 	            };
 	        },
-
 	        token: function token(stream, state) {
-	            if (state.indentStack == null && stream.sol()) {
-	                // update indentation, but only if indentStack is empty
-	                state.indentation = stream.indentation();
-	            }
+	            // update indentation, but only if indentStack is empty
+	            if (state.indentStack === null && stream.sol()) state.indentation = stream.indentation();
 
 	            // skip spaces
-	            if (stream.eatSpace()) {
-	                return null;
-	            }
-	            var returnType = null;
-
+	            if (stream.eatSpace()) return null;
+	            var returnType = null,
+	                escaped = false,
+	                maybeEnd = false,
+	                next = void 0;
 	            switch (state.mode) {
-	                case "string":
+	                case 'string':
 	                    // multi-line string parsing mode
-	                    var next,
-	                        escaped = false;
 	                    while ((next = stream.next()) != null) {
-	                        if (next == "\"" && !escaped) {
-
+	                        if (next === '"' && !escaped) {
 	                            state.mode = false;
 	                            break;
 	                        }
-	                        escaped = !escaped && next == "\\";
+	                        escaped = !escaped && next === '\\';
 	                    }
 	                    returnType = STRING; // continue on in scheme-string mode
 	                    break;
-	                case "comment":
+	                case 'comment':
 	                    // comment parsing mode
-	                    var next,
-	                        maybeEnd = false;
 	                    while ((next = stream.next()) != null) {
-	                        if (next == "#" && maybeEnd) {
-
+	                        if (next == '#' && maybeEnd) {
 	                            state.mode = false;
 	                            break;
 	                        }
-	                        maybeEnd = next == "|";
+	                        maybeEnd = next === '|';
 	                    }
 	                    returnType = COMMENT;
 	                    break;
-	                case "s-expr-comment":
+	                case 's-expr-comment':
 	                    // s-expr commenting mode
 	                    state.mode = false;
-	                    if (stream.peek() == "(" || stream.peek() == "[") {
+	                    if (stream.peek() == '(' || stream.peek() == '[') {
 	                        // actually start scheme s-expr commenting mode
 	                        state.sExprComment = 0;
+	                        break;
 	                    } else {
 	                        // if not we just comment the entire of the next token
 	                        stream.eatWhile(/[^/s]/); // eat non spaces
@@ -12282,128 +12265,102 @@
 	                    var ch = stream.next();
 	                    state.increment = state.increment && state.depth++ && false;
 
-	                    if (ch == "\"") {
-	                        state.mode = "string";
+	                    if (ch === '"') {
+	                        state.mode = 'string';
 	                        returnType = STRING;
-	                    } else if (ch == "'") {
-	                        stream.eatWhile(/[\w\$_\-!$%&*+\.\/:<=>?@\^~]/);
+	                    } else if (ch === "'") {
+	                        stream.eatWhile(/[\w_\-!$%&*+.\/:<=>?@\^~]/);
 	                        returnType = ATOM;
-	                    } else if (ch == '#') {
-	                        if (stream.eat("|")) {
+	                    } else if (ch === '#') {
+	                        if (stream.eat('|')) {
 	                            // Multi-line comment
-	                            state.mode = "comment"; // toggle to comment mode
+	                            state.mode = 'comment'; // toggle to comment mode
 	                            returnType = COMMENT;
 	                        } else if (stream.eat(/[tf]/i)) {
 	                            // #t/#f (atom)
 	                            returnType = ATOM;
 	                        } else if (stream.eat(';')) {
 	                            // S-Expr comment
-	                            state.mode = "s-expr-comment";
+	                            state.mode = 's-expr-comment';
 	                            returnType = COMMENT;
 	                        } else {
 	                            var numTest = null,
 	                                hasExactness = false,
 	                                hasRadix = true;
-	                            if (stream.eat(/[ei]/i)) {
-	                                hasExactness = true;
-	                            } else {
-	                                stream.backUp(1); // must be radix specifier
-	                            }
-	                            if (stream.match(/^#b/i)) {
-	                                numTest = isBinaryNumber;
-	                            } else if (stream.match(/^#o/i)) {
-	                                numTest = isOctalNumber;
-	                            } else if (stream.match(/^#x/i)) {
-	                                numTest = isHexNumber;
-	                            } else if (stream.match(/^#d/i)) {
-	                                numTest = isDecimalNumber;
-	                            } else if (stream.match(/^[-+0-9.]/, false)) {
+
+	                            if (stream.eat(/[ei]/i)) hasExactness = true;else stream.backUp(1); // must be radix specifier
+
+	                            if (stream.match(/^#b/i)) numTest = isBinaryNumber;else if (stream.match(/^#o/i)) numTest = isOctalNumber;else if (stream.match(/^#x/i)) numTest = isHexNumber;else if (stream.match(/^#d/i)) numTest = isDecimalNumber;else if (stream.match(/^[-+0-9.]/, false)) {
 	                                hasRadix = false;
 	                                numTest = isDecimalNumber;
 	                                // re-consume the intial # if all matches failed
-	                            } else if (!hasExactness) {
-	                                stream.eat('#');
-	                            }
-	                            if (numTest != null) {
-	                                if (hasRadix && !hasExactness) {
-	                                    // consume optional exactness after radix
-	                                    stream.match(/^#[ei]/i);
-	                                }
+	                            } else if (!hasExactness) stream.eat('#');
+
+	                            if (numTest !== null) {
+	                                // consume optional exactness after radix
+	                                if (hasRadix && !hasExactness) stream.match(/^#[ei]/i);
 	                                if (numTest(stream)) returnType = NUMBER;
 	                            }
 	                        }
 	                    } else if (/^[-+0-9.]/.test(ch) && isDecimalNumber(stream, true)) {
 	                        // match non-prefixed number, must be decimal
 	                        returnType = NUMBER;
-	                    } else if (ch == ";") {
+	                    } else if (ch === ';') {
 	                        // comment
 	                        stream.skipToEnd(); // rest of the line is a comment
 	                        returnType = COMMENT;
-	                    } else if (ch == "(" || ch == "[") {
-	                        var keyWord = '';var indentTemp = stream.column(),
-	                            letter;
+	                    } else if (ch === '(' || ch === '[') {
+	                        var keyWord = '',
+	                            indentTemp = stream.column(),
+	                            letter = void 0;
 	                        /**
 	                        Either
 	                        (indent-word ..
 	                        (non-indent-word ..
 	                        (;something else, bracket, etc.
 	                        */
-	                        while ((letter = stream.eat(/[^\s\(\[\;\)\]]/)) != null) {
+	                        while ((letter = stream.eat(/[^\s(\[;)\]]/)) != null) {
 	                            keyWord += letter;
-	                        }
-
-	                        if (keyWord.length > 0 && indentKeys.propertyIsEnumerable(keyWord)) {
-	                            // indent-word
-
-	                            pushStack(state, indentTemp + INDENT_WORD_SKIP, ch);
-	                        } else {
-	                            // non-indent word
-	                            // we continue eating the spaces
-	                            stream.eatSpace();
-	                            if (stream.eol() || stream.peek() == ";") {
+	                        }if (keyWord.length > 0 && indentKeys.propertyIsEnumerable(keyWord)) pushStack(state, indentTemp + INDENT_WORD_SKIP, ch); // indent-word
+	                        else {
+	                                // non-indent word
+	                                // we continue eating the spaces
+	                                stream.eatSpace();
 	                                // nothing significant after
 	                                // we restart indentation 1 space after
-	                                pushStack(state, indentTemp + 1, ch);
-	                            } else {
-	                                pushStack(state, indentTemp + stream.current().length, ch); // else we match
+	                                if (stream.eol() || stream.peek() === ';') pushStack(state, indentTemp + 1, ch);else pushStack(state, indentTemp + stream.current().length, ch); // else we match
 	                            }
-	                        }
 	                        stream.backUp(stream.current().length - 1); // undo all the eating
 
-	                        if (typeof state.sExprComment == "number") state.sExprComment++;
+	                        if (typeof state.sExprComment === 'number') state.sExprComment++;
 
 	                        returnType = BRACKET;
 	                        state.increment = true;
-	                    } else if (ch == ")" || ch == "]") {
+	                    } else if (ch === ')' || ch === ']') {
 	                        returnType = BRACKET;
-	                        if (state.indentStack != null && state.indentStack.type == (ch == ")" ? "(" : "[")) {
+	                        if (state.indentStack !== null && state.indentStack.type == (ch === ')' ? '(' : '[')) {
 	                            state.depth--;
 	                            popStack(state);
-	                            if (typeof state.sExprComment == "number") {
-	                                if (--state.sExprComment == 0) {
-	                                    returnType = COMMENT; // final closing bracket
-	                                    state.sExprComment = false; // turn off s-expr commenting mode
-	                                }
+	                            if (typeof state.sExprComment === 'number' && --state.sExprComment == 0) {
+	                                returnType = COMMENT; // final closing bracket
+	                                state.sExprComment = false; // turn off s-expr commenting mode
 	                            }
 	                        }
 	                    } else {
-	                        stream.eatWhile(/[\w\$_\-!$%&*+\.\/:<=>?@\^~]/);
-
-	                        if (keys && keys.propertyIsEnumerable(stream.current())) {
-	                            returnType = BUILTIN;
-	                        } else returnType = "variable";
+	                        stream.eatWhile(/[\w_\-!$%&*+.\/:<=>?@\^~]/);
+	                        if (keys && keys.propertyIsEnumerable(stream.current())) returnType = BUILTIN;else returnType = 'variable';
 	                    }
 	            }
-	            return typeof state.sExprComment == "number" ? COMMENT : returnType;
+	            return typeof state.sExprComment === 'number' ? COMMENT : returnType;
 	        },
-
 	        indent: function indent(state) {
-	            if (state.indentStack == null) return state.indentation;
+	            if (state.indentStack === null) return state.indentation;
 	            return state.indentStack.indent;
 	        },
 
-	        closeBrackets: { pairs: "()[]{}\"\"" },
-	        lineComment: ";;"
+
+	        closeBrackets: { pairs: '()[]{}""' },
+	        lineComment: ';;'
 	    };
 	});
 
@@ -12422,9 +12379,9 @@
 	 * Created by joelg on 11/5/16.
 	 */
 
-	var indented_keywords = ['define', 'let', 'letrec', 'let*', 'lambda'];
+	var indented_keywords = ['define', 'let', 'letrec', 'let*', 'fluid-let', 'lambda'];
 
-	var keywords = ['lambda', 'case-lambda', 'call/cc', 'class', 'define-class', 'exit-handler', 'field', 'import', 'inherit', 'init-field', 'interface', 'let*-values', 'let-values', 'let/ec', 'mixin', 'opt-lambda', 'override', 'protect', 'provide', 'public', 'rename', 'require', 'require-for-syntax', 'syntax', 'syntax-case', 'syntax-error', 'unit/sig', 'unless', 'when', 'with-syntax', 'and', 'begin', 'call-with-current-continuation', 'call-with-input-file', 'call-with-output-file', 'case', 'cond', 'define', 'define-syntax', 'delay', 'do', 'dynamic-wind', 'else', 'for-each', 'if', 'let', 'let*', 'let-syntax', 'letrec', 'letrec-syntax', 'map', 'or', 'syntax-rules', 'abs', 'acos', 'angle', 'append', 'apply', 'asin', 'assoc', 'assq', 'assv', 'atan', 'boolean?', 'caar', 'cadr', 'call-with-input-file', 'call-with-output-file', 'call-with-values', 'car', 'cdddar', 'cddddr', 'cdr', 'ceiling', 'char->integer', 'char-alphabetic?', 'char-ci<=?', 'char-ci<?', 'char-ci=?', 'char-ci>=?', 'char-ci>?', 'char-downcase', 'char-lower-case?', 'char-numeric?', 'char-ready?', 'char-upcase', 'char-upper-case?', 'char-whitespace?', 'char<=?', 'char<?', 'char=?', 'char>=?', 'char>?', 'char?', 'close-input-port', 'close-output-port', 'complex?', 'cons', 'cos', 'current-input-port', 'current-output-port', 'denominator', 'display', 'eof-object?', 'eq?', 'equal?', 'eqv?', 'eval', 'even?', 'exact->inexact', 'exact?', 'exp', 'expt', '#f', 'floor', 'force', 'gcd', 'imag-part', 'inexact->exact', 'inexact?', 'input-port?', 'integer->char', 'integer?', 'interaction-environment', 'lcm', 'length', 'list', 'list->string', 'list->vector', 'list-ref', 'list-tail', 'list?', 'load', 'log', 'magnitude', 'make-polar', 'make-rectangular', 'make-string', 'make-vector', 'max', 'member', 'memq', 'memv', 'min', 'modulo', 'negative?', 'newline', 'not', 'null-environment', 'null?', 'number->string', 'number?', 'numerator', 'odd?', 'open-input-file', 'open-output-file', 'output-port?', 'pair?', 'peek-char', 'port?', 'positive?', 'procedure?', 'quasiquote', 'quote', 'quotient', 'rational?', 'rationalize', 'read', 'read-char', 'real-part', 'real?', 'remainder', 'reverse', 'round', 'scheme-report-environment', 'set!', 'set-car!', 'set-cdr!', 'sin', 'sqrt', 'string', 'string->list', 'string->number', 'string->symbol', 'string-append', 'string-ci<=?', 'string-ci<?', 'string-ci=?', 'string-ci>=?', 'string-ci>?', 'string-copy', 'string-fill!', 'string-length', 'string-ref', 'string-set!', 'string<=?', 'string<?', 'string=?', 'string>=?', 'string>?', 'string?', 'substring', 'symbol->string', 'symbol?', '#t', 'tan', 'transcript-off', 'transcript-on', 'truncate', 'values', 'vector', 'vector->list', 'vector-fill!', 'vector-length', 'vector-ref', 'vector-set!', 'with-input-from-file', 'with-output-to-file', 'write', 'write-char', 'zero?'];
+	var keywords = ['lambda', 'case-lambda', 'call/cc', 'class', 'define-class', 'exit-handler', 'field', 'import', 'inherit', 'init-field', 'interface', 'let*-values', 'let-values', 'let/ec', 'mixin', 'opt-lambda', 'override', 'protect', 'provide', 'public', 'rename', 'require', 'require-for-syntax', 'syntax', 'syntax-case', 'syntax-error', 'unit/sig', 'unless', 'when', 'with-syntax', 'and', 'begin', 'call-with-current-continuation', 'call-with-input-file', 'call-with-output-file', 'case', 'cond', 'define', 'define-syntax', 'delay', 'do', 'dynamic-wind', 'else', 'for-each', 'if', 'let', 'let*', 'let-syntax', 'letrec', 'letrec-syntax', 'fluid-let', 'map', 'or', 'syntax-rules', 'abs', 'acos', 'angle', 'append', 'apply', 'asin', 'assoc', 'assq', 'assv', 'atan', 'boolean?', 'caar', 'cadr', 'call-with-input-file', 'call-with-output-file', 'call-with-values', 'car', 'cdddar', 'cddddr', 'cdr', 'ceiling', 'char->integer', 'char-alphabetic?', 'char-ci<=?', 'char-ci<?', 'char-ci=?', 'char-ci>=?', 'char-ci>?', 'char-downcase', 'char-lower-case?', 'char-numeric?', 'char-ready?', 'char-upcase', 'char-upper-case?', 'char-whitespace?', 'char<=?', 'char<?', 'char=?', 'char>=?', 'char>?', 'char?', 'close-input-port', 'close-output-port', 'complex?', 'cons', 'cos', 'current-input-port', 'current-output-port', 'denominator', 'display', 'eof-object?', 'eq?', 'equal?', 'eqv?', 'eval', 'even?', 'exact->inexact', 'exact?', 'exp', 'expt', '#f', 'floor', 'force', 'gcd', 'imag-part', 'inexact->exact', 'inexact?', 'input-port?', 'integer->char', 'integer?', 'interaction-environment', 'lcm', 'length', 'list', 'list->string', 'list->vector', 'list-ref', 'list-tail', 'list?', 'load', 'log', 'magnitude', 'make-polar', 'make-rectangular', 'make-string', 'make-vector', 'max', 'member', 'memq', 'memv', 'min', 'modulo', 'negative?', 'newline', 'not', 'null-environment', 'null?', 'number->string', 'number?', 'numerator', 'odd?', 'open-input-file', 'open-output-file', 'output-port?', 'pair?', 'peek-char', 'port?', 'positive?', 'procedure?', 'quasiquote', 'quote', 'quotient', 'rational?', 'rationalize', 'read', 'read-char', 'real-part', 'real?', 'remainder', 'reverse', 'round', 'scheme-report-environment', 'set!', 'set-car!', 'set-cdr!', 'sin', 'sqrt', 'string', 'string->list', 'string->number', 'string->symbol', 'string-append', 'string-ci<=?', 'string-ci<?', 'string-ci=?', 'string-ci>=?', 'string-ci>?', 'string-copy', 'string-fill!', 'string-length', 'string-ref', 'string-set!', 'string<=?', 'string<?', 'string=?', 'string>=?', 'string>?', 'string?', 'substring', 'symbol->string', 'symbol?', '#t', 'tan', 'transcript-off', 'transcript-on', 'truncate', 'values', 'vector', 'vector->list', 'vector-fill!', 'vector-length', 'vector-ref', 'vector-set!', 'with-input-from-file', 'with-output-to-file', 'write', 'write-char', 'zero?'];
 
 	exports.keywords = keywords;
 	exports.indented_keywords = indented_keywords;
@@ -13080,7 +13037,7 @@
 	var dialog = false;
 
 	_editor.editor.on('change', function (cm, change) {
-	    if (_utils.state.filename && !_editor.editor.isClean() && clean) {
+	    if (_utils.state.filename && !cm.isClean() && clean) {
 	        filename.textContent = ': ' + _utils.state.filename + '*';
 	        clean = false;
 	    }
@@ -13132,7 +13089,7 @@
 	save_input.type = 'text';
 	save_prompt.appendChild(save_input);
 
-	function send_save(event) {
+	function send_save() {
 	    if (save_input.value) {
 	        var name = save_input.value;
 	        var text = _editor.editor.getValue();
@@ -13144,23 +13101,20 @@
 	    }
 	}
 
-	function strip(name) {
-	    return name.split('/').join('');
+	function onInput(event, value) {
+	    save_input.value = value.split('/').join('');
 	}
 
 	function cm_save(cm) {
-	    if (!_editor.editor.isClean()) {
+	    if (!cm.isClean()) {
 	        if (_utils.state.filename) save_input.value = _utils.state.filename;
-	        var onInput = function onInput(event, value) {
-	            return save_input.value = strip(value);
-	        };
 	        cm.openDialog(save_prompt, send_save, { onInput: onInput });
 	    }
 	}
 
 	document.addEventListener('keyup', function (e) {
-	    if (e.keyCode === 27) {
-	        if (dialog) dialog();
+	    if (e.keyCode === 27 && dialog) {
+	        dialog();
 	        dialog = false;
 	    }
 	});
@@ -13202,6 +13156,14 @@
 
 	var marks = [];
 
+	function tab(sign) {
+	    var direction = sign ? 1 : -1;
+	    var indentation = sign ? 'indentMore' : 'indentLess';
+	    return function (cm) {
+	        return view(cm, direction) || hint(cm, sign) || cm.execCommand(indentation);
+	    };
+	}
+
 	var editor = (0, _codemirror2.default)(document.getElementById('editor'), {
 	    mode: 'scheme',
 	    theme: _utils.defaults.theme,
@@ -13214,12 +13176,8 @@
 	    keyMap: _utils.defaults.keyMap,
 	    value: ';;;; Lambda v0.1\n\n',
 	    extraKeys: _codemirror2.default.normalizeKeyMap({
-	        'Tab': function Tab(cm) {
-	            return view(cm, 1) || hint(cm) || cm.execCommand('indentMore');
-	        },
-	        'Shift-Tab': function ShiftTab(cm) {
-	            return view(cm, -1) || cm.execCommand('indentLess');
-	        }
+	        'Tab': tab(true),
+	        'Shift-Tab': tab(false)
 	    })
 	});
 
@@ -13229,23 +13187,27 @@
 	_codemirror2.default.commands.eval_expression = eval_expression;
 	_codemirror2.default.registerHelper('hintWords', 'scheme', _keywords.keywords.sort());
 
-	var range = function range(a, b, c) {
+	function range(a, b, c) {
 	    return b.line >= a.line && b.line <= c.line;
-	};
-	var eq = function eq(a, b) {
+	}
+
+	function eq(a, b) {
 	    return a.line === b.line && a.ch === b.ch;
-	};
-	function hint(cm) {
-	    var start = cm.getCursor('from');
-	    var end = cm.getCursor('to');
-	    if (eq(start, end) && /^ *$/.test(cm.getLine(start.line).substring(0, start.ch))) return false;
-	    cm.showHint();
-	    return true;
+	}
+
+	function hint(cm, sign) {
+	    if (sign) {
+	        var start = cm.getCursor('from');
+	        var end = cm.getCursor('to');
+	        if (eq(start, end) && /^ *$/.test(cm.getLine(start.line).substring(0, start.ch))) return false;
+	        cm.showHint();
+	    }
+	    return sign;
 	}
 
 	function view(cm, delta) {
-	    var start = editor.getCursor('from');
-	    var end = editor.getCursor('to');
+	    var start = cm.getCursor('from');
+	    var end = cm.getCursor('to');
 	    var update = function update(_ref) {
 	        var from = _ref.from,
 	            to = _ref.to;
@@ -13264,33 +13226,37 @@
 	}
 
 	var complain_notification = document.createElement('span');
+
 	complain_notification.textContent = 'Resolve error before continuing evaluation';
-	var complain = function complain() {
-	    return editor.openNotification(complain_notification, { duration: 3000 });
-	};
+
+	function complain(cm) {
+	    cm.openNotification(complain_notification, { duration: 3000 });
+	}
 
 	function eval_expression(cm) {
-	    if (_utils.state.error) complain();else {
-	        var position = editor.getCursor();
+	    if (_utils.state.error) complain(cm);else {
+	        var position = cm.getCursor();
 
-	        var _get_outer_expression = get_outer_expression(editor, position),
+	        var _get_outer_expression = get_outer_expression(cm, position),
 	            start = _get_outer_expression.start,
 	            end = _get_outer_expression.end;
 
-	        var value = editor.getRange(start, end);
+	        var line = end.line;
+
+	        var value = cm.getRange(start, end);
 	        _utils.state.expressions = false;
-	        eval_editor(value, end);
+	        evaluate(value, { line: line });
 	    }
 	}
 
 	function eval_document(cm) {
-	    if (_utils.state.error) complain();else {
+	    if (_utils.state.error) complain(cm);else {
 	        (function () {
 	            var expressions = [];
 	            var open = false;
-	            editor.eachLine(function (line_handle) {
-	                var line = editor.getLineNumber(line_handle);
-	                var tokens = editor.getLineTokens(line);
+	            cm.eachLine(function (line_handle) {
+	                var line = cm.getLineNumber(line_handle);
+	                var tokens = cm.getLineTokens(line);
 	                tokens.forEach(function (token) {
 	                    var start = token.start,
 	                        end = token.end,
@@ -13357,9 +13323,9 @@
 	    } else return false;
 	}
 
-	function eval_editor(value, position) {
+	function evaluate(value, position) {
 	    _utils.state.position = position;
-	    (0, _connect.send)('eval', (0, _utils.strip_string)(value) + '\n', true);
+	    (0, _connect.send)('eval', (0, _utils.strip)(value) + '\n', true);
 	}
 
 	function pop_expression() {
@@ -13372,7 +13338,9 @@
 	    var from = { line: editor.getLineNumber(start.line_handle), ch: start.start };
 	    var to = { line: editor.getLineNumber(end.line_handle), ch: end.end };
 	    var text = editor.getRange(from, to);
-	    eval_editor(text, to);
+	    var line = to.line;
+
+	    evaluate(text, { line: line });
 	}
 
 	function push(_ref3) {
@@ -13390,7 +13358,13 @@
 	            _utils.state.position = editor.getCursor();
 	            if (latex) {
 	                var expression = new _expression.Expression(text, latex, _utils.defaults.mode_index);
-	                var mark = editor.markText({ line: position.line + 1, ch: 0 }, { line: _utils.state.position.line - 1 }, { replacedWith: expression.node });
+	                var start = { line: position.line + 1, ch: 0 };
+	                var end = { line: _utils.state.position.line - 1 };
+	                var mark = editor.markText(start, end, {
+	                    replacedWith: expression.node,
+	                    inclusiveLeft: false,
+	                    inclusiveRight: true
+	                });
 	                expression.mark = mark;
 	                mark.expression = expression;
 	                marks.push(mark);
@@ -13424,6 +13398,12 @@
 	 * Created by joel on 8/28/16.
 	 */
 
+	var stdout = document.getElementById('stdout');
+
+	function log(text) {
+	    stdout.innerText += text;
+	}
+
 	var defaults = {
 	    keyMap: 'sublime',
 	    visibility: 'close',
@@ -13437,6 +13417,7 @@
 	var state = {
 	    position: false,
 	    windows: {},
+	    canvases: {},
 	    filename: false,
 
 	    visibility: defaults.visibility,
@@ -13444,13 +13425,7 @@
 	    keyMap: defaults.keyMap
 	};
 
-	function get_end(cm) {
-	    var line = cm.lastLine();
-	    var ch = cm.getLine(line).length;
-	    return { line: line, ch: ch };
-	}
-
-	function strip_string(string) {
+	function strip(string) {
 	    for (var s = string.substr(0, 1); s === '\n' || s === ' '; s = string.substr(0, 1)) {
 	        string = string.substr(1);
 	    }for (var _s = string.substr(string.length - 1); _s === '\n' || _s === ' '; _s = string.substr(string.length - 1)) {
@@ -13458,13 +13433,7 @@
 	    }return string;
 	}
 
-	var stdout = document.getElementById('stdout');
-	function log(text) {
-	    stdout.innerText += text;
-	}
-
-	exports.get_end = get_end;
-	exports.strip_string = strip_string;
+	exports.strip = strip;
 	exports.state = state;
 	exports.defaults = defaults;
 	exports.stdout = stdout;
@@ -13502,13 +13471,7 @@
 	var key = '\\matrix';
 	var len = key.length;
 
-	function replace(string, index, i) {
-	    var beginning = string.slice(0, index);
-	    var middle = string.slice(index + len + 1, i);
-	    var end = string.slice(i + 1);
-	    return beginning + '\\begin{matrix}' + middle + '\\end{matrix}' + end;
-	}
-
+	// This is a hack and will definitely break someday. I'm sorry.
 	function fix_matrix(string, index) {
 	    for (var i = index + len + 1, count = 0; i < string.length; i++) {
 	        switch (string[i]) {
@@ -13521,6 +13484,13 @@
 	                break;
 	        }
 	    }return string;
+	}
+
+	function replace(string, index, i) {
+	    var beginning = string.slice(0, index);
+	    var middle = string.slice(index + len + 1, i);
+	    var end = string.slice(i + 1);
+	    return beginning + '\\begin{matrix}' + middle + '\\end{matrix}' + end;
 	}
 
 	function fix_matrices(string) {
@@ -22103,9 +22073,12 @@
 
 	var _editor = __webpack_require__(37);
 
+	var _utils = __webpack_require__(38);
+
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-	var canvases = {};
+	var canvases = _utils.state.canvases;
+
 
 	var size = 300;
 	var margin = 20;
@@ -22331,14 +22304,14 @@
 
 	        var _value9 = _slicedToArray(value, 4),
 	            xmin = _value9[0],
-	            xmax = _value9[1],
-	            ymin = _value9[2],
-	            ymax = _value9[3];
+	            ymax = _value9[1],
+	            xmax = _value9[2],
+	            ymin = _value9[3];
 
-	        var x_range = [x_scale.invert(xmin), x_scale.invert(xmax)];
-	        var y_range = [y_scale.invert(ymin), y_scale.invert(ymax)];
-	        var x_domain = [x_scale(xmin), x_scale(xmax)];
-	        var y_domain = [y_scale(ymin), y_scale(ymax)];
+	        var x_range = [x_scale(xmin), x_scale(xmax)];
+	        var y_range = [y_scale(ymin), y_scale(ymax)];
+	        var x_domain = [xmin, xmax];
+	        var y_domain = [ymin, ymax];
 	        x_scale.domain(x_domain).range(x_range);
 	        y_scale.domain(y_domain).range(y_range);
 	    },
@@ -22356,6 +22329,17 @@
 
 	        x_scale.domain([xmin, xmax]).range([0, element.width]);
 	        y_scale.domain([ymin, ymax]).range([0, element.height]);
+	    },
+	    set_background_color: function set_background_color(id, value) {
+	        var element = canvases[id].element;
+
+	        element.style.backgroundColor = value;
+	    },
+	    set_foreground_color: function set_foreground_color(id, value) {
+	        var context = canvases[id].context;
+
+	        context.fillStyle = value;
+	        context.strokeStyle = value;
 	    }
 	};
 
@@ -38769,7 +38753,7 @@
 
 	module.exports = {
 	    entry: {
-	        main: path.resolve(__dirname, 'client', 'main.js')
+	        main: path.resolve(__dirname, 'src', 'main.js')
 	    },
 	    output: {
 	        path: path.resolve(__dirname, 'web', 'build'),
@@ -38777,7 +38761,7 @@
 	    },
 	    module: {
 	        loaders: [
-	            {test: /\.js$/, include: /client/, exclude: /node_modules/, loader: 'babel', query: {presets: ['es2015', 'stage-0']}},
+	            {test: /\.js$/, include: /src/, exclude: /node_modules/, loader: 'babel', query: {presets: ['es2015', 'stage-0']}},
 	            {test: /\.css$/, loader: ExtractTextPlugin.extract('style', 'css!postcss')},
 	            {test: /\.(png|woff|woff2|eot|ttf|svg)$/, loader: 'url'},
 	            {test: /\.json$/, loader: 'json'}

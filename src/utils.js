@@ -2,6 +2,12 @@
  * Created by joel on 8/28/16.
  */
 
+const stdout = document.getElementById('stdout');
+
+function log(text) {
+    stdout.innerText += text;
+}
+
 const defaults = {
     keyMap: 'sublime',
     visibility: 'close',
@@ -15,6 +21,7 @@ const defaults = {
 const state = {
     position: false,
     windows: {},
+    canvases: {},
     filename: false,
 
     visibility: defaults.visibility,
@@ -22,13 +29,7 @@ const state = {
     keyMap: defaults.keyMap
 };
 
-function get_end(cm) {
-    const line = cm.lastLine();
-    const ch = cm.getLine(line).length;
-    return {line, ch};
-}
-
-function strip_string(string) {
+function strip(string) {
     for (let s = string.substr(0, 1); s === '\n' || s === ' '; s = string.substr(0, 1))
         string = string.substr(1);
     for (let s = string.substr(string.length - 1); s === '\n' || s === ' '; s = string.substr(string.length - 1))
@@ -36,9 +37,4 @@ function strip_string(string) {
     return string;
 }
 
-const stdout = document.getElementById('stdout');
-function log(text) {
-    stdout.innerText += text;
-}
-
-export {get_end, strip_string, state, defaults, stdout, log};
+export {strip, state, defaults, stdout, log};

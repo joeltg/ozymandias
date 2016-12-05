@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import {editor} from './editor';
-const canvases = {};
+import {state} from './utils';
+const {canvases} = state;
 
 const size = 300;
 const margin = 20;
@@ -122,11 +123,11 @@ const actions = {
     },
     set_clip_rectangle(id, value) {
         const {element, x_scale, y_scale} = canvases[id];
-        const [xmin, xmax, ymin, ymax] = value;
-        const x_range = [x_scale.invert(xmin), x_scale.invert(xmax)];
-        const y_range = [y_scale.invert(ymin), y_scale.invert(ymax)];
-        const x_domain = [x_scale(xmin), x_scale(xmax)];
-        const y_domain = [y_scale(ymin), y_scale(ymax)];
+        const [xmin, ymax, xmax, ymin] = value;
+        const x_range = [x_scale(xmin), x_scale(xmax)];
+        const y_range = [y_scale(ymin), y_scale(ymax)];
+        const x_domain = [xmin, xmax];
+        const y_domain = [ymin, ymax];
         x_scale.domain(x_domain).range(x_range);
         y_scale.domain(y_domain).range(y_range);
     },
@@ -135,6 +136,15 @@ const actions = {
         const [xmin, ymax, xmax, ymin] = value;
         x_scale.domain([xmin, xmax]).range([0, element.width]);
         y_scale.domain([ymin, ymax]).range([0, element.height]);
+    },
+    set_background_color(id, value) {
+        const {element} = canvases[id];
+        element.style.backgroundColor = value;
+    },
+    set_foreground_color(id, value) {
+        const {context} = canvases[id];
+        context.fillStyle = value;
+        context.strokeStyle = value;
     }
 };
 

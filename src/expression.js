@@ -14,13 +14,7 @@ const modes = [
 const key = '\\matrix';
 const len = key.length;
 
-function replace(string, index, i) {
-    const beginning = string.slice(0, index);
-    const middle = string.slice(index + len + 1, i);
-    const end = string.slice(i + 1);
-    return `${beginning}\\begin{matrix}${middle}\\end{matrix}${end}`;
-}
-
+// This is a hack and will definitely break someday. I'm sorry.
 function fix_matrix(string, index) {
     for (let i = index + len + 1, count = 0; i < string.length; i++) switch (string[i]) {
         case '{':
@@ -32,6 +26,13 @@ function fix_matrix(string, index) {
             break;
     }
     return string;
+}
+
+function replace(string, index, i) {
+    const beginning = string.slice(0, index);
+    const middle = string.slice(index + len + 1, i);
+    const end = string.slice(i + 1);
+    return `${beginning}\\begin{matrix}${middle}\\end{matrix}${end}`;
 }
 
 function fix_matrices(string) {
