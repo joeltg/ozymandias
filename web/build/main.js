@@ -12125,7 +12125,7 @@
 	map["Ctrl-Enter"] = "eval_expression";
 	map["Ctrl-Shift-Enter"] = "eval_document";
 
-	map["Alt-H"] = "help";
+	map["Ctrl-Shift-H"] = "help";
 
 	map["Ctrl-O"] = "open";
 
@@ -13014,7 +13014,7 @@
 	{
 	    element: document.getElementById('help'),
 	    emacs: 'Meta-H',
-	    sublime: 'Alt-H'
+	    sublime: 'Ctrl-Shift-H'
 	}];
 
 	function set_theme(theme) {

@@ -69,7 +69,7 @@ const labels = [
     {
         element: document.getElementById('help'),
         emacs: 'Meta-H',
-        sublime: 'Alt-H'
+        sublime: 'Ctrl-Shift-H'
     }
 ];
 
