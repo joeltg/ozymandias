@@ -154,6 +154,7 @@ function load(data) {
     editor.markClean();
     set_filename(state.filename);
     clean = true;
+    editor.focus();
 }
 
 const save_notification = document.createElement('span');

@@ -13111,6 +13111,7 @@
 	    _editor.editor.markClean();
 	    set_filename(_utils.state.filename);
 	    clean = true;
+	    _editor.editor.focus();
 	}
 
 	var save_notification = document.createElement('span');
