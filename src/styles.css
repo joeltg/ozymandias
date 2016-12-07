@@ -80,3 +80,8 @@ html, body {
 
 .CodeMirror-hints {  background: #bbb !important;  }
 li.CodeMirror-hint-active {  background: #272822 !important;  }
+
+span.katex-display {
+    margin: 1em;
+    text-align: left;
+}
