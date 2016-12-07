@@ -36,10 +36,10 @@ function restart(panel, input, name, index) {
 }
 
 function error([text, restarts]) {
-    const div = document.createElement('div'), h4 = document.createElement('h4'), ul = document.createElement('ul');
-    div.appendChild(h4);
+    const div = document.createElement('div'), h2 = document.createElement('h2'), ul = document.createElement('ul');
+    div.appendChild(h2);
     div.appendChild(ul);
-    h4.textContent = text;
+    h2.textContent = text;
     div.className = 'error-panel';
     const panel = editor.addPanel(div, {position: 'before-bottom'});
     editor.setOption('readOnly', 'nocursor');

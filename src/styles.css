@@ -6,56 +6,14 @@ html, body {
     overflow-y: hidden;
 }
 
-h4 {  margin: 8px;  }
-h4 + ul {  margin-top: 0;  }
-h3 {
-    margin: 8px;
-    font-size: 16px;
-}
-
-form {  float: left;  }
-form + form {  float: right;  }
-form, input, label {
-    -moz-user-select: none;
-    -webkit-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-#console {
-    border: 1px solid black;
-    border-radius: 2px;
-    padding: 4px;
-    margin: 0 4px 4px 4px;
-}
-
-#console-title {
-    -moz-user-select: none;
-    -webkit-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    margin: 0;
-    cursor: pointer;
-}
-
-#stdout {
-    margin: 0;
-    max-height: 128px;
-    overflow-wrap: break-word;
-    overflow-y: auto;
-}
-
-#collapse {
-    margin: 0 4px;
-    float: right;
-}
-
 #editor {
-    width: 100%;
-    height: 100%;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 320px;
+    left: 0;
 }
 
-/* may God forgive me*/
 #editor .CodeMirror {
     height: 100%;
     width: 100%;
@@ -65,69 +23,10 @@ form, input, label {
     z-index: 0
 }
 
-#hint {
-    z-index: 1;
-    margin: 16px;
-    width: 300px;
-    position: fixed;
-    right: 0;
-    background: #bbb;
-    border-radius: 3px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-}
-
-#hint form {
-    margin: 0 8px;
-    padding: 8px 2px;
-}
-
-#hint ul { padding: 0 8px 0 24px; }
-#hint input { display: none; }
-#hint input + label {
-    cursor: pointer;
-    border: 1px solid black;
-    border-radius: 2px;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    padding: 4px;
-}
-
-#hint input:checked + label{
-    /*background: #ae81ff;*/
-    border-width: 3px;
-    font-style: italic;
-    font-weight: bold;
-    padding: 3.5px;
-}
-
-.icon:hover {  opacity: 1;  }
-.icon {
-    position: fixed;
-    opacity: 0.5;
-}
-
-#icons:hover {  cursor: pointer;  }
-#icons {
-    z-index: 2;
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: 32px;
-    height: 32px;
-    margin: 16px;
-}
-
 #save span {  font-size: 18px;  }
-#settings {  height: 32px;  }
 .key-binding { float: right; }
 .cm-s-default .cm-latex {  color: black;  }
 .cm-s-monokai .cm-latex {  color: white;  }
-
-#filename {
-    height: 24px;
-    font-size: 16px;
-}
 
 .CodeMirror-dialog button, .error-panel input {
     margin: 4px;
@@ -135,19 +34,34 @@ form, input, label {
     font-size: inherit !important;
     background: none;
     color: inherit;
-    border: 1px solid;
-    border-radius: 2px;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
     cursor: pointer;
-    padding: 2px;
+    border: none;
+    border-radius: 2px;
+    padding: 4px 4px 2px 4px;
+
+    -webkit-box-shadow:inset 0 0 0 1px;
+    -moz-box-shadow:inset 0 0 0 1px;
+    box-shadow:inset 0 0 0 1px;
+
+    font-weight: normal;
+    font-style: normal;
 }
 
 .CodeMirror-dialog button:focus, .error-panel input:focus {
-    border-width: 2px;
+    -webkit-box-shadow:inset 0 0 0 2px;
+    -moz-box-shadow:inset 0 0 0 2px;
+    box-shadow:inset 0 0 0 2px;
+
     font-style: italic;
     font-weight: bold;
+}
+
+.CodeMirror-dialog button {
+    color: white;
+}
+
+.error-panel input {
+    color: black;
 }
 
 .error-panel {
@@ -156,33 +70,13 @@ form, input, label {
     overflow: auto;
 }
 
+.error-panel ul {
+    margin-top: 0;
+}
+
 .error-panel p {  margin: 0 16px;  }
 .error-panel input {  width: 128px;  }
 .error-panel span {  margin: 0 4px;  }
-
-#graphics-panel {
-    height: 340px;
-    background: #bbb;
-    overflow-x: auto;
-    overflow-y: hidden;
-    white-space: nowrap;
-    padding: 0 10px;
-
-    text-align: center;
-    vertical-align: middle;
-}
-
-#graphics-panel canvas {
-    margin: 20px 10px;
-    background: white;
-    float: left;
-}
-
-#graphics-panel span {
-    color: #666;
-    line-height: 340px;
-    font-size: 48px;
-}
 
 .CodeMirror-hints {  background: #bbb !important;  }
 li.CodeMirror-hint-active {  background: #272822 !important;  }

@@ -26,15 +26,17 @@ import './sublime';
 import './scheme';
 import './emacs';
 
+import './hint';
+
 import './styles.css';
 
 import {send, socket} from './connect';
-import {cm_open, cm_save, open, save, load} from './config';
+import {cm_open, cm_save, help, open, save, load} from './config';
 import {state, log} from './utils';
 
 import {push, view} from './editor';
 import {error} from './error';
-import {toggle, canvas} from './canvas';
+import {canvas} from './canvas';
 
 const pipe = ({source, content}) => sources[source](content);
 const auth = content => send('auth', {user: false});
@@ -61,10 +63,10 @@ const sources = {
 };
 
 CodeMirror.commands.view = view;
+CodeMirror.commands.help = help;
 CodeMirror.commands.save = cm_save;
 CodeMirror.commands.open = cm_open;
 // CodeMirror.commands.debug = cm => console.log('debug');
-CodeMirror.commands.graphics = cm => toggle(cm);
 CodeMirror.commands.interrupt = cm => {
     if (state.error) state.error();
     send('kill', 'INT');

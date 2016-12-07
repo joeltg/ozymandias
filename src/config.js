@@ -3,7 +3,7 @@
  */
 
 import {send} from './connect';
-import {editor} from './editor';
+import {editor, editor_element} from './editor';
 import {state, defaults, stdout} from './utils';
 
 const icon_elements = [];
@@ -67,9 +67,9 @@ const labels = [
     //     sublime: 'Ctrl-E'
     // },
     {
-        element: document.getElementById('graphics'),
-        emacs: 'Ctrl-I',
-        sublime: 'Ctrl-G'
+        element: document.getElementById('help'),
+        emacs: 'Meta-H',
+        sublime: 'Alt-H'
     }
 ];
 
@@ -82,15 +82,22 @@ function set_theme(theme) {
 
 function set_visibility(visibility) {
     state.visibility = visibility;
-    if (visibility === 'settings') hint.style.display = 'none';
-    else if (visibility === 'close') hint.style.display = 'block';
+    if (visibility === 'settings') {
+        hint.style.display = 'none';
+        editor_element.style.right = 0;
+    }
+    else if (visibility === 'close') {
+        hint.style.display = 'block';
+        editor_element.style.right = 320;
+    }
     icon_elements.forEach(element => element.style.visibility = 'hidden');
     icons[visibility][state.theme].style.visibility = 'visible';
 }
 
-function toggle_visibility() {
+function help() {
     const visibility = (state.visibility === 'close' ? 'settings' : 'close');
     set_visibility(visibility);
+    editor.focus();
 }
 
 function set_keyMap(keyMap) {
@@ -98,27 +105,11 @@ function set_keyMap(keyMap) {
     editor.setOption('keyMap', keyMap);
 }
 
-const collapse = document.getElementById('collapse');
-
-let collapsed = true;
-function toggle_console() {
-    if (collapsed) {
-        collapse.innerText = '▼';
-        stdout.style.display = 'none';
-        collapsed = false;
-    } else {
-        collapse.innerText = '▲';
-        stdout.style.display = 'block';
-        collapsed = true;
-    }
-}
-
-document.getElementById('icons').onclick = toggle_visibility;
+document.getElementById('icons').onclick = help;
 document.getElementById('keyMap-emacs').onclick = e => set_keyMap('emacs');
 document.getElementById('keyMap-sublime').onclick = e => set_keyMap('sublime');
 document.getElementById('theme-light').onclick = e => set_theme('default');
 document.getElementById('theme-dark').onclick = e => set_theme('monokai');
-document.getElementById('console-title').onclick = toggle_console;
 set_visibility(defaults.visibility);
 set_keyMap(defaults.keyMap);
 set_theme(defaults.theme);
@@ -126,13 +117,17 @@ set_theme(defaults.theme);
 editor.focus();
 
 const filename = document.getElementById('filename');
+function set_filename(name) {
+    document.title = 'Lambda: ' + name;
+    filename.textContent = name;
+}
 
 let clean = true;
 let dialog = false;
 
 editor.on('change', function(cm, change) {
     if (state.filename && !cm.isClean() && clean) {
-        filename.textContent = ': ' + state.filename + '*';
+        set_filename(state.filename + ' ●');
         clean = false;
     }
 });
@@ -157,7 +152,7 @@ function open(files) {
 function load(data) {
     editor.setValue(data || '');
     editor.markClean();
-    filename.textContent = ': ' + state.filename;
+    set_filename(state.filename);
     clean = true;
 }
 
@@ -189,7 +184,7 @@ function send_save() {
         const name = save_input.value;
         const text = editor.getValue();
         state.filename = name;
-        filename.textContent = ': ' + name;
+        set_filename(name);
         clean = true;
         editor.markClean();
         send('save', {name, text});
@@ -213,5 +208,4 @@ document.addEventListener('keyup', function(e) {
         dialog = false;
     }
 });
-
-export {cm_open, cm_save, open, save, load}
+export {cm_open, cm_save, open, save, load, help, set_visibility}

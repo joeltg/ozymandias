@@ -576,8 +576,9 @@ map["Ctrl-Down"] = "next";
 map["Ctrl-Enter"] = "eval_expression";
 map["Ctrl-Shift-Enter"] = "eval_document";
 
+map["Alt-H"] = "help";
+
 map["Ctrl-O"] = "open";
-map["Ctrl-G"] = "graphics";
 
 map["Shift-Tab"] = "view";
 

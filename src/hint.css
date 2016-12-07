@@ -1,0 +1,167 @@
+.icon {
+    position: fixed;
+    opacity: 0.5;
+}
+
+.icon:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
+.CodeMirror-dialog {
+    z-index: 3;
+}
+
+#icons {
+    z-index: 2;
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 36px;
+    height: 36px;
+    margin: 4px;
+}
+
+li {
+    font-size: 14px;
+    padding: 2px 0;
+}
+
+h2 {
+    margin: 4px;
+    font-size: 16px;
+}
+
+h1 {
+    margin: 8px 0 0 4px;
+    font-size: 24px;
+    line-height: 30px;
+}
+
+h1 + hr {
+    margin-top: 0;
+}
+
+#hint {
+    padding: 4px;
+    z-index: 1;
+    width: 320px;
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: #bbb;
+}
+
+#hint form {
+    float: right;
+}
+
+form, input, label {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#hint ul {
+    padding: 0 8px 0 24px;
+    margin: 4px 0;
+}
+
+#hint input {
+    display: none;
+}
+
+#hint input + label {
+    cursor: pointer;
+    -webkit-box-shadow:inset 0 0 0 1px black;
+    -moz-box-shadow:inset 0 0 0 1px black;
+    box-shadow:inset 0 0 0 1px black;
+    border-radius: 2px;
+    font-weight: normal;
+    font-style: normal;
+    padding: 4px 4px 2px 4px;
+}
+
+#hint input:checked + label {
+    -webkit-box-shadow:inset 0 0 0 2px black;
+    -moz-box-shadow:inset 0 0 0 2px black;
+    box-shadow:inset 0 0 0 2px black;
+
+    font-style: italic;
+    font-weight: bold;
+}
+
+#settings + ul > li {
+    padding: 6px 0;
+}
+
+.hint {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: pointer;
+}
+
+.hint > span {
+    font-size: 18px;
+}
+
+.hint > span + span {
+    margin: 0 8px;
+    font-size: 16px;
+}
+
+#stdout {
+    margin: 4px;
+    max-height: 320px;
+    white-space: nowrap;
+    overflow-y: auto;
+}
+
+#graphics-drawer {
+    max-height: 340px;
+    white-space: nowrap;
+    overflow-x: auto;
+    margin-left: 4px;
+}
+
+.graphics-frame {
+    display: inline-table;
+}
+
+.graphics-frame > tr > td + td > span {
+    float: left;
+}
+
+.graphics-frame > tr > td + td > span + span {
+    float: right;
+}
+
+.graphics-frame > tr + tr > td {
+    position: relative;
+    width: 64px;
+}
+
+.graphics-frame > tr + tr > td + td {
+    position: static;
+    width: inherit;
+}
+
+.graphics-frame > tr + tr > td > span {
+    position: absolute;
+    top: 0;
+}
+
+.graphics-frame > tr + tr > td > span + span {
+    top: auto;
+    bottom: 0;
+}
+
+#graphics + div > canvas {
+    background: white;
+    margin: 2px 0;
+    float: left;
+}

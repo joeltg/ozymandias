@@ -16,7 +16,8 @@ function tab(sign) {
     return cm => view(cm, direction) || hint(cm, sign) || cm.execCommand(indentation);
 }
 
-const editor = CodeMirror(document.getElementById('editor'), {
+const editor_element = document.getElementById('editor');
+const editor = CodeMirror(editor_element, {
     mode: 'scheme',
     theme: defaults.theme,
     styleActiveLine: true,
@@ -192,4 +193,4 @@ function push([text, latex, flex]) {
     }
 }
 
-export {editor, push, view}
+export {editor, editor_element, push, view}
