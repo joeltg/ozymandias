@@ -45,7 +45,7 @@ h1 + hr {
 #hint {
     padding: 4px;
     z-index: 1;
-    width: 320px;
+    width: 360px;
     position: fixed;
     right: 0;
     top: 0;
@@ -116,13 +116,13 @@ form, input, label {
 
 #stdout {
     margin: 4px;
-    max-height: 320px;
+    max-height: 360px;
     white-space: nowrap;
     overflow-y: auto;
 }
 
 #graphics-drawer {
-    max-height: 340px;
+    max-height: 360px;
     white-space: nowrap;
     overflow-x: auto;
     margin-left: 4px;
@@ -142,7 +142,7 @@ form, input, label {
 
 .graphics-frame > tr + tr > td {
     position: relative;
-    width: 64px;
+    min-width: 24px;
 }
 
 .graphics-frame > tr + tr > td + td {
@@ -153,6 +153,7 @@ form, input, label {
 .graphics-frame > tr + tr > td > span {
     position: absolute;
     top: 0;
+    right: 0;
 }
 
 .graphics-frame > tr + tr > td > span + span {
