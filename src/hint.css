@@ -161,8 +161,6 @@ form, input, label {
     bottom: 0;
 }
 
-#graphics + div > canvas {
+canvas {
     background: white;
-    margin: 2px 0;
-    float: left;
 }

@@ -680,11 +680,10 @@ form, input, label {
     bottom: 0;
 }
 
-#graphics + div > canvas {
+canvas {
     background: white;
-    margin: 2px 0;
-    float: left;
-}html, body {
+}
+html, body {
     margin: 0;
     width: 100%;
     height: 100%;
