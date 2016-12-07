@@ -6,13 +6,10 @@ Actual computation is done on a server, which interfaces with the client over th
 
 ## Usage
 
-By default, lambda renders a split view of an editor and a repl. 
-The lower repl pane is a direct stdio stream from the scheme subprocess: everything that is written to stdin and everything that comes out of stdout is also shown in the repl.
-It's useful for debugging and for one-liners.
-The upper editor pane is a high-level abstraction, where expressions can be evaluated inline and values can be visualized in generic ways.
-It's useful for writing systems and for prose.
+The editor is a high-level abstraction on top of both input and output, where expressions can be evaluated inline and values can be visualized in generic ways. 
+This is a little different than the usual editor/repl split, and is more similar to LightTable or the Hydrogen Atom plugin than traditional editors.
 
-The help panels on each pane summarize the available keyboard shortcuts and commands - if you're already used to Emacs or Sublime, most of the existing commands should work here as well.
+The help panel summarizes the available keyboard shortcuts and commands - if you're already used to Emacs or Sublime, most of the existing commands should work here as well.
 
 ## Installation
 These instructions assume Ubuntu 14.04 or higher.
@@ -66,8 +63,6 @@ None of this would be possible without the incredible work of many free and open
 - scmutils
 - CodeMirror
 - D3.js
-- jQuery
-- jQuery UI
 - Katex
 
 And obligatory thanks to Prof. Gerry Sussman for his indispensable insight and guidance.
