@@ -23,7 +23,7 @@ const state = {
     windows: {},
     canvases: {},
     filename: false,
-
+    expressions: {},
     visibility: defaults.visibility,
     theme: defaults.theme,
     keyMap: defaults.keyMap

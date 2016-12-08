@@ -63,11 +63,9 @@ CodeMirror.defineMode('scheme', function() {
                 increment: false
             };
         },
-
         token(stream, state) {
             // update indentation, but only if indentStack is empty
             if (state.indentStack === null && stream.sol()) state.indentation = stream.indentation();
-
             // skip spaces
             if (stream.eatSpace()) return null;
             let returnType = null, escaped = false, maybeEnd = false, next;
@@ -107,7 +105,6 @@ CodeMirror.defineMode('scheme', function() {
                 default: // default parsing mode
                     const ch = stream.next();
                     state.increment = state.increment && state.depth++ && false;
-
                     if (ch === '"') {
                         state.mode = 'string';
                         returnType = STRING;
@@ -176,7 +173,7 @@ CodeMirror.defineMode('scheme', function() {
                         state.increment = true;
                     } else if (ch === ')' || ch === ']') {
                         returnType = BRACKET;
-                        if (state.indentStack !== null && state.indentStack.type == (ch === ')' ? '(' : '[')) {
+                        if (state.indentStack !== null && state.indentStack.type === (ch === ')' ? '(' : '[')) {
                             state.depth--;
                             popStack(state);
                             if (typeof state.sExprComment === 'number' && --state.sExprComment == 0) {
@@ -198,7 +195,7 @@ CodeMirror.defineMode('scheme', function() {
             return state.indentStack.indent;
         },
 
-        closeBrackets: {pairs: '()[]{}""'},
+        closeBrackets: {pairs: '()[]""'},
         lineComment: ';;'
     };
 });

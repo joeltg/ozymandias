@@ -13,7 +13,7 @@ const marks = [];
 function tab(sign) {
     const direction = sign ? 1 : -1;
     const indentation = sign ? 'indentMore' : 'indentLess';
-    return cm => view(cm, direction) || hint(cm, sign) || cm.execCommand(indentation);
+    return cm => view(cm, direction) || cm.execCommand(indentation);
 }
 
 const editor_element = document.getElementById('editor');
@@ -40,22 +40,16 @@ CodeMirror.commands.eval_document = eval_document;
 CodeMirror.commands.eval_expression = eval_expression;
 CodeMirror.registerHelper('hintWords', 'scheme', keywords.sort());
 
+const complain_notification = document.createElement('span');
+
+complain_notification.textContent = 'Resolve error before continuing evaluation';
+
+function complain(cm) {
+    cm.openNotification(complain_notification, {duration: 3000});
+}
+
 function range(a, b, c) {
     return (b.line >= a.line) && (b.line <= c.line);
-}
-
-function eq(a, b) {
-    return (a.line === b.line) && (a.ch === b.ch);
-}
-
-function hint(cm, sign) {
-    if (sign) {
-        const start = cm.getCursor('from');
-        const end = cm.getCursor('to');
-        if (eq(start, end) && /^ *$/.test(cm.getLine(start.line).substring(0, start.ch))) return false;
-        cm.showHint();
-    }
-    return sign;
 }
 
 function view(cm, delta) {
@@ -70,13 +64,8 @@ function view(cm, delta) {
     return true;
 }
 
-const complain_notification = document.createElement('span');
+document.cm = editor;
 
-complain_notification.textContent = 'Resolve error before continuing evaluation';
-
-function complain(cm) {
-    cm.openNotification(complain_notification, {duration: 3000});
-}
 
 function eval_expression(cm) {
     if (state.error) complain(cm);
@@ -103,12 +92,12 @@ function eval_document(cm) {
                 if (depth === 0 && mode !== 'comment') {
                     if (type === 'bracket') {
                         if (open) {
-                            expressions.push({start: open, end: {line_handle, end}});
+                            expressions.push({start: open, end: {line: line_handle, ch: end}});
                             open = false;
-                        } else open = {line_handle, start};
+                        } else open = {line: line_handle, ch: start};
                     } else if (type === 'comment') {
 
-                    } else expressions.push({start: {line_handle, start}, end: {line_handle, end}});
+                    } else expressions.push({start: {line: line_handle, ch: start}, end: {line: line_handle, ch: end}});
                 }
             });
         });
@@ -119,14 +108,6 @@ function eval_document(cm) {
     }
 }
 
-const traverse_tokens = (predicate, callback) => function(cm, {line, ch}) {
-    let tokens = cm.getLineTokens(line);
-    for (tokens = tokens.filter(token => token.start < ch); line > -1; tokens = cm.getLineTokens(--line))
-        for (let i = tokens.length - 1; i > -1; i--)
-            if (predicate(tokens[i]))
-                return callback(line, tokens[i]);
-};
-
 function select_expression(line, token) {
     const start = {line, ch: token.start}, end = {line, ch: token.end};
     if (token.type === 'bracket') return get_paren_block(end);
@@ -134,7 +115,14 @@ function select_expression(line, token) {
     return {start, end};
 }
 
-const get_outer_expression = traverse_tokens(token => token.state.depth === 0, select_expression);
+// father forgive me, for I know not what I do
+function get_outer_expression(cm, {line, ch}) {
+    let tokens = cm.getLineTokens(line);
+    for (tokens = tokens.filter(token => token.start < ch); line > -1; tokens = cm.getLineTokens(--line))
+        for (let i = tokens.length - 1; i > -1; i--)
+            if (tokens[i].state.depth === 0)
+                return select_expression(line, tokens[i]);
+}
 
 function get_paren_block(position) {
     const parens = editor.findMatchingBracket(position);
@@ -156,14 +144,14 @@ function evaluate(value, position) {
 
 function pop_expression() {
     const [{start, end}] = state.expressions.splice(0, 1);
-    const from = {line: editor.getLineNumber(start.line_handle), ch: start.start};
-    const to = {line: editor.getLineNumber(end.line_handle), ch: end.end};
+    const from = {line: editor.getLineNumber(start.line), ch: start.ch};
+    const to = {line: editor.getLineNumber(end.line), ch: end.ch};
     const text = editor.getRange(from, to);
     const {line} = to;
     evaluate(text, {line});
 }
 
-function push([text, latex, flex]) {
+function push([text, latex]) {
     if (state.error) {
 
     } else {
@@ -184,9 +172,6 @@ function push([text, latex, flex]) {
                 expression.mark = mark;
                 mark.expression = expression;
                 marks.push(mark);
-            }
-            if (flex) {
-                const [id, args, vals, out] = flex;
             }
         }
         if (state.expressions && state.expressions.length > 0) pop_expression();

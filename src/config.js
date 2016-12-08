@@ -4,7 +4,7 @@
 
 import {send} from './connect';
 import {editor, editor_element} from './editor';
-import {state, defaults, stdout} from './utils';
+import {state, defaults} from './utils';
 
 const icon_elements = [];
 const icon_collection = document.getElementsByClassName('icon');
@@ -37,6 +37,11 @@ const labels = [
         sublime: 'Tab'
     },
     {
+        element: document.getElementById('autocomplete'),
+        emacs: 'Meta-/',
+        sublime: 'Alt-/'
+    },
+    {
         element: document.getElementById('open'),
         emacs: 'Ctrl-X F',
         sublime: 'Ctrl-O'
@@ -46,26 +51,11 @@ const labels = [
         emacs: 'Ctrl-X S',
         sublime: 'Ctrl-S'
     },
-    // {
-    //     element: document.getElementById('previous'),
-    //     emacs: 'Meta-P',
-    //     sublime: 'Up'
-    // },
-    // {
-    //     element: document.getElementById('next'),
-    //     emacs: 'Meta-N',
-    //     sublime: 'Down'
-    // },
     {
         element: document.getElementById('interrupt'),
         emacs: 'Ctrl-C',
         sublime: 'Ctrl-B'
     },
-    // {
-    //     element: document.getElementById('debug'),
-    //     emacs: 'Ctrl-I',
-    //     sublime: 'Ctrl-E'
-    // },
     {
         element: document.getElementById('help'),
         emacs: 'Meta-H',
@@ -127,7 +117,7 @@ let dialog = false;
 
 editor.on('change', function(cm, change) {
     if (state.filename && !cm.isClean() && clean) {
-        set_filename(state.filename + ' ●');
+        set_filename(state.filename + '∙');
         clean = false;
     }
 });

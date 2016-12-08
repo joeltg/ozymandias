@@ -12131,6 +12131,8 @@
 
 	map["Shift-Tab"] = "view";
 
+	map["Alt-/"] = "autocomplete";
+
 	_codemirror2.default.normalizeKeyMap(map);
 
 /***/ },
@@ -12219,7 +12221,6 @@
 	        token: function token(stream, state) {
 	            // update indentation, but only if indentStack is empty
 	            if (state.indentStack === null && stream.sol()) state.indentation = stream.indentation();
-
 	            // skip spaces
 	            if (stream.eatSpace()) return null;
 	            var returnType = null,
@@ -12266,7 +12267,6 @@
 	                    // default parsing mode
 	                    var ch = stream.next();
 	                    state.increment = state.increment && state.depth++ && false;
-
 	                    if (ch === '"') {
 	                        state.mode = 'string';
 	                        returnType = STRING;
@@ -12340,7 +12340,7 @@
 	                        state.increment = true;
 	                    } else if (ch === ')' || ch === ']') {
 	                        returnType = BRACKET;
-	                        if (state.indentStack !== null && state.indentStack.type == (ch === ')' ? '(' : '[')) {
+	                        if (state.indentStack !== null && state.indentStack.type === (ch === ')' ? '(' : '[')) {
 	                            state.depth--;
 	                            popStack(state);
 	                            if (typeof state.sExprComment === 'number' && --state.sExprComment == 0) {
@@ -12361,7 +12361,7 @@
 	        },
 
 
-	        closeBrackets: { pairs: '()[]{}""' },
+	        closeBrackets: { pairs: '()[]""' },
 	        lineComment: ';;'
 	    };
 	});
@@ -12983,6 +12983,10 @@
 	    emacs: 'Tab',
 	    sublime: 'Tab'
 	}, {
+	    element: document.getElementById('autocomplete'),
+	    emacs: 'Meta-/',
+	    sublime: 'Alt-/'
+	}, {
 	    element: document.getElementById('open'),
 	    emacs: 'Ctrl-X F',
 	    sublime: 'Ctrl-O'
@@ -12990,28 +12994,11 @@
 	    element: document.getElementById('save'),
 	    emacs: 'Ctrl-X S',
 	    sublime: 'Ctrl-S'
-	},
-	// {
-	//     element: document.getElementById('previous'),
-	//     emacs: 'Meta-P',
-	//     sublime: 'Up'
-	// },
-	// {
-	//     element: document.getElementById('next'),
-	//     emacs: 'Meta-N',
-	//     sublime: 'Down'
-	// },
-	{
+	}, {
 	    element: document.getElementById('interrupt'),
 	    emacs: 'Ctrl-C',
 	    sublime: 'Ctrl-B'
-	},
-	// {
-	//     element: document.getElementById('debug'),
-	//     emacs: 'Ctrl-I',
-	//     sublime: 'Ctrl-E'
-	// },
-	{
+	}, {
 	    element: document.getElementById('help'),
 	    emacs: 'Meta-H',
 	    sublime: 'Ctrl-Shift-H'
@@ -13084,7 +13071,7 @@
 
 	_editor.editor.on('change', function (cm, change) {
 	    if (_utils.state.filename && !cm.isClean() && clean) {
-	        set_filename(_utils.state.filename + ' ●');
+	        set_filename(_utils.state.filename + '∙');
 	        clean = false;
 	    }
 	});
@@ -13208,7 +13195,7 @@
 	    var direction = sign ? 1 : -1;
 	    var indentation = sign ? 'indentMore' : 'indentLess';
 	    return function (cm) {
-	        return view(cm, direction) || hint(cm, sign) || cm.execCommand(indentation);
+	        return view(cm, direction) || cm.execCommand(indentation);
 	    };
 	}
 
@@ -13236,22 +13223,16 @@
 	_codemirror2.default.commands.eval_expression = eval_expression;
 	_codemirror2.default.registerHelper('hintWords', 'scheme', _keywords.keywords.sort());
 
+	var complain_notification = document.createElement('span');
+
+	complain_notification.textContent = 'Resolve error before continuing evaluation';
+
+	function complain(cm) {
+	    cm.openNotification(complain_notification, { duration: 3000 });
+	}
+
 	function range(a, b, c) {
 	    return b.line >= a.line && b.line <= c.line;
-	}
-
-	function eq(a, b) {
-	    return a.line === b.line && a.ch === b.ch;
-	}
-
-	function hint(cm, sign) {
-	    if (sign) {
-	        var start = cm.getCursor('from');
-	        var end = cm.getCursor('to');
-	        if (eq(start, end) && /^ *$/.test(cm.getLine(start.line).substring(0, start.ch))) return false;
-	        cm.showHint();
-	    }
-	    return sign;
 	}
 
 	function view(cm, delta) {
@@ -13274,13 +13255,7 @@
 	    return true;
 	}
 
-	var complain_notification = document.createElement('span');
-
-	complain_notification.textContent = 'Resolve error before continuing evaluation';
-
-	function complain(cm) {
-	    cm.openNotification(complain_notification, { duration: 3000 });
-	}
+	document.cm = editor;
 
 	function eval_expression(cm) {
 	    if (_utils.state.error) complain(cm);else {
@@ -13317,10 +13292,10 @@
 	                    if (depth === 0 && mode !== 'comment') {
 	                        if (type === 'bracket') {
 	                            if (open) {
-	                                expressions.push({ start: open, end: { line_handle: line_handle, end: end } });
+	                                expressions.push({ start: open, end: { line: line_handle, ch: end } });
 	                                open = false;
-	                            } else open = { line_handle: line_handle, start: start };
-	                        } else if (type === 'comment') {} else expressions.push({ start: { line_handle: line_handle, start: start }, end: { line_handle: line_handle, end: end } });
+	                            } else open = { line: line_handle, ch: start };
+	                        } else if (type === 'comment') {} else expressions.push({ start: { line: line_handle, ch: start }, end: { line: line_handle, ch: end } });
 	                    }
 	                });
 	            });
@@ -13332,22 +13307,6 @@
 	    }
 	}
 
-	var traverse_tokens = function traverse_tokens(predicate, callback) {
-	    return function (cm, _ref2) {
-	        var line = _ref2.line,
-	            ch = _ref2.ch;
-
-	        var tokens = cm.getLineTokens(line);
-	        for (tokens = tokens.filter(function (token) {
-	            return token.start < ch;
-	        }); line > -1; tokens = cm.getLineTokens(--line)) {
-	            for (var i = tokens.length - 1; i > -1; i--) {
-	                if (predicate(tokens[i])) return callback(line, tokens[i]);
-	            }
-	        }
-	    };
-	};
-
 	function select_expression(line, token) {
 	    var start = { line: line, ch: token.start },
 	        end = { line: line, ch: token.end };
@@ -13355,9 +13314,20 @@
 	    return { start: start, end: end };
 	}
 
-	var get_outer_expression = traverse_tokens(function (token) {
-	    return token.state.depth === 0;
-	}, select_expression);
+	// father forgive me, for I know not what I do
+	function get_outer_expression(cm, _ref2) {
+	    var line = _ref2.line,
+	        ch = _ref2.ch;
+
+	    var tokens = cm.getLineTokens(line);
+	    for (tokens = tokens.filter(function (token) {
+	        return token.start < ch;
+	    }); line > -1; tokens = cm.getLineTokens(--line)) {
+	        for (var i = tokens.length - 1; i > -1; i--) {
+	            if (tokens[i].state.depth === 0) return select_expression(line, tokens[i]);
+	        }
+	    }
+	}
 
 	function get_paren_block(position) {
 	    var parens = editor.findMatchingBracket(position);
@@ -13384,8 +13354,8 @@
 	        start = _state$expressions$sp3.start,
 	        end = _state$expressions$sp3.end;
 
-	    var from = { line: editor.getLineNumber(start.line_handle), ch: start.start };
-	    var to = { line: editor.getLineNumber(end.line_handle), ch: end.end };
+	    var from = { line: editor.getLineNumber(start.line), ch: start.ch };
+	    var to = { line: editor.getLineNumber(end.line), ch: end.ch };
 	    var text = editor.getRange(from, to);
 	    var line = to.line;
 
@@ -13393,10 +13363,9 @@
 	}
 
 	function push(_ref3) {
-	    var _ref4 = _slicedToArray(_ref3, 3),
+	    var _ref4 = _slicedToArray(_ref3, 2),
 	        text = _ref4[0],
-	        latex = _ref4[1],
-	        flex = _ref4[2];
+	        latex = _ref4[1];
 
 	    if (_utils.state.error) {} else {
 	        var position = _utils.state.position;
@@ -13417,13 +13386,6 @@
 	                expression.mark = mark;
 	                mark.expression = expression;
 	                marks.push(mark);
-	            }
-	            if (flex) {
-	                var _flex = _slicedToArray(flex, 4),
-	                    id = _flex[0],
-	                    args = _flex[1],
-	                    vals = _flex[2],
-	                    out = _flex[3];
 	            }
 	        }
 	        if (_utils.state.expressions && _utils.state.expressions.length > 0) pop_expression();
@@ -13469,7 +13431,7 @@
 	    windows: {},
 	    canvases: {},
 	    filename: false,
-
+	    expressions: {},
 	    visibility: defaults.visibility,
 	    theme: defaults.theme,
 	    keyMap: defaults.keyMap

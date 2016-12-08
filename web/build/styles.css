@@ -551,18 +551,17 @@ h2 {
     font-size: 16px;
 }
 
-h1 {
-    margin: 8px 0 0 4px;
-    font-size: 24px;
-    line-height: 30px;
+#filename {
+    margin: 4px;
+    height: 36px;
+    line-height: 36px;
 }
 
-h1 + hr {
+#filename + hr {
     margin-top: 0;
 }
 
 #hint {
-    padding: 4px;
     z-index: 1;
     width: 360px;
     position: fixed;
@@ -695,7 +694,7 @@ html, body {
     position: fixed;
     top: 0;
     bottom: 0;
-    right: 320px;
+    right: 360px;
     left: 0;
 }
 

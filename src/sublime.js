@@ -582,4 +582,6 @@ map["Ctrl-O"] = "open";
 
 map["Shift-Tab"] = "view";
 
+map["Alt-/"] = "autocomplete";
+
 CodeMirror.normalizeKeyMap(map);
