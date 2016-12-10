@@ -5,6 +5,9 @@
 import {send} from './connect';
 import {editor, editor_element} from './editor';
 import {state, defaults} from './utils';
+import CodeMirror from 'codemirror';
+var mac = CodeMirror.keyMap["default"] == CodeMirror.keyMap.macDefault;
+var ctrl = mac ? "Cmd-" : "Ctrl-";
 
 const icon_elements = [];
 const icon_collection = document.getElementsByClassName('icon');
@@ -24,12 +27,12 @@ const labels = [
     {
         element: document.getElementById('eval-expression'),
         emacs: 'Ctrl-X Ctrl-E',
-        sublime: 'Ctrl-Enter'
+        sublime: ctrl + 'Enter'
     },
     {
         element: document.getElementById('eval-document'),
         emacs: 'Ctrl-X Ctrl-A',
-        sublime: 'Ctrl-Shift-Enter'
+        sublime: ctrl + 'Shift-Enter'
     },
     {
         element: document.getElementById('view'),
@@ -44,22 +47,22 @@ const labels = [
     {
         element: document.getElementById('open'),
         emacs: 'Ctrl-X F',
-        sublime: 'Ctrl-O'
+        sublime: ctrl + 'O'
     },
     {
         element: document.getElementById('save'),
         emacs: 'Ctrl-X S',
-        sublime: 'Ctrl-S'
+        sublime: ctrl + 'S'
     },
     {
         element: document.getElementById('interrupt'),
         emacs: 'Ctrl-C',
-        sublime: 'Ctrl-B'
+        sublime: ctrl + 'B'
     },
     {
         element: document.getElementById('help'),
         emacs: 'Meta-H',
-        sublime: 'Ctrl-Shift-H'
+        sublime: ctrl + 'Shift-H'
     }
 ];
 

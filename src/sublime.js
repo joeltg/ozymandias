@@ -568,17 +568,17 @@ map[ctrl + "H"] = "replace";
 map["F3"] = "findNext";
 map["Shift-F3"] = "findPrev";
 
-map["Ctrl-S"] = "save";
-map["Ctrl-B"] = "interrupt";
-map["Ctrl-Up"] = "previous";
-map["Ctrl-Down"] = "next";
+map[ctrl + "S"] = "save";
+map[ctrl + "B"] = "interrupt";
+map[ctrl + "Up"] = "previous";
+map[ctrl + "Down"] = "next";
 
-map["Ctrl-Enter"] = "eval_expression";
-map["Ctrl-Shift-Enter"] = "eval_document";
+map[ctrl + "Enter"] = "eval_expression";
+map[ctrl + "Shift-Enter"] = "eval_document";
 
-map["Ctrl-Shift-H"] = "help";
+map[ctrl + "Shift-H"] = "help";
 
-map["Ctrl-O"] = "open";
+map[ctrl + "O"] = "open";
 
 map["Shift-Tab"] = "view";
 
