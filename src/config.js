@@ -6,8 +6,8 @@ import {send} from './connect';
 import {editor, editor_element} from './editor';
 import {state, defaults} from './utils';
 import CodeMirror from 'codemirror';
-var mac = CodeMirror.keyMap["default"] == CodeMirror.keyMap.macDefault;
-var ctrl = mac ? "Cmd-" : "Ctrl-";
+const mac = CodeMirror.keyMap["default"] == CodeMirror.keyMap.macDefault;
+const ctrl = mac ? "Cmd-" : "Ctrl-";
 
 const icon_elements = [];
 const icon_collection = document.getElementsByClassName('icon');

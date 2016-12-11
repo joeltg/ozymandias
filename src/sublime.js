@@ -6,11 +6,11 @@
 
 import CodeMirror from 'codemirror';
 
-var map = CodeMirror.keyMap.sublime = {fallthrough: "default"};
-var cmds = CodeMirror.commands;
-var Pos = CodeMirror.Pos;
-var mac = CodeMirror.keyMap["default"] == CodeMirror.keyMap.macDefault;
-var ctrl = mac ? "Cmd-" : "Ctrl-";
+const map = CodeMirror.keyMap.sublime = {fallthrough: "default"};
+const cmds = CodeMirror.commands;
+const Pos = CodeMirror.Pos;
+const mac = CodeMirror.keyMap["default"] == CodeMirror.keyMap.macDefault;
+const ctrl = mac ? "Cmd-" : "Ctrl-";
 
 // This is not exactly Sublime's algorithm. I couldn't make heads or tails of that.
 function findPosSubword(doc, start, dir) {

@@ -12117,17 +12117,17 @@
 	map["F3"] = "findNext";
 	map["Shift-F3"] = "findPrev";
 
-	map["Ctrl-S"] = "save";
-	map["Ctrl-B"] = "interrupt";
-	map["Ctrl-Up"] = "previous";
-	map["Ctrl-Down"] = "next";
+	map[ctrl + "S"] = "save";
+	map[ctrl + "B"] = "interrupt";
+	map[ctrl + "Up"] = "previous";
+	map[ctrl + "Down"] = "next";
 
-	map["Ctrl-Enter"] = "eval_expression";
-	map["Ctrl-Shift-Enter"] = "eval_document";
+	map[ctrl + "Enter"] = "eval_expression";
+	map[ctrl + "Shift-Enter"] = "eval_document";
 
-	map["Ctrl-Shift-H"] = "help";
+	map[ctrl + "Shift-H"] = "help";
 
-	map["Ctrl-O"] = "open";
+	map[ctrl + "O"] = "open";
 
 	map["Shift-Tab"] = "view";
 
@@ -12952,10 +12952,20 @@
 
 	var _utils = __webpack_require__(41);
 
-	var icon_elements = []; /**
-	                         * Created by joel on 8/20/16.
-	                         */
+	var _codemirror = __webpack_require__(2);
 
+	var _codemirror2 = _interopRequireDefault(_codemirror);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	/**
+	 * Created by joel on 8/20/16.
+	 */
+
+	var mac = _codemirror2.default.keyMap["default"] == _codemirror2.default.keyMap.macDefault;
+	var ctrl = mac ? "Cmd-" : "Ctrl-";
+
+	var icon_elements = [];
 	var icon_collection = document.getElementsByClassName('icon');
 	for (var i = 0; icon_collection[i]; i++) {
 	    icon_elements.push(icon_collection[i]);
@@ -12973,11 +12983,11 @@
 	var labels = [{
 	    element: document.getElementById('eval-expression'),
 	    emacs: 'Ctrl-X Ctrl-E',
-	    sublime: 'Ctrl-Enter'
+	    sublime: ctrl + 'Enter'
 	}, {
 	    element: document.getElementById('eval-document'),
 	    emacs: 'Ctrl-X Ctrl-A',
-	    sublime: 'Ctrl-Shift-Enter'
+	    sublime: ctrl + 'Shift-Enter'
 	}, {
 	    element: document.getElementById('view'),
 	    emacs: 'Tab',
@@ -12989,19 +12999,19 @@
 	}, {
 	    element: document.getElementById('open'),
 	    emacs: 'Ctrl-X F',
-	    sublime: 'Ctrl-O'
+	    sublime: ctrl + 'O'
 	}, {
 	    element: document.getElementById('save'),
 	    emacs: 'Ctrl-X S',
-	    sublime: 'Ctrl-S'
+	    sublime: ctrl + 'S'
 	}, {
 	    element: document.getElementById('interrupt'),
 	    emacs: 'Ctrl-C',
-	    sublime: 'Ctrl-B'
+	    sublime: ctrl + 'B'
 	}, {
 	    element: document.getElementById('help'),
 	    emacs: 'Meta-H',
-	    sublime: 'Ctrl-Shift-H'
+	    sublime: ctrl + 'Shift-H'
 	}];
 
 	function set_theme(theme) {
