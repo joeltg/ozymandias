@@ -2,8 +2,6 @@
  * Created by joelg on 12/5/16.
  */
 
-import './hint.css';
-
 const hints = {
     reference: {element: document.getElementById('reference'), state: 0},
     settings: {element: document.getElementById('settings'), state: 0},

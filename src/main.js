@@ -28,8 +28,6 @@ import './emacs';
 
 import './hint';
 
-import './styles.css';
-
 import {send, socket} from './connect';
 import {cm_open, cm_save, help, open, save, load} from './config';
 import {state, log} from './utils';
