@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-path=$1
+path=${PWD}
 
 mkdir -p ${path}/users ${path}/jail
 mkdir -p ${path}/jail/etc ${path}/jail/pipes
