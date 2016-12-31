@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
 path=${PWD}
+jail=${path}/jail
 
-mkdir -p ${path}/users ${path}/jail
-mkdir -p ${path}/jail/etc ${path}/jail/pipes
+mkdir -p ${path}/users ${jail}
+mkdir -p ${jail}/etc ${jail}/pipes ${jail}/files
 mkdir -p ${path}/schroot
+
+chmod a+w ${jail}/files ${jail}/pipes
 
 config="
 CHROOT_DIRECTORY=\${USER_NAME}
