@@ -67,6 +67,7 @@
     "express-session": "^1.14.2",
     "passport": "^0.3.2",
     "passport-saml": "^0.15.0",
+    "uuid": "^3.0.1",
     "uws": "^0.8.0"
   }
 }

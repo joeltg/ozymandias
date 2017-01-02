@@ -67,11 +67,12 @@ CodeMirror.commands.open = cm_open;
 // CodeMirror.commands.debug = cm => console.log('debug');
 CodeMirror.commands.interrupt = cm => {
     if (state.error) state.error();
-    send('kill', 'INT');
+    send('kill', 'SIGINT');
 };
 
 log('connecting to server...\n');
 
 socket.onopen    = event => log('connected.\n');
 socket.onmessage = event => pipe(JSON.parse(event.data));
-socket.onclose   = event => log('\nlost connection to server.\n');
+socket.onclose   = event => console.log(event) || log('\nlost connection to server.\n');
+socket.onerror   = event => console.error(event);

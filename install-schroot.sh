@@ -2,19 +2,20 @@
 
 path=${PWD}
 jail=${path}/jail
+root=/etc/schroot/scheme
 
 mkdir -p ${path}/users ${jail}
 mkdir -p ${jail}/etc ${jail}/pipes ${jail}/files
-mkdir -p ${path}/schroot
+mkdir -p ${root}
 
-chmod a+w ${jail}/files ${jail}/pipes
+chmod a+w ${jail} ${jail}/files ${jail}/pipes
 
 config="
-CHROOT_DIRECTORY=\${USER_NAME}
+CHROOT_DIRECTORY=\${USER_PATH}
 
-SETUP_COPYFILES=\"../..${path}/schroot/copyfiles\"
-SETUP_NSSDATABASES=\"../..${path}/schroot/nssdatabases\"
-SETUP_FSTAB=\"../..${path}/schroot/fstab\"
+SETUP_COPYFILES=scheme/copyfiles
+SETUP_NSSDATABASES=scheme/nssdatabases
+SETUP_FSTAB=scheme/fstab
 "
 
 fstab="
@@ -24,10 +25,10 @@ ${path}/root/lib64 /lib64  none ro,bind 0 0
 ${path}/utils      /utils  none ro,bind 0 0
 "
 
-echo "${fstab}"         > ${path}/schroot/fstab
-echo "${config}"        > ${path}/schroot/config
-echo "/etc/resolv.conf" > ${path}/schroot/copyfiles
-echo ""                 > ${path}/schroot/nssdatabases
+echo "${fstab}"         > ${root}/fstab
+echo "${config}"        > ${root}/config
+echo "/etc/resolv.conf" > ${root}/copyfiles
+echo ""                 > ${root}/nssdatabases
 
 scheme="
 [scheme]
@@ -35,10 +36,10 @@ type=directory
 directory=${path}/jail
 groups=users
 root-groups=root,sudo
-profile=../../${path}/schroot
+profile=scheme
 shell=/bin/bash
-user.name=${path}/jail/
-user-modifiable-keys=user.name
+user.path=${path}/jail/
+user-modifiable-keys=user.path
 "
 
 echo "${scheme}" > /etc/schroot/chroot.d/scheme.conf
