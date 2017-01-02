@@ -55,7 +55,9 @@ class Connection {
     }
     close() {
         // close() takes states 4, 3, and 2 to state 1
+        // due to callbacks from other listeners, close() is almost always called several times during one exit
 
+        // clean up state 4
         if (this.pid) {
             process.kill(this.pid, 'SIGKILL');
         }

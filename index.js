@@ -86,7 +86,7 @@ function respond(user) {
 }
 
 app.get('/', respond(req => path.resolve(__dirname, 'jail')));
-app.get('/users/:user', respond(req => path.resolve(__dirname, 'users', req.params.user)));
+app.get('/:user', respond(req => path.resolve(__dirname, 'users', req.params.user)));
 
 app.listen(server_port);
 
