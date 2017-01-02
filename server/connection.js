@@ -16,6 +16,7 @@ const start = path.resolve(__dirname, 'start.sh');
 // 2. Connected   (connected === true && open === false && pid === null)
 // 3. Initialized (connected === true && open === true && pid === null)
 // 4. Open        (connected === true && open === true && pid === ###)
+// Although states 3 and 4 are essentially identical and are only every briefly out of sync.
 
 class Connection {
     constructor(user) {
@@ -99,6 +100,7 @@ class Connection {
 
         this.scheme.on('error', error => console.error('scheme', error));
         this.scheme.on('exit', (code, signal) => {
+            this.pid = false;
             this.open = false;
             this.close();
         });
