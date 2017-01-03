@@ -14,8 +14,12 @@ function clear(panel) {
 }
 
 function restart(panel, input, name, index) {
-    if (name === 'use-value' || name === 'store-value') return function() {
-        state.expressions = false;
+    state.expressions = false;
+    if (name === 'debug') return function() {
+        send('eval', 'debug\n');
+        clear(panel);
+    };
+    else if (name === 'use-value' || name === 'store-value') return function() {
         input.type = 'text';
         input.value = '';
         input.style.fontStyle = 'normal';
@@ -29,7 +33,6 @@ function restart(panel, input, name, index) {
         }
     };
     else return function() {
-        state.expressions = false;
         send('eval', `(${index})\n`);
         clear(panel);
     };
@@ -41,20 +44,22 @@ function error([text, restarts]) {
     div.appendChild(ul);
     h2.textContent = text;
     div.className = 'error-panel';
-    const panel = editor.addPanel(div, {position: 'before-bottom'});
-    editor.setOption('readOnly', 'nocursor');
-    state.error = () => clear(panel);
-    restarts.forEach(([name, report], index) => {
+    restarts.push(['debug', 'Launch the debugger.']);
+    const inputs = restarts.map(function([name, report], index) {
         const li = document.createElement('li'), span = document.createElement('span'), input = document.createElement('input');
         span.textContent = report;
         input.type = 'button';
         input.value = name;
-        input.onclick = restart(panel, input, name, index);
         li.appendChild(input);
         li.appendChild(span);
         ul.appendChild(li);
         if (index === 0) input.focus();
+        return input;
     });
+    const panel = editor.addPanel(div, {position: 'bottom'});
+    editor.setOption('readOnly', 'nocursor');
+    state.error = () => clear(panel);
+    restarts.forEach(([name, report], index) => inputs[index].onclick = restart(panel, inputs[index], name, index));
     panel.changed();
 }
 

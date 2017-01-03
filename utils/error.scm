@@ -11,15 +11,17 @@
   (define report (condition/report-string condition))
   (send 1 (string->json report) (restarts->json restarts))
   (let ((invocation (prompt-for-command-expression "" stdio)))
-    (apply invoke-restart
-      (list-ref restarts (car invocation))
-      (map
-        (lambda (expression)
-          (bind-condition-handler
-            '()
-            condition-handler
-            (lambda ()
-              (eval expression *the-environment*))))
-        (cdr invocation)))))
+    (if (eq? invocation 'debug)
+      (debug)
+      (apply invoke-restart
+        (list-ref restarts (car invocation))
+        (map
+          (lambda (expression)
+            (bind-condition-handler
+              '()
+              condition-handler
+              (lambda ()
+                (eval expression *the-environment*))))
+          (cdr invocation))))))
 
 (bind-default-condition-handler '() condition-handler)

@@ -66,7 +66,7 @@ html, body {
 
 .error-panel {
     background: #bbb;
-    height: 144px;
+    max-height: 320px;
     overflow: auto;
 }
 

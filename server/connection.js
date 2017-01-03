@@ -30,13 +30,7 @@ class Connection {
         this.pid = null;
     }
     message({source, content}) {
-        if (source === 'eval') {
-            this.scheme.stdin.write(content);
-        }
-        else if (source === 'open') {
-            fs.readdir(this.files, (error, files) => this.send('open', files));
-        }
-        else if (source === 'save') {
+        if (source === 'save') {
             const {name, text} = content;
             const file = this.file(name);
             fs.writeFile(file, text, 'utf8', error => this.send('save', !error));
@@ -46,36 +40,35 @@ class Connection {
             const file = this.file(name);
             fs.readFile(file, 'utf8', (error, text) => this.send('load', text));
         }
-        else if (source === 'kill') {
-            if (this.pid) process.kill(this.pid, content);
-        }
-        else {
-            console.error('invalid source', source);
-        }
+        else if (source === 'open') fs.readdir(this.files, (error, files) => this.send('open', files));
+        else if (source === 'eval') this.scheme.stdin.write(content);
+        else if (source === 'kill') this.pid ? process.kill(this.pid, content) : null;
+        else console.error('invalid source', source);
     }
     close() {
         // close() takes states 4, 3, and 2 to state 1
         // due to callbacks from other listeners, close() is almost always called several times during one exit
 
+        const {pid, open, connected} = this;
         // clean up state 4
-        if (this.pid) {
-            process.kill(this.pid, 'SIGKILL');
+        if (pid) {
+            this.pid = null;
+            process.kill(pid, 'SIGKILL');
         }
-        this.pid = null;
 
         // clean up state 3
-        if (this.open) {
+        if (open) {
+            this.open = false;
             process.kill(this.scheme.pid, 'SIGKILL');
             this.scheme = null;
         }
-        this.open = false;
 
         // clean up state 2
-        if (this.connected && this.socket.readyState === 1) {
+        if (connected && this.socket.readyState === 1) {
+            this.connected = false;
             this.socket.close();
             this.socket = null;
         }
-        this.connected = false;
     }
     connect(socket) {
         this.connected = true;
@@ -110,7 +103,7 @@ class Connection {
         this.scheme.stdout.on('error', error => console.error('scheme stdout', error));
         this.scheme.stdout.on('data', data => {
             if (this.pid) this.send('stdout', data.toString());
-            else this.pid = +data.toString();
+            else this.pid = +data.toString().trim();
         });
     }
     send(source, content) {
