@@ -5,6 +5,7 @@
 import {editor} from './editor';
 import {state} from './utils';
 import {send} from './connect';
+import {debug} from './debug';
 
 function clear(panel) {
     panel.clear();
@@ -13,11 +14,11 @@ function clear(panel) {
     state.error = false;
 }
 
-function restart(panel, input, name, index) {
+function restart(panel, inputs, index, name) {
     state.expressions = false;
+    const input = inputs[index];
     if (name === 'debug') return function() {
-        send('eval', 'debug\n');
-        clear(panel);
+        debug(inputs);
     };
     else if (name === 'use-value' || name === 'store-value') return function() {
         input.type = 'text';
@@ -43,7 +44,8 @@ function error([text, restarts]) {
     div.appendChild(h2);
     div.appendChild(ul);
     h2.textContent = text;
-    div.className = 'error-panel';
+    div.classList.add('panel');
+    div.classList.add('error-panel');
     restarts.push(['debug', 'Launch the debugger.']);
     const inputs = restarts.map(function([name, report], index) {
         const li = document.createElement('li'), span = document.createElement('span'), input = document.createElement('input');
@@ -53,14 +55,14 @@ function error([text, restarts]) {
         li.appendChild(input);
         li.appendChild(span);
         ul.appendChild(li);
-        if (index === 0) input.focus();
         return input;
     });
     const panel = editor.addPanel(div, {position: 'bottom'});
     editor.setOption('readOnly', 'nocursor');
     state.error = () => clear(panel);
-    restarts.forEach(([name, report], index) => inputs[index].onclick = restart(panel, inputs[index], name, index));
+    restarts.forEach(([name, report], index) => inputs[index].onclick = restart(panel, inputs, index, name));
     panel.changed();
+    inputs[0].focus();
 }
 
 export {error};

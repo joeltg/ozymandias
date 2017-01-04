@@ -573,8 +573,8 @@ map[ctrl + "B"] = "interrupt";
 map[ctrl + "Up"] = "previous";
 map[ctrl + "Down"] = "next";
 
-map[ctrl + "Enter"] = "eval_expression";
-map[ctrl + "Shift-Enter"] = "eval_document";
+map[ctrl + "Enter"] = "eval-expression";
+map[ctrl + "Shift-Enter"] = "eval-document";
 
 map[ctrl + "Shift-H"] = "help";
 

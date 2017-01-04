@@ -112,9 +112,9 @@
 
 	var _error = __webpack_require__(128);
 
-	var _canvas = __webpack_require__(129);
+	var _canvas = __webpack_require__(130);
 
-	var _debug = __webpack_require__(131);
+	var _debug = __webpack_require__(129);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -162,6 +162,7 @@
 	_codemirror2.default.commands.debug = _debug.debug;
 	_codemirror2.default.commands.interrupt = function (cm) {
 	    if (_utils.state.error) _utils.state.error();
+	    if (_utils.state.debug) _utils.state.debug.clear();
 	    (0, _connect.send)('kill', 'SIGINT');
 	};
 
@@ -172,9 +173,6 @@
 	};
 	_connect.socket.onmessage = function (event) {
 	    return pipe(JSON.parse(event.data));
-	};
-	_connect.socket.onclose = function (event) {
-	    return console.log(event) || (0, _utils.log)('\nlost connection to server.\n');
 	};
 	_connect.socket.onerror = function (event) {
 	    return console.error(event);
@@ -12139,8 +12137,8 @@
 	map[ctrl + "Up"] = "previous";
 	map[ctrl + "Down"] = "next";
 
-	map[ctrl + "Enter"] = "eval_expression";
-	map[ctrl + "Shift-Enter"] = "eval_document";
+	map[ctrl + "Enter"] = "eval-expression";
+	map[ctrl + "Shift-Enter"] = "eval-document";
 
 	map[ctrl + "Shift-H"] = "help";
 
@@ -13015,6 +13013,13 @@
 	    sublime: ctrl + 'Shift-H'
 	}];
 
+	labels.forEach(function (_ref) {
+	    var element = _ref.element;
+	    return element.parentNode.onclick = function (e) {
+	        return _editor.editor.execCommand(element.id);
+	    };
+	});
+
 	function set_theme(theme) {
 	    _utils.state.theme = theme;
 	    icon_elements.forEach(function (element) {
@@ -13158,9 +13163,13 @@
 	}
 
 	document.addEventListener('keyup', function (e) {
-	    if (e.keyCode === 27 && dialog) {
-	        dialog();
-	        dialog = false;
+	    if (e.keyCode === 27) {
+	        if (dialog) {
+	            dialog();
+	            dialog = false;
+	        } else if (_utils.state.error) {
+	            _editor.editor.execCommand('interrupt');
+	        }
 	    }
 	});
 	exports.cm_open = cm_open;
@@ -13230,8 +13239,8 @@
 
 	editor.setCursor(2, 0);
 
-	_codemirror2.default.commands.eval_document = eval_document;
-	_codemirror2.default.commands.eval_expression = eval_expression;
+	_codemirror2.default.commands['eval-document'] = eval_document;
+	_codemirror2.default.commands['eval-expression'] = eval_expression;
 	_codemirror2.default.registerHelper('hintWords', 'scheme', _keywords.keywords.sort());
 
 	var complain_notification = document.createElement('span');
@@ -13424,7 +13433,9 @@
 	var stdout = document.getElementById('stdout');
 
 	function log(text) {
-	    stdout.innerText += text;
+	    var element = state.debug ? state.debug.console : stdout;
+	    element.innerText += text;
+	    element.scrollTop = element.scrollHeight;
 	}
 
 	var defaults = {
@@ -13433,8 +13444,7 @@
 	    theme: 'monokai',
 	    mode_index: 0,
 	    width: 400,
-	    height: 300,
-	    error: false
+	    height: 300
 	};
 
 	var state = {
@@ -13445,7 +13455,9 @@
 	    expressions: {},
 	    visibility: defaults.visibility,
 	    theme: defaults.theme,
-	    keyMap: defaults.keyMap
+	    keyMap: defaults.keyMap,
+	    error: false,
+	    debug: false
 	};
 
 	function strip(string) {
@@ -22008,6 +22020,8 @@
 
 	var _connect = __webpack_require__(34);
 
+	var _debug = __webpack_require__(129);
+
 	function clear(panel) {
 	    panel.clear();
 	    _editor.editor.setOption('readOnly', false);
@@ -22015,11 +22029,11 @@
 	    _utils.state.error = false;
 	}
 
-	function restart(panel, input, name, index) {
+	function restart(panel, inputs, index, name) {
 	    _utils.state.expressions = false;
+	    var input = inputs[index];
 	    if (name === 'debug') return function () {
-	        (0, _connect.send)('eval', 'debug\n');
-	        clear(panel);
+	        (0, _debug.debug)(inputs);
 	    };else if (name === 'use-value' || name === 'store-value') return function () {
 	        input.type = 'text';
 	        input.value = '';
@@ -22051,7 +22065,8 @@
 	    div.appendChild(h2);
 	    div.appendChild(ul);
 	    h2.textContent = text;
-	    div.className = 'error-panel';
+	    div.classList.add('panel');
+	    div.classList.add('error-panel');
 	    restarts.push(['debug', 'Launch the debugger.']);
 	    var inputs = restarts.map(function (_ref3, index) {
 	        var _ref4 = _slicedToArray(_ref3, 2),
@@ -22067,7 +22082,6 @@
 	        li.appendChild(input);
 	        li.appendChild(span);
 	        ul.appendChild(li);
-	        if (index === 0) input.focus();
 	        return input;
 	    });
 	    var panel = _editor.editor.addPanel(div, { position: 'bottom' });
@@ -22080,9 +22094,10 @@
 	            name = _ref6[0],
 	            report = _ref6[1];
 
-	        return inputs[index].onclick = restart(panel, inputs[index], name, index);
+	        return inputs[index].onclick = restart(panel, inputs, index, name);
 	    });
 	    panel.changed();
+	    inputs[0].focus();
 	}
 
 	exports.error = error;
@@ -22096,13 +22111,126 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
+	exports.debug = undefined;
+
+	var _editor = __webpack_require__(36);
+
+	var _utils = __webpack_require__(37);
+
+	var _connect = __webpack_require__(34);
+
+	var commands = {
+	    'A': 'show All bindings in current environment and its ancestors',
+	    'B': 'move (Back) to next reduction (earlier in time)',
+	    'C': 'show bindings of identifiers in the Current environment',
+	    'D': 'move (Down) to the previous subproblem (later in time)',
+	    // 'E': 'Enter a read-eval-print loop in the current environment',
+	    'F': 'move (Forward) to previous reduction (later in time)',
+	    // 'G': 'Go to a particular subproblem',
+	    'H': 'prints a summary (History) of all subproblems',
+	    'I': 'redisplay the error message Info',
+	    // 'J': 'return TO the current subproblem with a value',
+	    // 'K': 'continue the program using a standard restart option',
+	    'L': '(List expression) pretty print the current expression',
+	    'M': '(Frame elements) show the contents of the stack frame, in raw form',
+	    'O': 'pretty print the procedure that created the current environment',
+	    'P': 'move to environment that is Parent of current environment',
+	    'Q': 'Quit (exit debugger)',
+	    'R': 'print the execution history (Reductions) of the current subproblem level',
+	    'S': 'move to child of current environment (in current chain)',
+	    'T': 'print the current subproblem or reduction',
+	    'U': 'move (Up) to the next subproblem (earlier in time)',
+	    // 'V': 'eValuate expression in current environment',
+	    // 'W': 'enter environment inspector (Where) on the current environment',
+	    // 'X': 'create a read eval print loop in the debugger environment',
+	    'Y': 'display the current stack frame'
+	}; /**
+	    * Created by joelg on 1/2/17.
+	    */
+
+
+	function _clear(panel, errorInputs) {
+	    if (errorInputs) errorInputs.forEach(function (input) {
+	        return input.disabled = false;
+	    });
+	    panel.clear();
+	    if (_utils.state.error === false) {
+	        _editor.editor.setOption('readOnly', false);
+	        _editor.editor.focus();
+	    }
+	    _utils.state.debug = false;
+	}
+
+	function command(letter, panel, errorInputs) {
+	    return function () {
+	        if (commands.hasOwnProperty(letter)) (0, _connect.send)('eval', letter + '\n');
+	        if (letter === 'Q') _clear(panel, errorInputs);
+	    };
+	}
+
+	function attach(ul) {
+	    return function (letter, index) {
+	        var li = document.createElement('li'),
+	            span = document.createElement('span'),
+	            input = document.createElement('input');
+	        span.textContent = commands[letter];
+	        input.type = 'button';
+	        input.value = letter;
+	        li.appendChild(input);
+	        li.appendChild(span);
+	        ul.appendChild(li);
+	        return { input: input, letter: letter };
+	    };
+	}
+
+	function debug(errorInputs) {
+	    if (errorInputs) errorInputs.forEach(function (input) {
+	        return input.disabled = true;
+	    });
+	    (0, _connect.send)('eval', 'debug\n');
+	    var div = document.createElement('div'),
+	        ul = document.createElement('ul');
+	    var code = document.createElement('code');
+	    div.appendChild(ul);
+	    div.appendChild(code);
+	    div.classList.add('panel');
+	    div.classList.add('debug-panel');
+	    var inputs = Object.keys(commands).map(attach(ul));
+	    var panel = _editor.editor.addPanel(div, { position: 'before-bottom' });
+	    inputs.forEach(function (_ref) {
+	        var input = _ref.input,
+	            letter = _ref.letter;
+	        return input.onclick = command(letter, panel, errorInputs);
+	    });
+	    _utils.state.debug = { clear: function clear() {
+	            return _clear(panel, errorInputs);
+	        }, console: code };
+	    _editor.editor.setOption('readOnly', 'nocursor');
+	    div.addEventListener('keydown', function (e) {
+	        return commands.hasOwnProperty(e.key.toUpperCase()) && command(e.key.toUpperCase(), panel, errorInputs)();
+	    });
+	    panel.changed();
+	    inputs[0].input.focus();
+	}
+
+	exports.debug = debug;
+
+/***/ },
+/* 130 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
 	exports.canvas = undefined;
 
 	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _d2 = __webpack_require__(130);
+	var _d2 = __webpack_require__(131);
 
 	var d3 = _interopRequireWildcard(_d2);
 
@@ -22387,7 +22515,7 @@
 	exports.canvas = canvas;
 
 /***/ },
-/* 130 */
+/* 131 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// https://d3js.org Version 4.4.0. Copyright 2016 Mike Bostock.
@@ -38784,26 +38912,6 @@
 
 	})));
 
-
-/***/ },
-/* 131 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.debug = undefined;
-
-	var _connect = __webpack_require__(34);
-
-	function debug(cm) {
-	  (0, _connect.send)('eval', '(debug)\n');
-	} /**
-	   * Created by joelg on 1/2/17.
-	   */
-	exports.debug = debug;
 
 /***/ },
 /* 132 */

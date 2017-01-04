@@ -36,8 +36,8 @@ const editor = CodeMirror(editor_element, {
 
 editor.setCursor(2, 0);
 
-CodeMirror.commands.eval_document = eval_document;
-CodeMirror.commands.eval_expression = eval_expression;
+CodeMirror.commands['eval-document']= eval_document;
+CodeMirror.commands['eval-expression'] = eval_expression;
 CodeMirror.registerHelper('hintWords', 'scheme', keywords.sort());
 
 const complain_notification = document.createElement('span');

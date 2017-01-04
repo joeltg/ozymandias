@@ -66,6 +66,8 @@ const labels = [
     }
 ];
 
+labels.forEach(({element}) => element.parentNode.onclick = e => editor.execCommand(element.id));
+
 function set_theme(theme) {
     state.theme = theme;
     icon_elements.forEach(element => element.style.visibility = 'hidden');
@@ -197,9 +199,13 @@ function cm_save(cm) {
 }
 
 document.addEventListener('keyup', function(e) {
-    if ((e.keyCode === 27) && dialog) {
-        dialog();
-        dialog = false;
+    if (e.keyCode === 27) {
+        if (dialog) {
+            dialog();
+            dialog = false;
+        } else if (state.error) {
+            editor.execCommand('interrupt');
+        }
     }
 });
 export {cm_open, cm_save, open, save, load, help, set_visibility}

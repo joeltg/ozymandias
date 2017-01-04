@@ -3,7 +3,8 @@
 
 (define (get-latex object)
   (ignore-errors
-    (lambda () (expression->tex-string object))))
+    (lambda ()
+    (expression->tex-string object))))
 
 (define (print-undefined)
   (send 0 "\"#| No return value |#\""))

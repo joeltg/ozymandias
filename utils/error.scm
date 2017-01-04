@@ -10,9 +10,11 @@
   (define restarts (condition/restarts condition))
   (define report (condition/report-string condition))
   (send 1 (string->json report) (restarts->json restarts))
-  (let ((invocation (prompt-for-command-expression "" stdio)))
+  (let iter ((invocation (prompt-for-command-expression "" stdio)))
     (if (eq? invocation 'debug)
-      (debug)
+      (begin
+        (debug)
+        (iter (prompt-for-command-expression "" stdio)))
       (apply invoke-restart
         (list-ref restarts (car invocation))
         (map

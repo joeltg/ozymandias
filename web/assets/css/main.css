@@ -28,7 +28,7 @@ html, body {
 .cm-s-default .cm-latex {  color: black;  }
 .cm-s-monokai .cm-latex {  color: white;  }
 
-.CodeMirror-dialog button, .error-panel input {
+.CodeMirror-dialog button, .panel input {
     margin: 4px;
     font-family: monospace;
     font-size: inherit !important;
@@ -39,7 +39,7 @@ html, body {
     border-radius: 2px;
     padding: 4px 4px 2px 4px;
 
-    -webkit-box-shadow:inset 0 0 0 1px;
+    -webkit-box-shadowbye:inset 0 0 0 1px;
     -moz-box-shadow:inset 0 0 0 1px;
     box-shadow:inset 0 0 0 1px;
 
@@ -47,7 +47,7 @@ html, body {
     font-style: normal;
 }
 
-.CodeMirror-dialog button:focus, .error-panel input:focus {
+.CodeMirror-dialog button:focus, .panel input:focus {
     -webkit-box-shadow:inset 0 0 0 2px;
     -moz-box-shadow:inset 0 0 0 2px;
     box-shadow:inset 0 0 0 2px;
@@ -60,23 +60,49 @@ html, body {
     color: white;
 }
 
-.error-panel input {
-    color: black;
-}
-
-.error-panel {
-    background: #bbb;
+.panel {
     max-height: 320px;
     overflow: auto;
 }
 
-.error-panel ul {
+.panel input {
+    color: black;
+}
+
+.panel ul {
     margin-top: 0;
 }
 
-.error-panel p {  margin: 0 16px;  }
+.panel p {  margin: 0 16px;  }
+.panel span {  margin: 0 4px;  }
 .error-panel input {  width: 128px;  }
-.error-panel span {  margin: 0 4px;  }
+.debug-panel input {  width: 24px;  }
+
+.error-panel {
+    background: #eb5;
+}
+
+.debug-panel {
+    background: #adc;
+}
+
+.debug-panel ul {
+    padding-left: 40px;
+    width: calc(50% - 40px);
+    float: left;
+    margin: 0;
+    max-height: 320px;
+    overflow: auto;
+}
+
+.debug-panel code {
+    width: 50%;
+    float: right;
+    max-height: 320px;
+    margin: 0;
+    overflow: auto;
+}
+
 
 .CodeMirror-hints {  background: #bbb !important;  }
 li.CodeMirror-hint-active {  background: #272822 !important;  }

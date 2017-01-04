@@ -5,7 +5,9 @@
 const stdout = document.getElementById('stdout');
 
 function log(text) {
-    stdout.innerText += text;
+    const element = state.debug ? state.debug.console : stdout;
+    element.innerText += text;
+    element.scrollTop = element.scrollHeight;
 }
 
 const defaults = {
@@ -14,8 +16,7 @@ const defaults = {
     theme: 'monokai',
     mode_index: 0,
     width: 400,
-    height: 300,
-    error: false
+    height: 300
 };
 
 const state = {
@@ -26,7 +27,9 @@ const state = {
     expressions: {},
     visibility: defaults.visibility,
     theme: defaults.theme,
-    keyMap: defaults.keyMap
+    keyMap: defaults.keyMap,
+    error: false,
+    debug: false
 };
 
 function strip(string) {

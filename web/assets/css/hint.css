@@ -93,6 +93,15 @@ form, input, label {
     padding: 6px 0;
 }
 
+#reference + ul > li {
+    cursor: pointer;
+}
+
+#reference + ul > li:hover {
+    font-weight: bold;
+    font-style: italic;
+}
+
 .hint {
     -moz-user-select: none;
     -webkit-user-select: none;
