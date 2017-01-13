@@ -37,7 +37,7 @@ html, body {
     cursor: pointer;
     border: none;
     border-radius: 2px;
-    padding: 4px 4px 2px 4px;
+    padding: 4px;
 
     -webkit-box-shadowbye:inset 0 0 0 1px;
     -moz-box-shadow:inset 0 0 0 1px;
@@ -60,47 +60,28 @@ html, body {
     color: white;
 }
 
-.panel {
-    max-height: 320px;
-    overflow: auto;
-}
-
-.panel input {
-    color: black;
-}
-
-.panel ul {
-    margin-top: 0;
-}
-
 .panel p {  margin: 0 16px;  }
+.panel h3 {  margin: 4px;  }
+.panel ol {  margin-top: 0;  }
 .panel span {  margin: 0 4px;  }
-.error-panel input {  width: 128px;  }
-.debug-panel input {  width: 24px;  }
-
-.error-panel {
+.panel input {  color: black;  }
+.panel {
+    max-height: 512px;
+    overflow: auto;
     background: #eb5;
 }
 
-.debug-panel {
-    background: #adc;
+.subproblems {
+    max-height: 128px;
+    padding: 0 40px;
 }
 
-.debug-panel ul {
-    padding-left: 40px;
-    width: calc(50% - 40px);
-    float: left;
-    margin: 0;
-    max-height: 320px;
-    overflow: auto;
+.subproblems li {
+
 }
 
-.debug-panel code {
-    width: 50%;
+.subproblems li span {
     float: right;
-    max-height: 320px;
-    margin: 0;
-    overflow: auto;
 }
 
 

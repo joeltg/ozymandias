@@ -35,7 +35,6 @@ import {state, log} from './utils';
 import {push, view} from './editor';
 import {error} from './error';
 import {canvas} from './canvas';
-import {debug} from './debug';
 
 const pipe = ({source, content}) => sources[source](content);
 const auth = content => send('auth', {user: false});
@@ -65,10 +64,8 @@ CodeMirror.commands.view = view;
 CodeMirror.commands.help = help;
 CodeMirror.commands.save = cm_save;
 CodeMirror.commands.open = cm_open;
-CodeMirror.commands.debug = debug;
 CodeMirror.commands.interrupt = cm => {
-    if (state.error) state.error();
-    if (state.debug) state.debug.clear();
+    if (state.error) state.error.clear();
     send('kill', 'SIGINT');
 };
 

@@ -40,7 +40,7 @@
 (define (escape-char char)
   (cond ((char=? char #\\) "\\\\")
          ((char=? char #\") "\\\"")
-         ((char=? char delimiter) "\\n")
+         ((char=? char #\newline) "\\n")
          (else (char->string char))))
 
 (define (string->json string)

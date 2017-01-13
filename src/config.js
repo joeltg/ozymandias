@@ -198,13 +198,28 @@ function cm_save(cm) {
     }
 }
 
-document.addEventListener('keyup', function(e) {
+document.addEventListener('keydown', function(e) {
     if (e.keyCode === 27) {
         if (dialog) {
             dialog();
             dialog = false;
         } else if (state.error) {
             editor.execCommand('interrupt');
+        }
+    } else if (e.keyCode > 48 && e.keyCode < 58) {
+        const index = e.keyCode - 49;
+        if (state.error && state.error.open && (index < state.error.length)) {
+            state.error.inputs[index].input.focus();
+            state.error.index = index;
+            e.preventDefault();
+        }
+    } else if (e.keyCode === 9) {
+        if (state.error) {
+            const {length, inputs, index} = state.error;
+            const i = (index + length + (e.shiftKey ? -1 : 1)) % length;
+            inputs[i].input.focus();
+            state.error.index = i;
+            e.preventDefault();
         }
     }
 });

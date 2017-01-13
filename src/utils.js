@@ -5,9 +5,8 @@
 const stdout = document.getElementById('stdout');
 
 function log(text) {
-    const element = state.debug ? state.debug.console : stdout;
-    element.innerText += text;
-    element.scrollTop = element.scrollHeight;
+    stdout.innerText += text;
+    stdout.scrollTop = stdout.scrollHeight;
 }
 
 const defaults = {
@@ -28,8 +27,7 @@ const state = {
     visibility: defaults.visibility,
     theme: defaults.theme,
     keyMap: defaults.keyMap,
-    error: false,
-    debug: false
+    error: false
 };
 
 function strip(string) {
