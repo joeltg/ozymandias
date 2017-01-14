@@ -22040,16 +22040,18 @@
 	    _clear(panel);
 	}
 
-	function focus(index, row) {
-	    _utils.state.error.inputs[_utils.state.error.index].row.classList.remove('focus');
-	    row.classList.add('focus');
-	    _utils.state.error.index = index;
+	function focus(index) {
+	    if (_utils.state.error && _utils.state.error.index !== index) {
+	        _utils.state.error.inputs[_utils.state.error.index].row.classList.remove('focus');
+	        _utils.state.error.inputs[index].row.classList.add('focus');
+	        _utils.state.error.index = index;
+	    }
 	}
 
-	function attachHandler(panel, row, input, arity, index) {
+	function attachHandler(panel, input, arity, index) {
 	    if (arity > 0) {
 	        input.addEventListener('focus', function (e) {
-	            return focus(index, row);
+	            return focus(index);
 	        });
 	        input.addEventListener('keydown', function (e) {
 	            return e.keyCode === 13 && input.value && restart(panel, index, input.value);
@@ -22136,9 +22138,8 @@
 	    };
 	    inputs.forEach(function (_ref6, index) {
 	        var arity = _ref6.arity,
-	            input = _ref6.input,
-	            row = _ref6.row;
-	        return attachHandler(panel, row, input, arity, index);
+	            input = _ref6.input;
+	        return attachHandler(panel, input, arity, index);
 	    });
 	    panel.changed();
 	    inputs[0].row.classList.add('focus');
