@@ -101,12 +101,9 @@ html, body {
     padding: 6px;
 }
 
-.panel th {
-    min-width: 128px;
+.panel th, td {
     text-align: start;
-}
-
-.panel td {
+    padding: 0 8px;
     max-width: 512px;
 }
 

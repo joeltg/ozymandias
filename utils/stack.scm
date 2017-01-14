@@ -46,9 +46,14 @@
 
 (define (format-environment environment)
   (let ((name (and (environment? environment) (environment-procedure-name environment))))
-    (if (or (not name) (special-form-procedure-name? name))
-      #f
-      (format-name name))))
+
+;    (if (or (not name) (special-form-procedure-name? name))
+;      #f
+;      (format-name name))
+
+     (format-name name)
+
+      ))
 
 (define (format-expression expression)
   (cond
