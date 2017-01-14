@@ -22040,10 +22040,21 @@
 	    _clear(panel);
 	}
 
-	function attachHandler(panel, input, arity, index) {
-	    if (arity > 0) input.addEventListener('keydown', function (e) {
-	        return e.keyCode === 13 && input.value && restart(panel, index, input.value);
-	    });else input.addEventListener('click', function (e) {
+	function focus(index, row) {
+	    _utils.state.error.inputs[_utils.state.error.index].row.classList.remove('focus');
+	    row.classList.add('focus');
+	    _utils.state.error.index = index;
+	}
+
+	function attachHandler(panel, row, input, arity, index) {
+	    if (arity > 0) {
+	        input.addEventListener('focus', function (e) {
+	            return focus(index, row);
+	        });
+	        input.addEventListener('keydown', function (e) {
+	            return e.keyCode === 13 && input.value && restart(panel, index, input.value);
+	        });
+	    } else input.addEventListener('click', function (e) {
 	        return restart(panel, index, '');
 	    });
 	}
@@ -22053,7 +22064,7 @@
 	        exp = _ref.exp;
 
 	    var tr = dom('tr');
-	    tr.appendChild(dom('td', index + '.'));
+	    tr.appendChild(dom('td', index.toString()));
 	    tr.appendChild(dom('td', dom('code', exp || '')));
 	    tr.appendChild(dom('td', dom('code', env || '')));
 	    return tr;
@@ -22125,8 +22136,9 @@
 	    };
 	    inputs.forEach(function (_ref6, index) {
 	        var arity = _ref6.arity,
-	            input = _ref6.input;
-	        return attachHandler(panel, input, arity, index);
+	            input = _ref6.input,
+	            row = _ref6.row;
+	        return attachHandler(panel, row, input, arity, index);
 	    });
 	    panel.changed();
 	    inputs[0].row.classList.add('focus');

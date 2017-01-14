@@ -19,14 +19,23 @@ function restart(panel, index, value) {
     clear(panel);
 }
 
-function attachHandler(panel, input, arity, index) {
-    if (arity > 0) input.addEventListener('keydown', e => ((e.keyCode === 13) && input.value && restart(panel, index, input.value)));
+function focus(index, row) {
+    state.error.inputs[state.error.index].row.classList.remove('focus');
+    row.classList.add('focus');
+    state.error.index = index;
+}
+
+function attachHandler(panel, row, input, arity, index) {
+    if (arity > 0) {
+        input.addEventListener('focus', e => focus(index, row));
+        input.addEventListener('keydown', e => ((e.keyCode === 13) && input.value && restart(panel, index, input.value)));
+    }
     else input.addEventListener('click', e => restart(panel, index, ''));
 }
 
 function subproblem({env, exp}, index) {
     const tr = dom('tr');
-    tr.appendChild(dom('td', index + '.'));
+    tr.appendChild(dom('td', index.toString()));
     tr.appendChild(dom('td', dom('code', exp || '')));
     tr.appendChild(dom('td', dom('code', env || '')));
     return tr;
@@ -79,7 +88,7 @@ function error([text, restarts, stack]) {
         index: 0,
         inputs
     };
-    inputs.forEach(({arity, input}, index) => attachHandler(panel, input, arity, index));
+    inputs.forEach(({arity, input, row}, index) => attachHandler(panel, row, input, arity, index));
     panel.changed();
     inputs[0].row.classList.add('focus');
     inputs[0].input.focus();

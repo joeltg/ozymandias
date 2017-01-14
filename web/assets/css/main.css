@@ -66,7 +66,7 @@ html, body {
 }
 
 .panel p {  margin: 0 16px;  }
-.panel h3 {  margin: 4px;  }
+.panel h3 {  margin: 8px 4px;  }
 .panel ol {  margin-top: 0;  }
 .panel span {  margin: 0 4px;  }
 .panel input {  color: black;  }
@@ -87,11 +87,6 @@ html, body {
     font-style: italic;
 }
 
-.focus {
-    font-style: italic;
-    font-weight: bold;
-}
-
 ::-webkit-input-placeholder {
     color: black;
 }
@@ -100,6 +95,7 @@ html, body {
 }
 
 .panel input[type=text] {
+    cursor: initial;
     font-style: normal;
     font-weight: normal;
     padding: 6px;
