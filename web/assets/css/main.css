@@ -39,7 +39,7 @@ html, body {
     border-radius: 2px;
     padding: 4px;
 
-    -webkit-box-shadowbye:inset 0 0 0 1px;
+    -webkit-box-shadow:inset 0 0 0 1px;
     -moz-box-shadow:inset 0 0 0 1px;
     box-shadow:inset 0 0 0 1px;
 
@@ -52,6 +52,11 @@ html, body {
     -moz-box-shadow:inset 0 0 0 2px;
     box-shadow:inset 0 0 0 2px;
 
+    font-style: italic;
+    font-weight: bold;
+}
+
+.panel input:focus + span {
     font-style: italic;
     font-weight: bold;
 }
@@ -71,19 +76,45 @@ html, body {
     background: #eb5;
 }
 
-.subproblems {
-    max-height: 128px;
-    padding: 0 40px;
+.panel table {
+    margin: 4px;
 }
 
-.subproblems li {
-
+.panel .focus {
+    font-weight: bold;
+    font-style: italic;
 }
 
-.subproblems li span {
-    float: right;
+.focus {
+    font-style: italic;
+    font-weight: bold;
 }
 
+::-webkit-input-placeholder {
+    color: black;
+}
+::-moz-placeholder {
+    color: black;
+}
+
+.panel input[type=text] {
+    font-style: normal;
+    font-weight: normal;
+    padding: 6px;
+}
+
+.panel th {
+    min-width: 128px;
+    text-align: start;
+}
+
+.panel td {
+    max-width: 512px;
+}
+
+.panel .subproblems td {
+    vertical-align: top;
+}
 
 .CodeMirror-hints {  background: #bbb !important;  }
 li.CodeMirror-hint-active {  background: #272822 !important;  }

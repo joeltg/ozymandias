@@ -13165,22 +13165,17 @@
 	        } else if (_utils.state.error) {
 	            _editor.editor.execCommand('interrupt');
 	        }
-	    } else if (e.keyCode > 48 && e.keyCode < 58) {
-	        var index = e.keyCode - 49;
-	        if (_utils.state.error && _utils.state.error.open && index < _utils.state.error.length) {
-	            _utils.state.error.inputs[index].input.focus();
-	            _utils.state.error.index = index;
-	            e.preventDefault();
-	        }
 	    } else if (e.keyCode === 9) {
 	        if (_utils.state.error) {
 	            var _state$error = _utils.state.error,
 	                length = _state$error.length,
 	                inputs = _state$error.inputs,
-	                _index = _state$error.index;
+	                index = _state$error.index;
 
-	            var _i = (_index + length + (e.shiftKey ? -1 : 1)) % length;
+	            var _i = (index + length + (e.shiftKey ? -1 : 1)) % length;
 	            inputs[_i].input.focus();
+	            inputs[_utils.state.error.index].row.classList.remove('focus');
+	            inputs[_i].row.classList.add('focus');
 	            _utils.state.error.index = _i;
 	            e.preventDefault();
 	        }
@@ -22039,46 +22034,35 @@
 	    _utils.state.error = false;
 	}
 
-	function restart(panel, input, arity, index) {
+	function restart(panel, index, value) {
 	    _utils.state.expressions = false;
-	    if (arity > 0) return function () {
-	        if (_utils.state.error) _utils.state.error.open = false;
-	        input.type = 'text';
-	        input.value = '';
-	        input.style.fontStyle = 'normal';
-	        input.style.cursor = 'auto';
-	        input.onclick = function (e) {
-	            return e;
-	        };
-	        input.onkeydown = function (e) {
-	            if (e.keyCode === 13) {
-	                (0, _connect.send)('eval', '(' + index + ' ' + input.value + ')\n');
-	                _clear(panel);
-	            }
-	        };
-	    };else return function () {
-	        (0, _connect.send)('eval', '(' + index + ')\n');
-	        _clear(panel);
-	    };
+	    (0, _connect.send)('eval', '(' + index + ' ' + value + ')\n');
+	    _clear(panel);
 	}
 
-	function subproblem(_ref) {
+	function attachHandler(panel, input, arity, index) {
+	    if (arity > 0) input.addEventListener('keydown', function (e) {
+	        return e.keyCode === 13 && input.value && restart(panel, index, input.value);
+	    });else input.addEventListener('click', function (e) {
+	        return restart(panel, index, '');
+	    });
+	}
+
+	function subproblem(_ref, index) {
 	    var env = _ref.env,
 	        exp = _ref.exp;
 
-	    var li = document.createElement('li');
+	    var tr = dom('tr');
+	    tr.appendChild(dom('td', index + '.'));
+	    tr.appendChild(dom('td', dom('code', exp || '')));
+	    tr.appendChild(dom('td', dom('code', env || '')));
+	    return tr;
+	}
 
-	    var expression = document.createElement('code');
-	    expression.textContent = exp;
-	    li.appendChild(expression);
-
-	    if (env) {
-	        var environment = document.createElement('span');
-	        environment.textContent = env;
-	        li.appendChild(environment);
-	    }
-
-	    return li;
+	function dom(tag, content) {
+	    var element = document.createElement(tag);
+	    if (typeof content === 'string') element.textContent = content;else if (content instanceof HTMLElement) element.appendChild(content);
+	    return element;
 	}
 
 	function error(_ref2) {
@@ -22087,24 +22071,24 @@
 	        restarts = _ref3[1],
 	        stack = _ref3[2];
 
-	    var div = document.createElement('div'),
-	        h2 = document.createElement('h2'),
-	        ss = document.createElement('h3'),
-	        rs = document.createElement('h3'),
-	        ul = document.createElement('ul'),
-	        ol = document.createElement('ol');
-	    div.appendChild(h2);
-	    ul.classList.add('subproblems');
-	    stack.map(subproblem).forEach(function (li) {
-	        return ul.appendChild(li);
+	    var div = dom('div'),
+	        subproblemTable = dom('table'),
+	        restartTable = dom('table'),
+	        label = dom('tr');
+	    subproblemTable.classList.add('subproblems');
+	    restartTable.classList.add('restarts');
+	    label.appendChild(dom('th', 'Depth'));
+	    label.appendChild(dom('th', 'Expression'));
+	    label.appendChild(dom('th', 'Environment'));
+	    subproblemTable.appendChild(label);
+	    div.appendChild(dom('h2', text));
+	    div.appendChild(dom('h3', 'Subproblems'));
+	    div.appendChild(subproblemTable);
+	    div.appendChild(dom('h3', 'Restarts'));
+	    div.appendChild(restartTable);
+	    stack.map(subproblem).forEach(function (tr) {
+	        return subproblemTable.appendChild(tr);
 	    });
-	    div.appendChild(ss);
-	    div.appendChild(ul);
-	    div.appendChild(rs);
-	    div.appendChild(ol);
-	    h2.textContent = text;
-	    ss.textContent = 'Subproblems';
-	    rs.textContent = 'Restarts';
 	    div.classList.add('panel');
 	    var inputs = restarts.map(function (_ref4) {
 	        var _ref5 = _slicedToArray(_ref4, 3),
@@ -22112,16 +22096,22 @@
 	            report = _ref5[1],
 	            arity = _ref5[2];
 
-	        var li = document.createElement('li'),
-	            span = document.createElement('span'),
-	            input = document.createElement('input');
-	        span.textContent = report;
-	        input.type = 'button';
-	        input.value = name;
-	        li.appendChild(input);
-	        li.appendChild(span);
-	        ol.appendChild(li);
-	        return { arity: arity, input: input };
+	        var row = dom('tr'),
+	            input = dom('input');
+
+	        if (arity > 0) {
+	            input.type = 'text';
+	            input.placeholder = name;
+	        } else {
+	            input.type = 'button';
+	            input.value = name;
+	        }
+
+	        row.appendChild(dom('td', input));
+	        row.appendChild(dom('td', report));
+
+	        restartTable.appendChild(row);
+	        return { arity: arity, input: input, row: row };
 	    });
 	    var panel = _editor.editor.addPanel(div, { position: 'bottom' });
 	    _editor.editor.setOption('readOnly', 'nocursor');
@@ -22130,16 +22120,16 @@
 	            return _clear(panel);
 	        },
 	        length: inputs.length,
-	        open: true,
 	        index: 0,
 	        inputs: inputs
 	    };
 	    inputs.forEach(function (_ref6, index) {
 	        var arity = _ref6.arity,
 	            input = _ref6.input;
-	        return input.onclick = restart(panel, input, arity, index);
+	        return attachHandler(panel, input, arity, index);
 	    });
 	    panel.changed();
+	    inputs[0].row.classList.add('focus');
 	    inputs[0].input.focus();
 	}
 

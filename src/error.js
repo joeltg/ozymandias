@@ -13,85 +13,75 @@ function clear(panel) {
     state.error = false;
 }
 
-function restart(panel, input, arity, index) {
+function restart(panel, index, value) {
     state.expressions = false;
-    if (arity > 0) return function() {
-        if (state.error) state.error.open = false;
-        input.type = 'text';
-        input.value = '';
-        input.style.fontStyle = 'normal';
-        input.style.cursor = 'auto';
-        input.onclick = e => e;
-        input.onkeydown = e => {
-            if (e.keyCode === 13) {
-                send('eval', `(${index} ${input.value})\n`);
-                clear(panel);
-            }
-        }
-    };
-    else return function() {
-        send('eval', `(${index})\n`);
-        clear(panel);
-    };
+    send('eval', `(${index} ${value})\n`);
+    clear(panel);
 }
 
-function subproblem({env, exp}) {
-    const li = document.createElement('li');
+function attachHandler(panel, input, arity, index) {
+    if (arity > 0) input.addEventListener('keydown', e => ((e.keyCode === 13) && input.value && restart(panel, index, input.value)));
+    else input.addEventListener('click', e => restart(panel, index, ''));
+}
 
-    const expression = document.createElement('code');
-    expression.textContent = exp;
-    li.appendChild(expression);
+function subproblem({env, exp}, index) {
+    const tr = dom('tr');
+    tr.appendChild(dom('td', index + '.'));
+    tr.appendChild(dom('td', dom('code', exp || '')));
+    tr.appendChild(dom('td', dom('code', env || '')));
+    return tr;
+}
 
-    if (env) {
-        const environment = document.createElement('span');
-        environment.textContent = env;
-        li.appendChild(environment);
-    }
-
-    return li;
+function dom(tag, content) {
+    const element = document.createElement(tag);
+    if (typeof content === 'string') element.textContent = content;
+    else if (content instanceof HTMLElement) element.appendChild(content);
+    return element;
 }
 
 function error([text, restarts, stack]) {
-    const div = document.createElement('div'),
-        h2 = document.createElement('h2'),
-        ss = document.createElement('h3'),
-        rs = document.createElement('h3'),
-        ul = document.createElement('ul'),
-        ol = document.createElement('ol');
-    div.appendChild(h2);
-    ul.classList.add('subproblems');
-    stack.map(subproblem).forEach(li => ul.appendChild(li));
-    div.appendChild(ss);
-    div.appendChild(ul);
-    div.appendChild(rs);
-    div.appendChild(ol);
-    h2.textContent = text;
-    ss.textContent = 'Subproblems';
-    rs.textContent = 'Restarts';
+    const div = dom('div'), subproblemTable = dom('table'), restartTable = dom('table'), label = dom('tr');
+    subproblemTable.classList.add('subproblems');
+    restartTable.classList.add('restarts');
+    label.appendChild(dom('th', 'Depth'));
+    label.appendChild(dom('th', 'Expression'));
+    label.appendChild(dom('th', 'Environment'));
+    subproblemTable.appendChild(label);
+    div.appendChild(dom('h2', text));
+    div.appendChild(dom('h3', 'Subproblems'));
+    div.appendChild(subproblemTable);
+    div.appendChild(dom('h3', 'Restarts'));
+    div.appendChild(restartTable);
+    stack.map(subproblem).forEach(tr => subproblemTable.appendChild(tr));
     div.classList.add('panel');
     const inputs = restarts.map(function([name, report, arity]) {
-        const li = document.createElement('li'),
-            span = document.createElement('span'),
-            input = document.createElement('input');
-        span.textContent = report;
-        input.type = 'button';
-        input.value = name;
-        li.appendChild(input);
-        li.appendChild(span);
-        ol.appendChild(li);
-        return {arity, input};
+        const row = dom('tr'), input = dom('input');
+
+        if (arity > 0) {
+            input.type = 'text';
+            input.placeholder = name;
+        } else {
+            input.type = 'button';
+            input.value = name;
+        }
+
+        row.appendChild(dom('td', input));
+        row.appendChild(dom('td', report));
+
+        restartTable.appendChild(row);
+        return {arity, input, row};
     });
     const panel = editor.addPanel(div, {position: 'bottom'});
     editor.setOption('readOnly', 'nocursor');
     state.error = {
         clear: () => clear(panel),
         length: inputs.length,
-        open: true,
         index: 0,
         inputs
     };
-    inputs.forEach(({arity, input}, index) => input.onclick = restart(panel, input, arity, index));
+    inputs.forEach(({arity, input}, index) => attachHandler(panel, input, arity, index));
     panel.changed();
+    inputs[0].row.classList.add('focus');
     inputs[0].input.focus();
 }
 

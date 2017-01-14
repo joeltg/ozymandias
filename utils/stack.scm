@@ -66,3 +66,6 @@
   (let ((env (format-environment environment))
         (exp (format-expression expression)))
     `((env ,env) (exp ,exp))))
+
+(define (enter-subproblem subproblem expression environment)
+	((stack-frame->continuation subproblem) (eval expression environment)))

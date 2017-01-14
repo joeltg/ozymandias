@@ -206,18 +206,13 @@ document.addEventListener('keydown', function(e) {
         } else if (state.error) {
             editor.execCommand('interrupt');
         }
-    } else if (e.keyCode > 48 && e.keyCode < 58) {
-        const index = e.keyCode - 49;
-        if (state.error && state.error.open && (index < state.error.length)) {
-            state.error.inputs[index].input.focus();
-            state.error.index = index;
-            e.preventDefault();
-        }
     } else if (e.keyCode === 9) {
         if (state.error) {
             const {length, inputs, index} = state.error;
             const i = (index + length + (e.shiftKey ? -1 : 1)) % length;
             inputs[i].input.focus();
+            inputs[state.error.index].row.classList.remove('focus');
+            inputs[i].row.classList.add('focus');
             state.error.index = i;
             e.preventDefault();
         }
