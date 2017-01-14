@@ -30,7 +30,7 @@ class Connection {
         this.pid = null;
     }
     message({source, content}) {
-        if (source === 'save') {
+        if (source === 'save' && this.open) {
             const {name, text} = content;
             const file = this.file(name);
             fs.writeFile(file, text, 'utf8', error => this.send('save', !error));
@@ -38,11 +38,12 @@ class Connection {
         else if (source === 'load') {
             const {name} = content;
             const file = this.file(name);
-            fs.readFile(file, 'utf8', (error, text) => this.send('load', text));
+            console.log(file);
+            fs.readFile(file, 'utf8', (error, text) => this.send('load', text || ''));
         }
         else if (source === 'open') fs.readdir(this.files, (error, files) => this.send('open', files));
-        else if (source === 'eval') this.scheme.stdin.write(content);
-        else if (source === 'kill') this.pid ? process.kill(this.pid, content) : null;
+        else if (source === 'eval' && this.open ) this.scheme.stdin.write(content);
+        else if (source === 'kill' && this.open ) this.pid ? process.kill(this.pid, content) : null;
         else console.error('invalid source', source);
     }
     close() {
@@ -74,7 +75,7 @@ class Connection {
         this.connected = true;
         this.socket = socket;
 
-        socket.on('message', data => this.open && this.message(JSON.parse(data)));
+        socket.on('message', data => this.message(JSON.parse(data)));
         socket.on('error', error => console.error('socket', error));
         socket.on('close', event => {
             this.connected = false;

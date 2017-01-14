@@ -94,6 +94,17 @@ html, body {
     color: black;
 }
 
+.prompt {
+    margin-top: 8px;
+}
+
+.CodeMirror-dialog ::-webkit-input-placeholder {
+    color: white;
+}
+.CodeMirror-dialog ::-moz-placeholder {
+    color: white;
+}
+
 .panel input[type=text] {
     cursor: initial;
     font-style: normal;

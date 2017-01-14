@@ -115,17 +115,28 @@ set_theme(defaults.theme);
 editor.focus();
 
 const filename = document.getElementById('filename');
-function set_filename(name) {
-    document.title = 'Lambda: ' + name;
-    filename.textContent = name;
+function set_filename(name, changed) {
+    const path = window.location.pathname.split('/');
+    const title = 'Lambda: ' + name;
+    document.title = title + (changed ? '∙' : '');
+    filename.textContent = name + (changed ? '∙' : '');
+    if (path.length > 1 && path[path.length - 2] === 'files') history.pushState({}, title, name);
+    else history.pushState({}, title, "files/" + name);
 }
 
 let clean = true;
 let dialog = false;
 
+const dialogText = 'Unsaved changes will be lost!';
+window.onbeforeunload = function(e) {
+    if (clean || !state.filename) return null;
+    e.returnValue = dialogText;
+    return dialogText;
+};
+
 editor.on('change', function(cm, change) {
     if (state.filename && !cm.isClean() && clean) {
-        set_filename(state.filename + '∙');
+        set_filename(state.filename, true);
         clean = false;
     }
 });
@@ -142,9 +153,9 @@ function open(files) {
             send('load', {name});
         });
         open_files.appendChild(button);
-        if (index === 0) button.focus();
     });
     if (files.length === 0) open_files.textContent = 'No files found';
+    input.focus();
 }
 
 function load(data) {
@@ -161,15 +172,37 @@ function save(data) {
     else save_notification.textContent = 'Save failed';
     editor.openNotification(save_notification, {duration: 3000});
 }
-
-const open_prompt = document.createElement('span');
-open_prompt.textContent = 'Open file: ';
+const open_dialog = document.createElement('div');
+open_dialog.className = 'prompt';
+const open_prompt = document.createElement('div');
+const open_label = document.createElement('span');
 const open_files = document.createElement('span');
+open_label.textContent = 'Open file: ';
+open_prompt.appendChild(open_label);
 open_prompt.appendChild(open_files);
+
+const new_prompt = document.createElement('div');
+const new_label = document.createElement('span');
+const input = document.createElement('input');
+new_label.textContent = 'New file: ';
+input.type = 'text';
+input.placeholder = 'Enter filename';
+const create = name => {
+    state.filename = name;
+    send('load', {name});
+    if (dialog) dialog();
+    dialog = false;
+};
+input.addEventListener('keydown', e => e.keyCode === 13 && create(input.value));
+new_prompt.appendChild(new_label);
+new_prompt.appendChild(input);
+
+open_dialog.appendChild(new_prompt);
+open_dialog.appendChild(open_prompt);
 function cm_open(cm) {
     if (dialog) dialog();
     send('open', true);
-    dialog = cm.openNotification(open_prompt, {duration: 0});
+    dialog = cm.openNotification(open_dialog, {duration: 0});
 }
 
 const save_prompt = document.createElement('span');

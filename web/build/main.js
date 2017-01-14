@@ -163,14 +163,20 @@
 
 	(0, _utils.log)('connecting to server...\n');
 
-	_connect.socket.onopen = function (event) {
-	    return (0, _utils.log)('connected.\n');
-	};
+	var path = window.location.pathname.split('/');
 	_connect.socket.onmessage = function (event) {
 	    return pipe(JSON.parse(event.data));
 	};
 	_connect.socket.onerror = function (event) {
 	    return console.error(event);
+	};
+	_connect.socket.onopen = function (event) {
+	    (0, _utils.log)('connected.\n');
+	    if (path.length > 1 && path[path.length - 2] === 'files') {
+	        var name = path[path.length - 1];
+	        _utils.state.filename = name;
+	        (0, _connect.send)('load', { name: name });
+	    }
 	};
 
 /***/ },
@@ -13075,17 +13081,27 @@
 	_editor.editor.focus();
 
 	var filename = document.getElementById('filename');
-	function set_filename(name) {
-	    document.title = 'Lambda: ' + name;
-	    filename.textContent = name;
+	function set_filename(name, changed) {
+	    var path = window.location.pathname.split('/');
+	    var title = 'Lambda: ' + name;
+	    document.title = title + (changed ? '∙' : '');
+	    filename.textContent = name + (changed ? '∙' : '');
+	    if (path.length > 1 && path[path.length - 2] === 'files') history.pushState({}, title, name);else history.pushState({}, title, "files/" + name);
 	}
 
 	var clean = true;
 	var dialog = false;
 
+	var dialogText = 'Unsaved changes will be lost!';
+	window.onbeforeunload = function (e) {
+	    if (clean || !_utils.state.filename) return null;
+	    e.returnValue = dialogText;
+	    return dialogText;
+	};
+
 	_editor.editor.on('change', function (cm, change) {
 	    if (_utils.state.filename && !cm.isClean() && clean) {
-	        set_filename(_utils.state.filename + '∙');
+	        set_filename(_utils.state.filename, true);
 	        clean = false;
 	    }
 	});
@@ -13102,9 +13118,9 @@
 	            (0, _connect.send)('load', { name: name });
 	        });
 	        open_files.appendChild(button);
-	        if (index === 0) button.focus();
 	    });
 	    if (files.length === 0) open_files.textContent = 'No files found';
+	    input.focus();
 	}
 
 	function load(data) {
@@ -13120,15 +13136,39 @@
 	    if (data) save_notification.textContent = 'Saved successfully';else save_notification.textContent = 'Save failed';
 	    _editor.editor.openNotification(save_notification, { duration: 3000 });
 	}
-
-	var open_prompt = document.createElement('span');
-	open_prompt.textContent = 'Open file: ';
+	var open_dialog = document.createElement('div');
+	open_dialog.className = 'prompt';
+	var open_prompt = document.createElement('div');
+	var open_label = document.createElement('span');
 	var open_files = document.createElement('span');
+	open_label.textContent = 'Open file: ';
+	open_prompt.appendChild(open_label);
 	open_prompt.appendChild(open_files);
+
+	var new_prompt = document.createElement('div');
+	var new_label = document.createElement('span');
+	var input = document.createElement('input');
+	new_label.textContent = 'New file: ';
+	input.type = 'text';
+	input.placeholder = 'Enter filename';
+	var create = function create(name) {
+	    _utils.state.filename = name;
+	    (0, _connect.send)('load', { name: name });
+	    if (dialog) dialog();
+	    dialog = false;
+	};
+	input.addEventListener('keydown', function (e) {
+	    return e.keyCode === 13 && create(input.value);
+	});
+	new_prompt.appendChild(new_label);
+	new_prompt.appendChild(input);
+
+	open_dialog.appendChild(new_prompt);
+	open_dialog.appendChild(open_prompt);
 	function cm_open(cm) {
 	    if (dialog) dialog();
 	    (0, _connect.send)('open', true);
-	    dialog = cm.openNotification(open_prompt, { duration: 0 });
+	    dialog = cm.openNotification(open_dialog, { duration: 0 });
 	}
 
 	var save_prompt = document.createElement('span');
@@ -13435,7 +13475,6 @@
 
 	            if (latex) {
 	                var expression = new _expression.Expression(text, latex, _utils.defaults.mode_index);
-	                // const start = {line, ch: 0}, end = {line: line + 1};
 	                var mark = editor.markText(start, end, {
 	                    replacedWith: expression.node,
 	                    inclusiveLeft: false,
