@@ -11,21 +11,6 @@
         (list-head frames (- (length frames) 5))
         frames))))
 
-(define lambda-tag:internal-lambda (string->symbol "#[internal-lambda]"))
-(define lambda-tag:internal-lexpr (string->symbol "#[internal-lexpr]"))
-
-(define special-form-procedure-names
-  `((,lambda-tag:unnamed . LAMBDA)
-    (,lambda-tag:internal-lambda . LAMBDA)
-    (,lambda-tag:internal-lexpr . LAMBDA)
-    (,lambda-tag:let . LET)
-    (,lambda-tag:fluid-let . FLUID-LET)))
-
-(define (special-form-procedure-name? name)
-  (let ((association (assq name special-form-procedure-names)))
-    (and association
-	 (symbol-name (cdr association)))))
-
 (define (continuation->frames continuation)
   (let loop ((frame (stack-frame/skip-non-subproblems (continuation->stack-frame continuation)))
              (frames '()))
@@ -46,14 +31,7 @@
 
 (define (format-environment environment)
   (let ((name (and (environment? environment) (environment-procedure-name environment))))
-
-;    (if (or (not name) (special-form-procedure-name? name))
-;      #f
-;      (format-name name))
-
-     (format-name name)
-
-      ))
+    (format-name name)))
 
 (define (format-expression expression)
   (cond

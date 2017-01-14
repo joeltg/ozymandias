@@ -9,6 +9,9 @@ import CodeMirror from 'codemirror';
 const mac = CodeMirror.keyMap["default"] == CodeMirror.keyMap.macDefault;
 const ctrl = mac ? "Cmd-" : "Ctrl-";
 
+const print_open = "#|";
+const print_close = "|#";
+
 const icon_elements = [];
 const icon_collection = document.getElementsByClassName('icon');
 for (let i = 0; icon_collection[i]; i++) icon_elements.push(icon_collection[i]);
@@ -175,10 +178,20 @@ const save_input = document.createElement('input');
 save_input.type = 'text';
 save_prompt.appendChild(save_input);
 
+const test = text =>
+    (text.substring(0, print_open.length) !== print_open ||
+    (text.substring(text.length - print_close.length, text.length) !== print_close));
+
+function getText() {
+    return editor.getValue();
+    // const delimiter = '\n';
+    // return editor.getValue(delimiter).split(delimiter).filter(test).join(delimiter);
+}
+
 function send_save() {
     if (save_input.value) {
         const name = save_input.value;
-        const text = editor.getValue();
+        const text = getText();
         state.filename = name;
         set_filename(name);
         clean = true;
@@ -218,4 +231,4 @@ document.addEventListener('keydown', function(e) {
         }
     }
 });
-export {cm_open, cm_save, open, save, load, help, set_visibility}
+export {cm_open, cm_save, open, save, load, help, set_visibility, test}

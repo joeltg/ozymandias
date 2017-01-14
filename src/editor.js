@@ -7,6 +7,7 @@ import {defaults, strip, state} from './utils';
 import {Expression, modes} from './expression';
 import {send} from './connect';
 import {keywords} from './keywords';
+import {test} from './config';
 
 const marks = [];
 
@@ -33,6 +34,7 @@ const editor = CodeMirror(editor_element, {
         'Shift-Tab': tab(false),
     })
 });
+window.e = editor;
 
 editor.setCursor(2, 0);
 
@@ -85,21 +87,23 @@ function eval_document(cm) {
         const expressions = [];
         let open = false;
         cm.eachLine(line_handle => {
-            const line = cm.getLineNumber(line_handle);
-            const tokens = cm.getLineTokens(line);
-            tokens.forEach(token => {
-                const {start, end, type, state: {depth, mode}} = token;
-                if (depth === 0 && mode !== 'comment') {
-                    if (type === 'bracket') {
-                        if (open) {
-                            expressions.push({start: open, end: {line: line_handle, ch: end}});
-                            open = false;
-                        } else open = {line: line_handle, ch: start};
-                    } else if (type === 'comment') {
+            if (test(line_handle.text)) {
+                const line = cm.getLineNumber(line_handle);
+                const tokens = cm.getLineTokens(line);
+                tokens.forEach(token => {
+                    const {start, end, type, state: {depth, mode}} = token;
+                    if (depth === 0 && mode !== 'comment') {
+                        if (type === 'bracket') {
+                            if (open) {
+                                expressions.push({start: open, end: {line: line_handle, ch: end}});
+                                open = false;
+                            } else open = {line: line_handle, ch: start};
+                        } else if (type === 'comment') {
 
-                    } else expressions.push({start: {line: line_handle, ch: start}, end: {line: line_handle, ch: end}});
-                }
-            });
+                        } else expressions.push({start: {line: line_handle, ch: start}, end: {line: line_handle, ch: end}});
+                    }
+                });
+            }
         });
         if (expressions.length > 0) {
             state.expressions = expressions;
@@ -151,19 +155,28 @@ function pop_expression() {
     evaluate(text, {line});
 }
 
+
 function push([text, latex]) {
     if (state.error) {
-
+        console.log('error', text, latex);
     } else {
         const {position} = state;
         if (position) {
             editor.setCursor(position);
-            editor.replaceRange('\n' + strip(text) + '\n', position, position);
+            const line = position.line + 1;
+            const nextLine = editor.getLine(line);
+            const nextNextLine = editor.getLine(line + 1);
+
+            if (nextLine && !test(nextLine)) editor.replaceRange('\n\n', position, {line: line + 1});
+            else if (nextLine || nextLine === undefined) editor.replaceRange('\n\n', position);
+            else if (nextNextLine || nextNextLine === undefined) editor.replaceRange('\n', position);
             state.position = editor.getCursor();
+
+            const start = {line, ch: 0}, end = {line};
+            editor.replaceRange(strip(text), start, end);
+
             if (latex) {
                 const expression = new Expression(text, latex, defaults.mode_index);
-                const start = {line: position.line + 1, ch: 0};
-                const end = {line: state.position.line - 1};
                 const mark = editor.markText(start, end, {
                     replacedWith: expression.node,
                     inclusiveLeft: false,
@@ -172,6 +185,16 @@ function push([text, latex]) {
                 expression.mark = mark;
                 mark.expression = expression;
                 marks.push(mark);
+            } else {
+                const element = document.createElement('span');
+                element.textContent = strip(text);
+                element.className = 'cm-comment';
+
+                const mark = editor.markText(start, end, {
+                    replacedWith: element,
+                    inclusiveLeft: false,
+                    inclusiveRight: true
+                });
             }
         }
         if (state.expressions && state.expressions.length > 0) pop_expression();

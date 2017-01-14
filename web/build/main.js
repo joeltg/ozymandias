@@ -12938,7 +12938,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.set_visibility = exports.help = exports.load = exports.save = exports.open = exports.cm_save = exports.cm_open = undefined;
+	exports.test = exports.set_visibility = exports.help = exports.load = exports.save = exports.open = exports.cm_save = exports.cm_open = undefined;
 
 	var _connect = __webpack_require__(34);
 
@@ -12958,6 +12958,9 @@
 
 	var mac = _codemirror2.default.keyMap["default"] == _codemirror2.default.keyMap.macDefault;
 	var ctrl = mac ? "Cmd-" : "Ctrl-";
+
+	var print_open = "#|";
+	var print_close = "|#";
 
 	var icon_elements = [];
 	var icon_collection = document.getElementsByClassName('icon');
@@ -13134,10 +13137,20 @@
 	save_input.type = 'text';
 	save_prompt.appendChild(save_input);
 
+	var test = function test(text) {
+	    return text.substring(0, print_open.length) !== print_open || text.substring(text.length - print_close.length, text.length) !== print_close;
+	};
+
+	function getText() {
+	    return _editor.editor.getValue();
+	    // const delimiter = '\n';
+	    // return editor.getValue(delimiter).split(delimiter).filter(test).join(delimiter);
+	}
+
 	function send_save() {
 	    if (save_input.value) {
 	        var name = save_input.value;
-	        var text = _editor.editor.getValue();
+	        var text = getText();
 	        _utils.state.filename = name;
 	        set_filename(name);
 	        clean = true;
@@ -13188,6 +13201,7 @@
 	exports.load = load;
 	exports.help = help;
 	exports.set_visibility = set_visibility;
+	exports.test = test;
 
 /***/ },
 /* 36 */
@@ -13215,6 +13229,8 @@
 	var _connect = __webpack_require__(34);
 
 	var _keywords = __webpack_require__(31);
+
+	var _config = __webpack_require__(35);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -13245,6 +13261,7 @@
 	        'Shift-Tab': tab(false)
 	    })
 	});
+	window.e = editor;
 
 	editor.setCursor(2, 0);
 
@@ -13308,25 +13325,27 @@
 	            var expressions = [];
 	            var open = false;
 	            cm.eachLine(function (line_handle) {
-	                var line = cm.getLineNumber(line_handle);
-	                var tokens = cm.getLineTokens(line);
-	                tokens.forEach(function (token) {
-	                    var start = token.start,
-	                        end = token.end,
-	                        type = token.type,
-	                        _token$state = token.state,
-	                        depth = _token$state.depth,
-	                        mode = _token$state.mode;
+	                if ((0, _config.test)(line_handle.text)) {
+	                    var line = cm.getLineNumber(line_handle);
+	                    var tokens = cm.getLineTokens(line);
+	                    tokens.forEach(function (token) {
+	                        var start = token.start,
+	                            end = token.end,
+	                            type = token.type,
+	                            _token$state = token.state,
+	                            depth = _token$state.depth,
+	                            mode = _token$state.mode;
 
-	                    if (depth === 0 && mode !== 'comment') {
-	                        if (type === 'bracket') {
-	                            if (open) {
-	                                expressions.push({ start: open, end: { line: line_handle, ch: end } });
-	                                open = false;
-	                            } else open = { line: line_handle, ch: start };
-	                        } else if (type === 'comment') {} else expressions.push({ start: { line: line_handle, ch: start }, end: { line: line_handle, ch: end } });
-	                    }
-	                });
+	                        if (depth === 0 && mode !== 'comment') {
+	                            if (type === 'bracket') {
+	                                if (open) {
+	                                    expressions.push({ start: open, end: { line: line_handle, ch: end } });
+	                                    open = false;
+	                                } else open = { line: line_handle, ch: start };
+	                            } else if (type === 'comment') {} else expressions.push({ start: { line: line_handle, ch: start }, end: { line: line_handle, ch: end } });
+	                        }
+	                    });
+	                }
 	            });
 	            if (expressions.length > 0) {
 	                _utils.state.expressions = expressions;
@@ -13396,17 +13415,27 @@
 	        text = _ref4[0],
 	        latex = _ref4[1];
 
-	    if (_utils.state.error) {} else {
+	    if (_utils.state.error) {
+	        console.log('error', text, latex);
+	    } else {
 	        var position = _utils.state.position;
 
 	        if (position) {
 	            editor.setCursor(position);
-	            editor.replaceRange('\n' + (0, _utils.strip)(text) + '\n', position, position);
+	            var line = position.line + 1;
+	            var nextLine = editor.getLine(line);
+	            var nextNextLine = editor.getLine(line + 1);
+
+	            if (nextLine && !(0, _config.test)(nextLine)) editor.replaceRange('\n\n', position, { line: line + 1 });else if (nextLine || nextLine === undefined) editor.replaceRange('\n\n', position);else if (nextNextLine || nextNextLine === undefined) editor.replaceRange('\n', position);
 	            _utils.state.position = editor.getCursor();
+
+	            var start = { line: line, ch: 0 },
+	                end = { line: line };
+	            editor.replaceRange((0, _utils.strip)(text), start, end);
+
 	            if (latex) {
 	                var expression = new _expression.Expression(text, latex, _utils.defaults.mode_index);
-	                var start = { line: position.line + 1, ch: 0 };
-	                var end = { line: _utils.state.position.line - 1 };
+	                // const start = {line, ch: 0}, end = {line: line + 1};
 	                var mark = editor.markText(start, end, {
 	                    replacedWith: expression.node,
 	                    inclusiveLeft: false,
@@ -13415,6 +13444,16 @@
 	                expression.mark = mark;
 	                mark.expression = expression;
 	                marks.push(mark);
+	            } else {
+	                var element = document.createElement('span');
+	                element.textContent = (0, _utils.strip)(text);
+	                element.className = 'cm-comment';
+
+	                var _mark = editor.markText(start, end, {
+	                    replacedWith: element,
+	                    inclusiveLeft: false,
+	                    inclusiveRight: true
+	                });
 	            }
 	        }
 	        if (_utils.state.expressions && _utils.state.expressions.length > 0) pop_expression();
@@ -13468,11 +13507,12 @@
 	};
 
 	function strip(string) {
-	    for (var s = string.substr(0, 1); s === '\n' || s === ' '; s = string.substr(0, 1)) {
-	        string = string.substr(1);
-	    }for (var _s = string.substr(string.length - 1); _s === '\n' || _s === ' '; _s = string.substr(string.length - 1)) {
-	        string = string.substr(0, string.length - 1);
-	    }return string;
+	    // for (let s = string.substr(0, 1); s === '\n' || s === ' '; s = string.substr(0, 1))
+	    //     string = string.substr(1);
+	    // for (let s = string.substr(string.length - 1); s === '\n' || s === ' '; s = string.substr(string.length - 1))
+	    //     string = string.substr(0, string.length - 1);
+	    // return string;
+	    return string.split('\n').join(' ');
 	}
 
 	exports.strip = strip;

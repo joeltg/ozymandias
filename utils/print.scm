@@ -1,3 +1,6 @@
+(define print-open "#|")
+(define print-close "|#")
+
 (define simplifiable?
   (reduce disjunction identity (list symbol? list? vector? procedure?)))
 
@@ -7,24 +10,27 @@
     (expression->tex-string object))))
 
 (define (print-undefined)
-  (send 0 "\"#| No return value |#\""))
+  (send 0 (string-append "\"" print-open " No return value " print-close "\"")))
 
 (define (print-string string)
   (send 0 (string->json string)))
 
 (define (print-unsimplifiable object environment)
   (let ((string (open-output-string)))
-    (write-string "#| " string)
+    (write-string print-open string)
+    (write-string " " string)
     (write object string environment)
-    (write-string " |#" string)
+    (write-string " " string)
+    (write-string print-close string)
     (print-string (get-output-string string))))
 
 (define (print-complex val)
   (let ((string (open-output-string))
         (latex (get-latex val)))
-    (write-string "#|\n" string)
+    (write-string print-open string)
+    (newline string)
     (pp val string)
-    (write-string "|#" string)
+    (write-string print-close string)
     (if (string? latex)
       (send 0 (string->json (get-output-string string)) (string->json latex))
       (print-string (get-output-string string)))))
