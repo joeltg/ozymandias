@@ -71,13 +71,15 @@ html, body {
 .panel span {  margin: 0 4px;  }
 .panel input {  color: black;  }
 .panel {
-    max-height: 512px;
     overflow: auto;
     background: #eb5;
 }
 
 .panel table {
     margin: 4px;
+    max-height: 256px;
+    display: block;
+    overflow: auto;
 }
 
 .panel .focus {
