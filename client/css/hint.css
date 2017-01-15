@@ -19,6 +19,7 @@
     right: 0;
     width: 36px;
     height: 36px;
+    margin: 8px;
 }
 
 li {
@@ -28,11 +29,12 @@ li {
 
 h2 {
     margin: 4px;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 #filename {
-    margin: 4px 4px 0 4px;
+    margin: 4px;
+    font-size: 18px;
 }
 
 #filename + hr {
@@ -108,10 +110,6 @@ form, input, label {
     -ms-user-select: none;
     user-select: none;
     cursor: pointer;
-}
-
-.hint > span {
-    font-size: 18px;
 }
 
 .hint > span + span {

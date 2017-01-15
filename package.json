@@ -64,6 +64,7 @@
   "dependencies": {
     "cookie-parser": "^1.4.3",
     "express": "^4.14.0",
+    "express-handlebars": "^3.0.0",
     "express-session": "^1.14.2",
     "passport": "^0.3.2",
     "passport-saml": "^0.15.0",

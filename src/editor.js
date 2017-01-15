@@ -190,7 +190,7 @@ function push([text, latex]) {
                 element.textContent = strip(text);
                 element.className = 'cm-comment';
 
-                const mark = editor.markText(start, end, {
+                editor.markText(start, end, {
                     replacedWith: element,
                     inclusiveLeft: false,
                     inclusiveRight: true

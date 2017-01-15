@@ -114,46 +114,59 @@ set_theme(defaults.theme);
 
 editor.focus();
 
-const filename = document.getElementById('filename');
-function set_filename(name, changed) {
-    const path = window.location.pathname.split('/');
-    const title = 'Lambda: ' + name;
-    document.title = title + (changed ? '∙' : '');
-    filename.textContent = name + (changed ? '∙' : '');
-    if (path.length > 1 && path[path.length - 2] === 'files') history.pushState({}, title, name);
-    else history.pushState({}, title, "files/" + name);
+const banner = document.getElementById('filename');
+function set_banner(changed) {
+    let text = 'Lambda';
+    if (state.user && state.file) text = `${state.user}: ${state.file}`;
+    else if (state.user) text = state.user;
+    else if (state.file) text = state.file;
+    if (changed) text += '∙';
+    document.title = text;
+    banner.textContent = text;
 }
+
+set_banner();
 
 let clean = true;
 let dialog = false;
 
 const dialogText = 'Unsaved changes will be lost!';
 window.onbeforeunload = function(e) {
-    if (clean || !state.filename) return null;
+    if (clean || !state.file) return null;
     e.returnValue = dialogText;
     return dialogText;
 };
 
 editor.on('change', function(cm, change) {
-    if (state.filename && !cm.isClean() && clean) {
-        set_filename(state.filename, true);
+    if (state.file && !cm.isClean() && clean) {
+        set_banner(true);
         clean = false;
     }
 });
 
+
+function move(file) {
+    editor.clearHistory();
+    const path = location.pathname.split('/');
+    if (path && path.pop() && path.pop() === 'files') history.pushState({}, file, file);
+    else history.pushState({}, file, 'files/' + file);
+    history.replaceState({}, file, file);
+    state.file = file;
+    send('load', {file});
+    if (dialog) dialog();
+    dialog = false;
+}
+
+function make(file) {
+    const button = document.createElement('button');
+    button.textContent = file;
+    button.addEventListener('click', e => move(file));
+    open_files.appendChild(button);
+}
+
 function open(files) {
     open_files.innerHTML = '';
-    files.forEach(function(name, index) {
-        const button = document.createElement('button');
-        button.textContent = name;
-        button.addEventListener('click', function(e) {
-            if (dialog) dialog();
-            dialog = false;
-            state.filename = name;
-            send('load', {name});
-        });
-        open_files.appendChild(button);
-    });
+    files.forEach(make);
     if (files.length === 0) open_files.textContent = 'No files found';
     input.focus();
 }
@@ -161,7 +174,7 @@ function open(files) {
 function load(data) {
     editor.setValue(data || '');
     editor.markClean();
-    set_filename(state.filename);
+    set_banner();
     clean = true;
     editor.focus();
 }
@@ -187,13 +200,7 @@ const input = document.createElement('input');
 new_label.textContent = 'New file: ';
 input.type = 'text';
 input.placeholder = 'Enter filename';
-const create = name => {
-    state.filename = name;
-    send('load', {name});
-    if (dialog) dialog();
-    dialog = false;
-};
-input.addEventListener('keydown', e => e.keyCode === 13 && create(input.value));
+input.addEventListener('keydown', e => e.keyCode === 13 && move(input.value));
 new_prompt.appendChild(new_label);
 new_prompt.appendChild(input);
 
@@ -215,18 +222,12 @@ const test = text =>
     (text.substring(0, print_open.length) !== print_open ||
     (text.substring(text.length - print_close.length, text.length) !== print_close));
 
-function getText() {
-    return editor.getValue();
-    // const delimiter = '\n';
-    // return editor.getValue(delimiter).split(delimiter).filter(test).join(delimiter);
-}
-
 function send_save() {
     if (save_input.value) {
         const name = save_input.value;
-        const text = getText();
-        state.filename = name;
-        set_filename(name);
+        const text = editor.getValue();
+        state.file = name;
+        set_banner(name);
         clean = true;
         editor.markClean();
         send('save', {name, text});
@@ -239,7 +240,7 @@ function onInput(event, value) {
 
 function cm_save(cm) {
     if (!cm.isClean()) {
-        if (state.filename) save_input.value = state.filename;
+        if (state.file) save_input.value = state.file;
         cm.openDialog(save_prompt, send_save, {onInput});
     }
 }

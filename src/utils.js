@@ -19,10 +19,11 @@ const defaults = {
 };
 
 const state = {
+    user: window.user,
+    file: window.file,
     position: false,
     windows: {},
     canvases: {},
-    filename: false,
     expressions: {},
     visibility: defaults.visibility,
     theme: defaults.theme,

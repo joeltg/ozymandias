@@ -124,9 +124,6 @@
 	    * Created by joel on 8/20/16.
 	    */
 
-	var auth = function auth(content) {
-	    return (0, _connect.send)('auth', { user: false });
-	};
 	function data(message) {
 	    switch (message[0]) {
 	        case 0:
@@ -145,7 +142,6 @@
 
 	var sources = {
 	    data: data,
-	    auth: auth,
 	    open: _config.open,
 	    save: _config.save,
 	    load: _config.load,
@@ -163,7 +159,6 @@
 
 	(0, _utils.log)('connecting to server...\n');
 
-	var path = window.location.pathname.split('/');
 	_connect.socket.onmessage = function (event) {
 	    return pipe(JSON.parse(event.data));
 	};
@@ -171,12 +166,7 @@
 	    return console.error(event);
 	};
 	_connect.socket.onopen = function (event) {
-	    (0, _utils.log)('connected.\n');
-	    if (path.length > 1 && path[path.length - 2] === 'files') {
-	        var name = path[path.length - 1];
-	        _utils.state.filename = name;
-	        (0, _connect.send)('load', { name: name });
-	    }
+	    return (0, _utils.log)('connected.\n');
 	};
 
 /***/ },
@@ -12924,7 +12914,7 @@
 	 * Created by joel on 8/28/16.
 	 */
 
-	var socket = new WebSocket(websocket_url || "ws://" + window.location.hostname + ":1947");
+	var socket = new WebSocket("ws://" + window.location.hostname + ":1947/" + window.uuid);
 
 	function send(source, content) {
 	    if (socket.readyState === 1) {
@@ -13080,45 +13070,56 @@
 
 	_editor.editor.focus();
 
-	var filename = document.getElementById('filename');
-	function set_filename(name, changed) {
-	    var path = window.location.pathname.split('/');
-	    var title = 'Lambda: ' + name;
-	    document.title = title + (changed ? '∙' : '');
-	    filename.textContent = name + (changed ? '∙' : '');
-	    if (path.length > 1 && path[path.length - 2] === 'files') history.pushState({}, title, name);else history.pushState({}, title, "files/" + name);
+	var banner = document.getElementById('filename');
+	function set_banner(changed) {
+	    var text = 'Lambda';
+	    if (_utils.state.user && _utils.state.file) text = _utils.state.user + ': ' + _utils.state.file;else if (_utils.state.user) text = _utils.state.user;else if (_utils.state.file) text = _utils.state.file;
+	    if (changed) text += '∙';
+	    document.title = text;
+	    banner.textContent = text;
 	}
+
+	set_banner();
 
 	var clean = true;
 	var dialog = false;
 
 	var dialogText = 'Unsaved changes will be lost!';
 	window.onbeforeunload = function (e) {
-	    if (clean || !_utils.state.filename) return null;
+	    if (clean || !_utils.state.file) return null;
 	    e.returnValue = dialogText;
 	    return dialogText;
 	};
 
 	_editor.editor.on('change', function (cm, change) {
-	    if (_utils.state.filename && !cm.isClean() && clean) {
-	        set_filename(_utils.state.filename, true);
+	    if (_utils.state.file && !cm.isClean() && clean) {
+	        set_banner(true);
 	        clean = false;
 	    }
 	});
 
+	function move(file) {
+	    var path = location.pathname.split('/');
+	    if (path && path.pop() && path.pop() === 'files') history.pushState({}, file, file);else history.pushState({}, file, 'files/' + file);
+	    history.replaceState({}, file, file);
+	    _utils.state.file = file;
+	    (0, _connect.send)('load', { file: file });
+	    if (dialog) dialog();
+	    dialog = false;
+	}
+
+	function make(file) {
+	    var button = document.createElement('button');
+	    button.textContent = file;
+	    button.addEventListener('click', function (e) {
+	        return move(file);
+	    });
+	    open_files.appendChild(button);
+	}
+
 	function open(files) {
 	    open_files.innerHTML = '';
-	    files.forEach(function (name, index) {
-	        var button = document.createElement('button');
-	        button.textContent = name;
-	        button.addEventListener('click', function (e) {
-	            if (dialog) dialog();
-	            dialog = false;
-	            _utils.state.filename = name;
-	            (0, _connect.send)('load', { name: name });
-	        });
-	        open_files.appendChild(button);
-	    });
+	    files.forEach(make);
 	    if (files.length === 0) open_files.textContent = 'No files found';
 	    input.focus();
 	}
@@ -13126,7 +13127,7 @@
 	function load(data) {
 	    _editor.editor.setValue(data || '');
 	    _editor.editor.markClean();
-	    set_filename(_utils.state.filename);
+	    set_banner();
 	    clean = true;
 	    _editor.editor.focus();
 	}
@@ -13151,14 +13152,8 @@
 	new_label.textContent = 'New file: ';
 	input.type = 'text';
 	input.placeholder = 'Enter filename';
-	var create = function create(name) {
-	    _utils.state.filename = name;
-	    (0, _connect.send)('load', { name: name });
-	    if (dialog) dialog();
-	    dialog = false;
-	};
 	input.addEventListener('keydown', function (e) {
-	    return e.keyCode === 13 && create(input.value);
+	    return e.keyCode === 13 && move(input.value);
 	});
 	new_prompt.appendChild(new_label);
 	new_prompt.appendChild(input);
@@ -13191,8 +13186,8 @@
 	    if (save_input.value) {
 	        var name = save_input.value;
 	        var text = getText();
-	        _utils.state.filename = name;
-	        set_filename(name);
+	        _utils.state.file = name;
+	        set_banner(name);
 	        clean = true;
 	        _editor.editor.markClean();
 	        (0, _connect.send)('save', { name: name, text: text });
@@ -13205,7 +13200,7 @@
 
 	function cm_save(cm) {
 	    if (!cm.isClean()) {
-	        if (_utils.state.filename) save_input.value = _utils.state.filename;
+	        if (_utils.state.file) save_input.value = _utils.state.file;
 	        cm.openDialog(save_prompt, send_save, { onInput: onInput });
 	    }
 	}
@@ -13488,7 +13483,7 @@
 	                element.textContent = (0, _utils.strip)(text);
 	                element.className = 'cm-comment';
 
-	                var _mark = editor.markText(start, end, {
+	                editor.markText(start, end, {
 	                    replacedWith: element,
 	                    inclusiveLeft: false,
 	                    inclusiveRight: true
@@ -13534,10 +13529,11 @@
 	};
 
 	var state = {
+	    user: window.user,
+	    file: window.file,
 	    position: false,
 	    windows: {},
 	    canvases: {},
-	    filename: false,
 	    expressions: {},
 	    visibility: defaults.visibility,
 	    theme: defaults.theme,
@@ -38937,7 +38933,7 @@
 	        main: path.resolve(__dirname, 'src', 'main.js')
 	    },
 	    output: {
-	        path: path.resolve(__dirname, 'web', 'build'),
+	        path: path.resolve(__dirname, 'client', 'build'),
 	        filename: '[name].js'
 	    },
 	    module: {

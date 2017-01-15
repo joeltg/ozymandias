@@ -37,7 +37,6 @@ import {error} from './error';
 import {canvas} from './canvas';
 
 const pipe = ({source, content}) => sources[source](content);
-const auth = content => send('auth', {user: false});
 function data(message) {
     switch (message[0]) {
         case 0: // eval
@@ -53,7 +52,6 @@ function data(message) {
 
 const sources = {
     data,
-    auth,
     open,
     save,
     load,
@@ -71,14 +69,6 @@ CodeMirror.commands.interrupt = cm => {
 
 log('connecting to server...\n');
 
-const path = window.location.pathname.split('/');
 socket.onmessage = event => pipe(JSON.parse(event.data));
 socket.onerror   = event => console.error(event);
-socket.onopen    = event => {
-    log('connected.\n');
-    if (path.length > 1 && path[path.length - 2] === 'files') {
-        const name = path[path.length - 1];
-        state.filename = name;
-        send('load', {name});
-    }
-};
+socket.onopen    = event => log('connected.\n');

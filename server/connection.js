@@ -3,13 +3,13 @@
 const fs = require('fs');
 const cp = require('child_process');
 const path = require('path');
-const uuid = require('uuid/v4');
 
 const delimiter = '\n';
 
-const users = {[path.resolve(__dirname, '..', 'jail')]: true};
 const initialize = path.resolve(__dirname, 'initialize.sh');
 const start = path.resolve(__dirname, 'start.sh');
+
+const jail = path.resolve(__dirname, '..', 'jail');
 
 // There are four states in the lifecycle of a Connection
 // 1. Constructed (connected === false && open === false && pid === null)
@@ -19,12 +19,16 @@ const start = path.resolve(__dirname, 'start.sh');
 // Although states 3 and 4 are essentially identical and are only every briefly out of sync.
 
 class Connection {
-    constructor(user) {
+    constructor(user, file, uuid) {
         this.user = user;
-        this.uuid = uuid();
-        this.args = [this.user, this.uuid];
-        this.files = path.resolve(this.user, 'files');
+        this.file = file;
+        this.uuid = uuid;
+        this.path = this.user ? path.resolve(__dirname, '..', 'users', this.user) : jail;
+        this.pipe = path.resolve(this.path, 'pipes', this.uuid);
+        this.args = [this.path, this.uuid];
+        this.files = path.resolve(this.path, 'files');
         this.buffer = '';
+        this.socket = null;
         this.connected = false;
         this.open = false;
         this.pid = null;
@@ -32,14 +36,12 @@ class Connection {
     message({source, content}) {
         if (source === 'save' && this.open) {
             const {name, text} = content;
-            const file = this.file(name);
+            const file = this.find(name);
             fs.writeFile(file, text, 'utf8', error => this.send('save', !error));
         }
         else if (source === 'load') {
-            const {name} = content;
-            const file = this.file(name);
-            console.log(file);
-            fs.readFile(file, 'utf8', (error, text) => this.send('load', text || ''));
+            const {file} = content;
+            fs.readFile(this.find(file), 'utf8', (error, text) => this.send('load', text || ''));
         }
         else if (source === 'open') fs.readdir(this.files, (error, files) => this.send('open', files));
         else if (source === 'eval' && this.open ) this.scheme.stdin.write(content);
@@ -66,42 +68,45 @@ class Connection {
 
         // clean up state 2
         if (connected && this.socket.readyState === 1) {
+            fs.unlink(this.path, this.error('remove pipe'));
             this.connected = false;
             this.socket.close();
             this.socket = null;
         }
     }
+    error(source, dispatch) {
+        if (dispatch) return (error, message) => error ? console.error(source, error) : dispatch(message);
+        else return error => console.error(source, error);
+    }
     connect(socket) {
         this.connected = true;
         this.socket = socket;
 
+        if (this.file) fs.readFile(this.find(this.file), 'utf8', (error, text) => this.send('load', text || ''));
+
         socket.on('message', data => this.message(JSON.parse(data)));
-        socket.on('error', error => console.error('socket', error));
+        socket.on('error', this.error('socket'));
         socket.on('close', event => {
             this.connected = false;
             this.close();
         });
 
-        cp.execFile(initialize, this.args, {}, error => error ? console.error('initialize', error) : this.initialize());
+        cp.execFile(initialize, this.args, {}, this.error('initialize', () => this.initialize()));
     }
     initialize() {
-
-        const pipe_path = path.resolve(this.user, 'pipes', this.uuid);
-        const pipe = fs.createReadStream(pipe_path);
-        pipe.on('data', data => this.pipe(data));
-        pipe.on('error', error => console.error('pipe', error));
+        fs.createReadStream(this.pipe).on('data', data => this.push(data)).on('error', this.error('pipe'));
 
         this.scheme = cp.spawn(start, this.args, {});
         this.open = true;
 
-        this.scheme.on('error', error => console.error('scheme', error));
+        this.scheme.on('error', this.error('scheme'));
         this.scheme.on('exit', (code, signal) => {
             this.pid = false;
             this.open = false;
             this.close();
         });
 
-        this.scheme.stdout.on('error', error => console.error('scheme stdout', error));
+        this.scheme.stdout.on('error', this.error('scheme stdout'));
         this.scheme.stdout.on('data', data => {
             if (this.pid) this.send('stdout', data.toString());
             else this.pid = +data.toString().trim();
@@ -119,13 +124,13 @@ class Connection {
             console.error(error);
         }
     }
-    pipe(data) {
+    push(data) {
         const values = (this.buffer + data).split(delimiter);
         this.buffer = values.pop();
         values.forEach(value => this.data(value));
     }
-    file(name) {
-        return path.resolve(this.user, 'files', name.split('/').join('-'));
+    find(name) {
+        return path.resolve(this.path, 'files', name.split('/').join('-'));
     }
 }
 
