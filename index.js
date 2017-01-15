@@ -12,7 +12,6 @@ const handlebars = require('express-handlebars');
 // const {Strategy} = require('passport-saml');
 
 const ws = require('uws');
-const render = require('./server/render');
 const Connection = require('./server/connection');
 const index = path.resolve(__dirname, 'client', 'index.html');
 const socket_port = 1947;
