@@ -34,10 +34,8 @@ const editor = CodeMirror(editor_element, {
         'Shift-Tab': tab(false),
     })
 });
-window.e = editor;
-
+window.cm = editor;
 editor.setCursor(2, 0);
-
 CodeMirror.commands['eval-document']= eval_document;
 CodeMirror.commands['eval-expression'] = eval_expression;
 CodeMirror.registerHelper('hintWords', 'scheme', keywords.sort());
@@ -65,9 +63,6 @@ function view(cm, delta) {
     updates.forEach(mark => mark.expression.update(index) && mark.changed());
     return true;
 }
-
-document.cm = editor;
-
 
 function eval_expression(cm) {
     if (state.error) complain(cm);

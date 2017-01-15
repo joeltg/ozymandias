@@ -16,7 +16,12 @@ const jail = path.resolve(__dirname, '..', 'jail');
 // 2. Connected   (connected === true && open === false && pid === null)
 // 3. Initialized (connected === true && open === true && pid === null)
 // 4. Open        (connected === true && open === true && pid === ###)
-// Although states 3 and 4 are essentially identical and are only every briefly out of sync.
+// Although states 3 and 4 are essentially identical and are only every briefly out of sync during birth (not death)
+
+// A connection is constructed (1) with new Connection(user, file, uuid), when a new client first requests the page.
+// Then it is connected (2) with connection.connect(socket), when the client creates its WebSocket.
+// Then it is initialized immediately afterwards, but still asynchronously with cp.execFile(initialize...).
+// And finally, it is opened when the start script echoes its pid to stdout.
 
 class Connection {
     constructor(user, file, uuid) {
@@ -49,7 +54,7 @@ class Connection {
         else console.error('invalid source', source);
     }
     close() {
-        // close() takes states 4, 3, and 2 to state 1
+        // close() takes states 4, 3, and 2 all to state 1
         // due to callbacks from other listeners, close() is almost always called several times during one exit
 
         const {pid, open, connected} = this;
@@ -74,8 +79,7 @@ class Connection {
         }
     }
     error(source, dispatch) {
-        if (dispatch) return (error, message) => error ? console.error(source, error) : dispatch(message);
-        else return error => error && console.error(source, error);
+        return (error, message) => error ? console.error(source, error) : (dispatch && dispatch(message));
     }
     connect(socket) {
         this.connected = true;
@@ -118,6 +122,7 @@ class Connection {
         }
     }
     data(value) {
+        // we're not *really* guaranteed to receive only valid JSON from the pipe
         try {
             this.send('data', JSON.parse(value));
         } catch (error) {

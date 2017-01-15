@@ -145,7 +145,6 @@ form, input, label {
 
 .graphics-frame > tr + tr > td {
     position: relative;
-    min-width: 24px;
 }
 
 .graphics-frame > tr + tr > td + td {
