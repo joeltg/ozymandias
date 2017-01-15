@@ -68,7 +68,6 @@ class Connection {
 
         // clean up state 2
         if (connected && this.socket.readyState === 1) {
-            fs.unlink(this.path, this.error('remove pipe'));
             this.connected = false;
             this.socket.close();
             this.socket = null;
@@ -76,7 +75,7 @@ class Connection {
     }
     error(source, dispatch) {
         if (dispatch) return (error, message) => error ? console.error(source, error) : dispatch(message);
-        else return error => console.error(source, error);
+        else return error => error && console.error(source, error);
     }
     connect(socket) {
         this.connected = true;
@@ -87,6 +86,7 @@ class Connection {
         socket.on('message', data => this.message(JSON.parse(data)));
         socket.on('error', this.error('socket'));
         socket.on('close', event => {
+            fs.unlink(this.pipe, this.error('remove pipe'));
             this.connected = false;
             this.close();
         });
