@@ -109,7 +109,7 @@ function eval_document(cm) {
 
 function select_expression(line, token) {
     const start = {line, ch: token.start}, end = {line, ch: token.end};
-    if (token.type === 'bracket') return get_paren_block(end);
+    if (token.type === 'bracket') return get_paren_block(end, token);
     else if (token.type === 'string') start.ch -= 1;
     return {start, end};
 }
@@ -123,11 +123,12 @@ function get_outer_expression(cm, {line, ch}) {
                 return select_expression(line, tokens[i]);
 }
 
-function get_paren_block(position) {
+function get_paren_block(position, token) {
     const parens = editor.findMatchingBracket(position);
     if (parens && parens.match) {
         const start = parens.forward ? parens.from : parens.to;
         const end = parens.forward ? parens.to : parens.from;
+        if ((token.string === '[' || token.string === ']') && editor.getLine(start.line)[start.ch - 1] === '#') start.ch -= 1;
         end.ch += 1;
         state.position = {line: end.line + 1, ch: 0};
         editor.setCursor(state.position);
@@ -153,7 +154,7 @@ function pop_expression() {
 
 function push([text, latex]) {
     if (state.error) {
-        console.log('error', text, latex);
+        console.error(text, latex);
     } else {
         const {position} = state;
         if (position) {

@@ -32,11 +32,6 @@ const state = {
 };
 
 function strip(string) {
-    // for (let s = string.substr(0, 1); s === '\n' || s === ' '; s = string.substr(0, 1))
-    //     string = string.substr(1);
-    // for (let s = string.substr(string.length - 1); s === '\n' || s === ' '; s = string.substr(string.length - 1))
-    //     string = string.substr(0, string.length - 1);
-    // return string;
     return string.split('\n').join(' ');
 }
 

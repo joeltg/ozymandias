@@ -298,6 +298,7 @@ const keywords = [
     'floor->exact',
     'fluid-let',
     'flush-output',
+    'fold',
     'fold-left',
     'fold-right',
     'for-all?',
