@@ -29,7 +29,7 @@ function respond(req, res) {
     if (user in users) {
         const uuid = uuidV4();
         connections[uuid] = new Connection(user, file, uuid);
-        res.render('index', {uuid, user, file});
+        res.render('index.html', {uuid, user, file});
     } else {
         res.redirect('/' + (file ? ('files/' + file) : ''))
     }
