@@ -7,8 +7,7 @@ const uuidV4 = require('uuid/v4');
 const handlebars = require('express-handlebars');
 
 const ws = require('uws');
-const Connection = require('./server/connection');
-const index = path.resolve(__dirname, 'client', 'index.html');
+const Connection = require('./connection');
 const socket_port = 1947;
 const server_port = process.argv[2] || 3000;
 
@@ -16,14 +15,17 @@ const log = true;
 
 const connections = {};
 const users = {[undefined]: true};
-fs.readdir(path.resolve(__dirname, 'users'), (error, files) => error || files.forEach(file => users[file] = true));
+fs.readdir(path.resolve(__dirname, '..', 'users'), (error, files) => error || files.forEach(file => users[file] = true));
 
 const app = express();
 
 app.engine('html', handlebars({extname: '.html'}));
 app.set('view engine', 'html');
 app.set('views', path.resolve(__dirname, 'views'));
-app.use(express.static(path.resolve(__dirname, 'client')));
+app.use('/images', express.static(path.resolve(__dirname, '..', 'client', 'images')));
+app.use('/build', express.static(path.resolve(__dirname, '..', 'client', 'build')));
+app.use('/css', express.static(path.resolve(__dirname, '..', 'client', 'css')));
+
 
 function respond(req, res) {
     const {user, file} = req.params;

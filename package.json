@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodejs index.js 3000",
-    "pro": "sudo nodejs index.js",
+    "dev": "nodejs server/index.js 3000",
+    "production": "sudo nodejs server/index.js 80",
     "build": "./node_modules/webpack/bin/webpack.js webpack.config.js"
   },
   "repository": {
@@ -51,7 +51,6 @@
     "babel-preset-stage-0": "^6.5.0",
     "codemirror": "^5.17.0",
     "css-loader": "^0.23.1",
-    "d3": "^4.3.0",
     "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "^0.9.0",
     "json-loader": "^0.5.4",
