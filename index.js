@@ -22,6 +22,7 @@ const app = express();
 
 app.engine('html', handlebars({extname: '.html'}));
 app.set('view engine', 'html');
+app.set('views', path.resolve(__dirname, 'views'));
 app.use(express.static(path.resolve(__dirname, 'client')));
 
 function respond(req, res) {
