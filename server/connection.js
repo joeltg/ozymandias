@@ -57,7 +57,11 @@ class Connection {
         // close() takes states 4, 3, and 2 all to state 1
         // due to callbacks from other listeners, close() is almost always called several times during one exit
 
-        const {pid, open, connected} = this;
+        const {pid, pipe, open, connected} = this;
+        if (pipe) {
+            this.pipe = null;
+            fs.unlink(pipe, this.error('remove pipe'));
+        }
         // clean up state 4
         if (pid) {
             this.pid = null;
@@ -90,7 +94,6 @@ class Connection {
         socket.on('message', data => this.message(JSON.parse(data)));
         socket.on('error', this.error('socket'));
         socket.on('close', event => {
-            fs.unlink(this.pipe, this.error('remove pipe'));
             this.connected = false;
             this.close();
         });
