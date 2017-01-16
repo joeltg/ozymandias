@@ -8,6 +8,8 @@ logs
 
 *.~*~
 
+client/build
+
 .idea/
 schroot/
 legacy/

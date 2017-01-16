@@ -117,10 +117,13 @@ function select_expression(line, token) {
 // father forgive me, for I know not what I do
 function get_outer_expression(cm, {line, ch}) {
     let tokens = cm.getLineTokens(line);
-    for (tokens = tokens.filter(token => token.start < ch); line > -1; tokens = cm.getLineTokens(--line))
-        for (let i = tokens.length - 1; i > -1; i--)
-            if (tokens[i].state.depth === 0)
+    for (tokens = tokens.filter(token => token.start < ch); line > -1; tokens = cm.getLineTokens(--line)) {
+        for (let i = tokens.length - 1; i > -1; i--) {
+            if (tokens[i].state.depth === 0 && tokens[i].type !== 'comment' && tokens[i].state.mode !== 'comment') {
                 return select_expression(line, tokens[i]);
+            }
+        }
+    }
 }
 
 function get_paren_block(position, token) {

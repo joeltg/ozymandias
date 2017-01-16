@@ -31,6 +31,8 @@ const state = {
     error: false
 };
 
+window.state = state;
+
 function strip(string) {
     return string.split('\n').join(' ');
 }
