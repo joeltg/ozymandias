@@ -128,6 +128,7 @@ function set_filename(changed) {
     const title = (user || 'Lambda') + (file ? `: ${file}${changed ? '∙' : ''}` : '');
     filename.textContent = title;
     document.title = title;
+    history.replaceState({}, title, (user ? '/users/' + user : '/') + (file ? '/files/' + file : ''));
 }
 
 set_filename();
@@ -152,10 +153,10 @@ editor.on('change', function(cm, change) {
 
 function move(file) {
     editor.clearHistory();
-    const path = location.pathname.split('/');
-    if (path && path.pop() && path.pop() === 'files') history.pushState({}, file, file);
-    else history.pushState({}, file, 'files/' + file);
-    history.replaceState({}, file, file);
+    // const path = location.pathname.split('/');
+    // if (path && path.pop() && path.pop() === 'files') history.pushState({}, file, file);
+    // else history.pushState({}, file, 'files/' + file);
+    // history.replaceState({}, file, file);
     state.file = file;
     send('load', {file});
     if (dialog) dialog();
