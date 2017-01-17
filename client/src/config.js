@@ -114,18 +114,23 @@ set_theme(defaults.theme);
 
 editor.focus();
 
-const banner = document.getElementById('filename');
-function set_banner(changed) {
-    let text = 'Lambda';
-    if (state.user && state.file) text = `${state.user}: ${state.file}`;
-    else if (state.user) text = state.user;
-    else if (state.file) text = state.file;
-    if (changed) text += '∙';
-    document.title = text;
-    banner.textContent = text;
+const filename = document.getElementById('filename');
+const login = document.getElementById('login');
+function set_filename(changed) {
+    const {user, file} = state;
+    if (user) {
+        login.href = '/logout';
+        login.textContent = 'Logout';
+    } else {
+        login.href = '/login';
+        login.textContent = 'Login';
+    }
+    const title = (user || 'Lambda') + (file ? `: ${file}${changed ? '∙' : ''}` : '');
+    filename.textContent = title;
+    document.title = title;
 }
 
-set_banner();
+set_filename();
 
 let clean = true;
 let dialog = false;
@@ -139,7 +144,7 @@ window.onbeforeunload = function(e) {
 
 editor.on('change', function(cm, change) {
     if (state.file && !cm.isClean() && clean) {
-        set_banner(true);
+        set_filename(true);
         clean = false;
     }
 });
@@ -174,7 +179,7 @@ function open(files) {
 function load(data) {
     editor.setValue(data || '');
     editor.markClean();
-    set_banner();
+    set_filename();
     clean = true;
     editor.focus();
 }
@@ -227,7 +232,7 @@ function send_save() {
         const name = save_input.value;
         const text = editor.getValue();
         state.file = name;
-        set_banner(name);
+        set_filename(name);
         clean = true;
         editor.markClean();
         send('save', {name, text});

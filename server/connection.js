@@ -24,10 +24,11 @@ const jail = path.resolve(__dirname, '..', 'jail');
 // And finally, it is opened when the start script echoes its pid to stdout.
 
 class Connection {
-    constructor(user, file, uuid) {
+    constructor(user, file, uuid, exit) {
         this.user = user;
         this.file = file;
         this.uuid = uuid;
+        this.exit = exit;
         this.path = this.user ? path.resolve(__dirname, '..', 'users', this.user) : jail;
         this.pipe = path.resolve(this.path, 'pipes', this.uuid);
         this.args = [this.path, this.uuid];
@@ -48,7 +49,7 @@ class Connection {
             const {file} = content;
             fs.readFile(this.find(file), 'utf8', (error, text) => this.send('load', text || ''));
         }
-        else if (source === 'open') fs.readdir(this.files, (error, files) => this.send('open', files));
+        else if (source === 'open') fs.readdir(this.files, (error, files) => this.send('open', files || []));
         else if (source === 'eval' && this.open ) this.scheme.stdin.write(content);
         else if (source === 'kill' && this.open ) this.pid ? process.kill(this.pid, content) : null;
         else console.error('invalid source', source);
@@ -56,6 +57,8 @@ class Connection {
     close() {
         // close() takes states 4, 3, and 2 all to state 1
         // due to callbacks from other listeners, close() is almost always called several times during one exit
+
+        this.exit();
 
         const {pid, pipe, open, connected} = this;
         if (pipe) {

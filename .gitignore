@@ -1,6 +1,7 @@
 # Certificates and Keys
 keys/
 certs/
+.env
 
 # Logs
 logs
