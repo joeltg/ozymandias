@@ -125,7 +125,7 @@ function set_filename(changed) {
         login.href = '/login';
         login.textContent = 'Login';
     }
-    const title = (user || 'Lambda') + (file ? `: ${file}${changed ? '∙' : ''}` : '');
+    const title = (user || 'Lambda') + (file ? ': ' + file : '') + (changed ? ' ∙' : '');
     filename.textContent = title;
     document.title = title;
     history.replaceState({}, title, (user ? '/users/' + user : '/') + (file ? '/files/' + file : ''));
