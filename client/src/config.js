@@ -128,7 +128,7 @@ function set_filename(changed) {
     const title = (user || 'Lambda') + (file ? ': ' + file : '') + (changed ? ' ∙' : '');
     filename.textContent = title;
     document.title = title;
-    history.replaceState({}, title, location.host + (user ? '/users/' + user : '/') + (file ? '/files/' + file : ''));
+    history.replaceState({}, title, location.host + (user ? '/users/' + user : '') + (file ? '/files/' + file : ''));
 }
 
 set_filename();
