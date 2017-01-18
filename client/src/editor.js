@@ -28,7 +28,7 @@ const editor = CodeMirror(editor_element, {
     indentUnit: 2,
     indentWithTabs: false,
     keyMap: defaults.keyMap,
-    value: ';;;; Lambda v0.1\n\n',
+    value: ';;;; Lambda v0.2\n\n',
     extraKeys: CodeMirror.normalizeKeyMap({
         'Tab': tab(true),
         'Shift-Tab': tab(false),
