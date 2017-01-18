@@ -59,7 +59,7 @@ function response(req, res) {
 }
 
 
-dotenv.config({path: root});
+dotenv.config({path: path.resolve(root, '.env')});
 const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
 const username = process.env.USERNAME;
