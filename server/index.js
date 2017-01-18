@@ -15,6 +15,7 @@ const ws = require('uws');
 const Connection = require('./connection');
 const socket_port = 1947;
 const server_port = process.argv[2] || 3000;
+const production = !process.argv[3];
 
 const log = true;
 
@@ -37,17 +38,6 @@ app.use('/images', express.static(path.resolve(root, 'client', 'images')));
 app.use('/build', express.static(path.resolve(root, 'client', 'build')));
 app.use('/css', express.static(path.resolve(root, 'client', 'css')));
 
-function respond(req, res) {
-    const {user, file} = req.params;
-    if (user in users) {
-        const uuid = uuidV4();
-        connections[uuid] = new Connection(user, file, uuid, () => delete connections[uuid]);
-        res.render('index.html', {uuid, user, file});
-    } else {
-        res.redirect('/' + (file ? ('files/' + file) : ''))
-    }
-}
-
 function response(req, res) {
     const {user, file} = req.params;
     const uuid = uuidV4();
@@ -65,85 +55,87 @@ const client_secret = process.env.CLIENT_SECRET;
 const username = process.env.USERNAME;
 const headers = {'Accept': 'application/json', 'User-Agent': username};
 
-function loginResponse(req, res) {
-    const {file} = req.query;
-    const {lambda} = req.cookies;
-    if (lambda) {
-        const {login, access_token} = JSON.parse(lambda);
-        if (login === tokens[access_token]) {
-            res.redirect(`/users/${login}${file ? ('/files/' + file) : ''}`);
-        } else {
-            res.clearCookie('lambda', {path: '/'});
-            res.render('error.html', {error: 'Error: authentication failed. Maybe refreshing will help?'});
-        }
-    } else {
-        const uuid = uuidV4();
-        const url = `https://github.com/login/oauth/authorize?client_id=${client_id}&state=${uuid}`;
-        connections[uuid] = false;
-        res.redirect(url);
-    }
-}
-
-function authResponse(req, res) {
-    const {code, state} = req.query;
-    const {lambda} = req.cookies;
-    if (code && state && connections[state] === false) {
-        const url = 'https://github.com/login/oauth/access_token/';
-        const qs = {client_id, client_secret, code, state};
-        request.post({url, qs, headers}, function(error, response, body) {
-            const {access_token} = JSON.parse(body);
-            const options = {url: 'https://api.github.com/user', qs: {access_token}, headers};
-            request.get(options, function(error, response, body) {
-                const {login} = JSON.parse(body);
-                cp.execFile(path.resolve(root, 'make-user.sh'), [login, access_token], {cwd: root}, function(error) {
-                    if (error) {
-                        res.render('error.html', {error: 'Error creating new user:' + error.toString()});
-                    } else {
-                        const url = `/users/${login}`;
-                        tokens[access_token] = login;
-                        users[login] = true;
-                        res.cookie('lambda', JSON.stringify({login, access_token}), {path: '/', maxAge: 31540000000});
-                        res.redirect(url);
-                    }
-                });
-            });
-        });
-    } else {
-        res.render('error.html', {error: 'Error in GitHub OAuth: state mismatch. Maybe refreshing will help?'});
-    }
-}
-
-function userResponse(req, res) {
-    const {user, file} = req.params;
-    const {lambda} = req.cookies;
-    if (lambda) {
-        const {login, access_token} = JSON.parse(lambda);
-        if ((login === user) && (tokens[access_token] === user)) {
-            response(req, res);
-        } else if (login === tokens[access_token]) {
-            res.redirect(`/users/${login}/${file ? '/files/' + file : ''}`);
-        } else {
-            res.clearCookie('lambda', {path: '/'});
-            res.render('error.html', {error: 'Error in authentication. Maybe refreshing will help?'})
-        }
-    } else {
-        res.redirect('/login' + (file ? ('?=' + file) : ''));
-    }
-}
-
 app.get('/', response);
 app.get('/files/:file', response);
 
-app.get('/login', loginResponse);
-app.get('/auth', authResponse);
+if (production) {
+    function loginResponse(req, res) {
+        const {file} = req.query;
+        const {lambda} = req.cookies;
+        if (lambda) {
+            const {login, access_token} = JSON.parse(lambda);
+            if (login === tokens[access_token]) {
+                res.redirect(`/users/${login}${file ? ('/files/' + file) : ''}`);
+            } else {
+                res.clearCookie('lambda', {path: '/'});
+                res.render('error.html', {error: 'Error: authentication failed. Maybe refreshing will help?'});
+            }
+        } else {
+            const uuid = uuidV4();
+            const url = `https://github.com/login/oauth/authorize?client_id=${client_id}&state=${uuid}`;
+            connections[uuid] = false;
+            res.redirect(url);
+        }
+    }
 
-app.get('/users/:user/', userResponse);
-app.get('/users/:user/files/:file', userResponse);
+    function authResponse(req, res) {
+        const {code, state} = req.query;
+        const {lambda} = req.cookies;
+        if (code && state && connections[state] === false) {
+            const url = 'https://github.com/login/oauth/access_token/';
+            const qs = {client_id, client_secret, code, state};
+            request.post({url, qs, headers}, function(error, response, body) {
+                const {access_token} = JSON.parse(body);
+                const options = {url: 'https://api.github.com/user', qs: {access_token}, headers};
+                request.get(options, function(error, response, body) {
+                    const {login} = JSON.parse(body);
+                    cp.execFile(path.resolve(root, 'make-user.sh'), [login, access_token], {cwd: root}, function(error) {
+                        if (error) {
+                            res.render('error.html', {error: 'Error creating new user:' + error.toString()});
+                        } else {
+                            const url = `/users/${login}`;
+                            tokens[access_token] = login;
+                            users[login] = true;
+                            res.cookie('lambda', JSON.stringify({login, access_token}), {path: '/', maxAge: 31540000000});
+                            res.redirect(url);
+                        }
+                    });
+                });
+            });
+        } else {
+            res.render('error.html', {error: 'Error in GitHub OAuth: state mismatch. Maybe refreshing will help?'});
+        }
+    }
 
-app.get('/logout', function(req, res) {
-    res.clearCookie('lambda', {path: '/'});
-    res.redirect('/');
-});
+    function userResponse(req, res) {
+        const {user, file} = req.params;
+        const {lambda} = req.cookies;
+        if (lambda) {
+            const {login, access_token} = JSON.parse(lambda);
+            if ((login === user) && (tokens[access_token] === user)) {
+                response(req, res);
+            } else if (login === tokens[access_token]) {
+                res.redirect(`/users/${login}/${file ? '/files/' + file : ''}`);
+            } else {
+                res.clearCookie('lambda', {path: '/'});
+                res.render('error.html', {error: 'Error in authentication. Maybe refreshing will help?'})
+            }
+        } else {
+            res.redirect('/login' + (file ? ('?=' + file) : ''));
+        }
+    }
+
+    app.get('/login', loginResponse);
+    app.get('/auth', authResponse);
+
+    app.get('/users/:user/', userResponse);
+    app.get('/users/:user/files/:file', userResponse);
+
+    app.get('/logout', function(req, res) {
+        res.clearCookie('lambda', {path: '/'});
+        res.redirect('/');
+    });
+}
 
 app.listen(server_port);
 

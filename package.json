@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodejs server/index.js 3000",
+    "dev": "nodejs server/index.js 3000 true",
     "production": "sudo nodejs server/index.js 80",
     "build": "./node_modules/webpack/bin/webpack.js webpack.config.js"
   },
