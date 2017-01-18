@@ -15,7 +15,7 @@ const ws = require('uws');
 const Connection = require('./connection');
 const socket_port = 1947;
 const server_port = process.argv[2] || 3000;
-const production = !process.argv[3];
+const production = !!process.argv[3];
 
 const log = true;
 
