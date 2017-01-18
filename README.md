@@ -1,60 +1,52 @@
 # lambda
 
-Scheme is a beautiful language, but outside of Emacs it can be difficult to use. 
-This project delivers Scheme as a modern IDE experience in the browser.
-Actual computation is done on a server, which interfaces with the client over the WebSocket protocol.
+Scheme is a beautiful language, but for those afraid of Emacs it can be difficult to use, and things that are difficult to use are difficult to learn.
+This project is a modern MIT Scheme environment in the browser that tries to be beginner-friendly.
+Actual computation is done on a server, which interfaces with the client over a WebSocket.
 
 ## Usage
 
 The editor is a high-level abstraction on top of both input and output, where expressions can be evaluated inline and values can be visualized in generic ways. 
-This is a little different than the usual editor/repl split, and is more similar to LightTable or the Hydrogen Atom plugin than traditional editors.
+This is a little different than the usual editor/repl split, and is more similar to LightTable or the Hydrogen plugin for Atom than traditional editors.
+
+For example, typing `(apply vector (map square (iota 3)))` in the editor and then evaluating it with `Ctrl-Enter` will print the commented result `#(0 1 4)` below the expression. But we can also tab between Scheme object and TeX representations of results:
+
+![such graphics, many latex](lambda.gif)
+
+You can also do a ton of fun symbolic computing thanks to [scmutils](https://groups.csail.mit.edu/mac/users/gjs/6946/refman.txt):
+
+![much symbol, so algebra](lambda2.gif)
 
 The help panel summarizes the available keyboard shortcuts and commands - if you're already used to Emacs or Sublime, most of the existing commands should work here as well.
 
 ## Installation
-These instructions assume Ubuntu 14.04 or higher.
-They'll probably work also with earlier versions, other *nixes, and maybe even macOS, but that's never been tried.
+These instructions assume you want to host your own server and have Ubuntu 14.04 or higher.
+It probably works with earlier versions, other \*nixes, and maybe even macOS, but that's never been tried.
+If you try to run it on Windows, Prof. Sussman will hunt you down and throw chalk at you.
 
-You need Node v6+. If you don't have it, get it:
+You also need Node v6+ and `schroot`, if you don't already.
+Before running the server, you need to configure some schroot jails:
 ```
-curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
-sudo apt-get install -y nodejs
+sudo ./make-schroot.sh
 ```
-You also need `git` and `schroot`, if you don't already:
+and then finally:
 ```
-sudo apt-get install -y git schroot
-```
-Clone this repo into `<path>`:
-```
-git clone https://github.com/joeltg/lambda.git
-.git
-cd lambda
-npm install --production
-```
-There's some setup that has to be done to configure the schroot jails.
-Here, `<path>` is the absolute path to the cloned `lambda` directory (inclusive).
-```
-sudo ./schroot.sh <path>
-```
-Now start the server:
-```
+npm install
+npm run build
 npm run dev
 > socket listening on port 1947
 > server listening on port 3000
 ```
-Then navigate to `http://localhost:3000`.
+... and it's live on `http://localhost:3000`! Amazing.
 
 ## Notes
 
 ### Authentication
-This is designed to be extensible.
-As such, it is built to support multiple user accounts and authentication mechanisms.
-The directions above create a default user that is used by default in the client-side code in `src/authentication.js`; however this can easily be adapted to an auth system of your choice.
+I'm using GitHub for authentication and user accounts right now,b ut it's designed to be pretty extensible. 
+Any scheme (ha) you implement just has to execute `./make-user.sh [user]` to create a user, and pass the appropriate `user` name into every new `Connection`. The default is the `null` user, which is a public, shared schroot directory in `/jail`.
 
-### Building from source
-The directions above only install the minimum dependencies to run the server.
-The contents of the `web` directory are generated with Webpack and Babel, so if you want to make any changes you'll have to run `npm install`.
-Make your changes in `src`, then run `npm run build` to regenerate the JavaScript and CSS assets that the Express server actually serves to the client.
+### Extension
+For every client connection, the server starts a new schroot jail from the appropriate user's folder (so that `/users/[user]/files/[foo.scm]` is mounted at `/files/[foo.scm]`). The schroot jail also creates a read-only mount of `/root`, which contains the actual Scheme library and some extra utilities. You can add files in here and they'll show up in all the schroots.
 
 ### Credits
 
