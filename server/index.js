@@ -10,7 +10,6 @@ const handlebars = require('express-handlebars');
 const cookieParser = require('cookie-parser');
 
 const dotenv = require('dotenv');
-dotenv.config();
 
 const ws = require('uws');
 const Connection = require('./connection');
@@ -59,6 +58,8 @@ function response(req, res) {
     res.render('index.html', {uuid, user, file});
 }
 
+
+dotenv.config({path: root});
 const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
 const username = process.env.USERNAME;
