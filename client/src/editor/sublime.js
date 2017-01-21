@@ -576,6 +576,8 @@ map[ctrl + "Down"] = "next";
 map[ctrl + "Enter"] = "eval-expression";
 map[ctrl + "Shift-Enter"] = "eval-document";
 
+map[ctrl + 'Shift-Backspace'] = 'clear-values';
+
 map[ctrl + "Shift-H"] = "help";
 
 map[ctrl + "O"] = "open";

@@ -22,9 +22,9 @@ import 'codemirror/addon/selection/active-line';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
 
-import './sublime';
-import './scheme';
-import './emacs';
+import './editor/sublime';
+import './editor/scheme';
+import './editor/emacs';
 
 import './hint';
 
@@ -32,9 +32,9 @@ import {send, socket} from './connect';
 import {cm_open, cm_save, help, open, save, load} from './config';
 import {state, log} from './utils';
 
-import {push, view} from './editor';
-import {error} from './error';
-import {canvas} from './canvas';
+import {push, view} from './editor/editor';
+import {error} from './error/error';
+import {canvas} from './graphics/canvas';
 
 const pipe = ({source, content}) => sources[source](content);
 function data(message) {
@@ -72,3 +72,4 @@ log('connecting to server...\n');
 socket.onmessage = event => pipe(JSON.parse(event.data));
 socket.onerror   = event => console.error(event);
 socket.onopen    = event => log('connected.\n');
+socket.onclose   = event => log('\nlost connection to server\n');

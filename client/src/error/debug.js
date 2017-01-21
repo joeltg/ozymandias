@@ -1,9 +1,9 @@
 /**
  * Created by joelg on 1/2/17.
  */
-import {editor} from './editor';
-import {state} from './utils';
-import {send} from './connect';
+import {editor} from '../editor/editor';
+import {state} from '../utils';
+import {send} from '../connect';
 
 const commands = {
     'A': 'show All bindings in current environment and its ancestors',

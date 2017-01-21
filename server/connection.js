@@ -65,6 +65,7 @@ class Connection {
             this.pipe = null;
             fs.unlink(pipe, this.error('remove pipe'));
         }
+
         // clean up state 4
         if (pid) {
             this.pid = null;

@@ -3,7 +3,7 @@
  */
 
 import {send} from './connect';
-import {editor, editor_element} from './editor';
+import {editor, editor_element} from './editor/editor';
 import {state, defaults} from './utils';
 import CodeMirror from 'codemirror';
 const mac = CodeMirror.keyMap["default"] == CodeMirror.keyMap.macDefault;
@@ -36,6 +36,11 @@ const labels = [
         element: document.getElementById('eval-document'),
         emacs: 'Ctrl-X Ctrl-A',
         sublime: ctrl + 'Shift-Enter'
+    },
+    {
+        element: document.getElementById('clear-values'),
+        emacs: 'Ctrl-X Ctrl-U',
+        sublime: ctrl + 'Shift-Backspace'
     },
     {
         element: document.getElementById('view'),
@@ -187,7 +192,10 @@ function load(data) {
 
 const save_notification = document.createElement('span');
 function save(data) {
-    if (data) save_notification.textContent = 'Saved successfully';
+    if (data) {
+        save_notification.textContent = 'Saved successfully';
+        set_filename(false);
+    }
     else save_notification.textContent = 'Save failed';
     editor.openNotification(save_notification, {duration: 3000});
 }
@@ -259,6 +267,7 @@ document.addEventListener('keydown', function(e) {
         } else if (state.error) {
             editor.execCommand('interrupt');
         }
+        editor.focus();
     } else if (e.keyCode === 9) {
         if (state.error) {
             const {length, inputs, index} = state.error;

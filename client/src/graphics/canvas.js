@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
-import {state} from './utils';
-import {set_visibility} from './config';
-import {hints, update} from './hint';
+import {state} from '../utils';
+import {set_visibility} from '../config';
+import {hints, update} from '../hint';
 const {canvases} = state;
 
 const size = 300;

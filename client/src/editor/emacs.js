@@ -395,6 +395,7 @@ var keyMap = CodeMirror.keyMap.emacs = CodeMirror.normalizeKeyMap({
   "Ctrl-X Ctrl-A": "eval_document",
   "Ctrl-X Ctrl-R": "eval_selection",
   "Ctrl-X Ctrl-E": "eval_expression",
+  "Ctrl-X Ctrl-U": "clear-values",
   "Shift-Tab": "view",
   "Ctrl-C": "interrupt",
   "Alt-H": "help"

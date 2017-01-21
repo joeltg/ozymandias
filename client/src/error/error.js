@@ -2,9 +2,9 @@
  * Created by joelg on 11/17/16.
  */
 
-import {editor} from './editor';
-import {state} from './utils';
-import {send} from './connect';
+import {editor} from '../editor/editor';
+import {state} from '../utils';
+import {send} from '../connect';
 
 function clear(panel) {
     panel.clear();

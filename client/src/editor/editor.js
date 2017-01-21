@@ -3,11 +3,11 @@
  */
 
 import CodeMirror from 'codemirror';
-import {defaults, strip, state} from './utils';
-import {Expression, modes} from './expression';
-import {send} from './connect';
+import {defaults, strip, state} from '../utils';
+import {Expression, modes} from '../graphics/expression';
+import {send} from '../connect';
 import {keywords} from './keywords';
-import {test} from './config';
+import {test} from '../config';
 
 const marks = [];
 
@@ -36,6 +36,7 @@ const editor = CodeMirror(editor_element, {
 });
 window.cm = editor;
 editor.setCursor(2, 0);
+CodeMirror.commands['clear-values'] = clear_values;
 CodeMirror.commands['eval-document']= eval_document;
 CodeMirror.commands['eval-expression'] = eval_expression;
 CodeMirror.registerHelper('hintWords', 'scheme', keywords.sort());
@@ -198,6 +199,11 @@ function push([text, latex]) {
         }
         if (state.expressions && state.expressions.length > 0) pop_expression();
     }
+}
+
+function clear_values(cm) {
+    cm.setValue(cm.getValue().split('\n').filter(test).join('\n'));
+    cm.focus();
 }
 
 export {editor, editor_element, push, view}
