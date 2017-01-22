@@ -12,10 +12,8 @@ logs
 client/build
 
 .idea/
-schroot/
-legacy/
 users/
-jail/
+public/
 
 # Runtime data
 pids
