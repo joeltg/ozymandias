@@ -156,7 +156,7 @@ function pop_expression() {
 }
 
 
-function push([text, latex]) {
+function value([text, latex]) {
     if (state.error) {
         console.error(text, latex);
     } else {
@@ -206,4 +206,4 @@ function clear_values(cm) {
     cm.focus();
 }
 
-export {editor, editor_element, push, view}
+export {editor, editor_element, value, view}

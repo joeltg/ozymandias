@@ -18,6 +18,6 @@ function update(obj, state) {
     obj.element.nextElementSibling.style.display = display[state];
 }
 
-Object.keys(hints).map(k => hints[k]).forEach(e => e.element.onclick = _ => update(e, (e.state + 1) % 2));
+Object.keys(hints).map(k => hints[k]).forEach(e => e.element.onclick = event => update(e, (e.state + 1) % 2));
 
 export {hints, update};

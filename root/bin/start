@@ -1,3 +1,0 @@
-args=$1
-echo $$
-exec /bin/scheme --large --silent --library /lib --load /utils/load --args ${args}

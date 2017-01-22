@@ -4,9 +4,9 @@
 
 const socket = new WebSocket(`ws://${window.location.hostname}:1947/${window.uuid}`);
 
-function send(source, content) {
+function send(type, data) {
     if (socket.readyState === 1) {
-        socket.send(JSON.stringify({source, content}));
+        socket.send(JSON.stringify({type, data}));
     }
 }
 

@@ -22,6 +22,9 @@ import 'codemirror/addon/selection/active-line';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
 
+import './css/main.css';
+import './css/hint.css';
+
 import './editor/sublime';
 import './editor/scheme';
 import './editor/emacs';
@@ -30,33 +33,24 @@ import './hint';
 
 import {send, socket} from './connect';
 import {cm_open, cm_save, help, open, save, load} from './config';
-import {state, log} from './utils';
+import {state, stdout} from './utils';
 
-import {push, view} from './editor/editor';
+import {value, view} from './editor/editor';
 import {error} from './error/error';
 import {canvas} from './graphics/canvas';
 
-const pipe = ({source, content}) => sources[source](content);
-function data(message) {
-    switch (message[0]) {
-        case 0: // eval
-            return push(message.slice(1));
-        case 1: // error
-            return error(message.slice(1));
-        case 2: // canvas
-            return canvas(message.slice(1));
-        default:
-            console.error(message);
-    }
-}
-
-const sources = {
-    data,
+const types = {
+    canvas,
+    stdout,
+    value,
+    error,
     open,
     save,
-    load,
-    stdout: log
+    load
 };
+
+const pipe = ({type, data}) => types[type](data);
+
 
 CodeMirror.commands.view = view;
 CodeMirror.commands.help = help;
@@ -67,9 +61,9 @@ CodeMirror.commands.interrupt = cm => {
     send('kill', 'SIGINT');
 };
 
-log('connecting to server...\n');
+stdout('connecting to server...\n');
 
 socket.onmessage = event => pipe(JSON.parse(event.data));
 socket.onerror   = event => console.error(event);
-socket.onopen    = event => log('connected.\n');
-socket.onclose   = event => log('\nlost connection to server\n');
+socket.onopen    = event => stdout('connected.\n');
+socket.onclose   = event => console.log(event) || stdout('\nlost connection to server\n');

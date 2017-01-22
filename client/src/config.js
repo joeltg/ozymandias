@@ -163,7 +163,7 @@ function move(file) {
     // else history.pushState({}, file, 'files/' + file);
     // history.replaceState({}, file, file);
     state.file = file;
-    send('load', {file});
+    send('load', file);
     if (dialog) dialog();
     dialog = false;
 }

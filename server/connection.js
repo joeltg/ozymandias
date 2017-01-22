@@ -1,148 +1,85 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
-const cp = require('child_process');
 const path = require('path');
+const {MITScheme} = require('mit-scheme');
 
-const delimiter = '\n';
-
-const initialize = path.resolve(__dirname, 'initialize.sh');
-const start = path.resolve(__dirname, 'start.sh');
-
-const jail = path.resolve(__dirname, '..', 'jail');
-
-// There are four states in the lifecycle of a Connection
-// 1. Constructed (connected === false && open === false && pid === null)
-// 2. Connected   (connected === true && open === false && pid === null)
-// 3. Initialized (connected === true && open === true && pid === null)
-// 4. Open        (connected === true && open === true && pid === ###)
-// Although states 3 and 4 are essentially identical and are only every briefly out of sync during birth (not death)
-
-// A connection is constructed (1) with new Connection(user, file, uuid), when a new client first requests the page.
-// Then it is connected (2) with connection.connect(socket), when the client creates its WebSocket.
-// Then it is initialized immediately afterwards, but still asynchronously with cp.execFile(initialize...).
-// And finally, it is opened when the start script echoes its pid to stdout.
+const utf = 'utf8';
 
 class Connection {
-    constructor(user, file, uuid, exit) {
-        this.user = user;
+    constructor(name, file, exit) {
+        this.name = name;
         this.file = file;
-        this.uuid = uuid;
         this.exit = exit;
-        this.path = this.user ? path.resolve(__dirname, '..', 'users', this.user) : jail;
-        this.pipe = path.resolve(this.path, 'pipes', this.uuid);
-        this.args = [this.path, this.uuid];
-        this.files = path.resolve(this.path, 'files');
-        this.buffer = '';
+
+        this.files = null;
         this.socket = null;
+        this.scheme = null;
         this.connected = false;
         this.open = false;
-        this.pid = null;
-    }
-    message({source, content}) {
-        if (source === 'save' && this.open) {
-            const {name, text} = content;
-            const file = this.find(name);
-            fs.writeFile(file, text, 'utf8', error => this.send('save', !error));
-        }
-        else if (source === 'load') {
-            const {file} = content;
-            fs.readFile(this.find(file), 'utf8', (error, text) => this.send('load', text || ''));
-        }
-        else if (source === 'open') fs.readdir(this.files, (error, files) => this.send('open', files || []));
-        else if (source === 'eval' && this.open ) this.scheme.stdin.write(content);
-        else if (source === 'kill' && this.open ) this.pid ? process.kill(this.pid, content) : null;
-        else console.error('invalid source', source);
-    }
-    close() {
-        // close() takes states 4, 3, and 2 all to state 1
-        // due to callbacks from other listeners, close() is almost always called several times during one exit
-
-        this.exit();
-
-        const {pid, pipe, open, connected} = this;
-        if (pipe) {
-            this.pipe = null;
-            fs.unlink(pipe, this.error('remove pipe'));
-        }
-
-        // clean up state 4
-        if (pid) {
-            this.pid = null;
-            process.kill(pid, 'SIGKILL');
-        }
-
-        // clean up state 3
-        if (open) {
-            this.open = false;
-            process.kill(this.scheme.pid, 'SIGKILL');
-            this.scheme = null;
-        }
-
-        // clean up state 2
-        if (connected && this.socket.readyState === 1) {
-            this.connected = false;
-            this.socket.close();
-            this.socket = null;
-        }
-    }
-    error(source, dispatch) {
-        return (error, message) => error ? console.error(source, error) : (dispatch && dispatch(message));
     }
     connect(socket) {
-        this.connected = true;
         this.socket = socket;
-
-        if (this.file) fs.readFile(this.find(this.file), 'utf8', (error, text) => this.send('load', text || ''));
-
-        socket.on('message', data => this.message(JSON.parse(data)));
-        socket.on('error', this.error('socket'));
-        socket.on('close', event => {
+        this.connected = true;
+        this.socket.on('message', data => this.message(JSON.parse(data)));
+        this.socket.on('error', error => console.error(error));
+        this.socket.on('close', event => {
             this.connected = false;
             this.close();
         });
 
-        cp.execFile(initialize, this.args, {}, this.error('initialize', () => this.initialize()));
-    }
-    initialize() {
-        fs.createReadStream(this.pipe).on('data', data => this.push(data)).on('error', this.error('pipe'));
+        this.scheme = new MITScheme(this.name);
+        this.scheme.on('open', event => {
+            this.open = true;
+            this.files = this.scheme.files;
+            if (this.file) {
+                const file = this.find(this.file);
+                fs.readFile(file, utf, (error, text) => this.push('load', text || ''));
+            }
+        });
 
-        this.scheme = cp.spawn(start, this.args, {});
-        this.open = true;
-
-        this.scheme.on('error', this.error('scheme'));
-        this.scheme.on('exit', (code, signal) => {
-            this.pid = false;
+        this.scheme.on('data', data => this.send(data));
+        this.scheme.on('error', error => console.error(error));
+        this.scheme.on('close', event => {
             this.open = false;
             this.close();
         });
+    }
+    message({type, data}) {
+        if (type === 'save' && this.files) {
+            const {name, text} = data;
+            const file = this.find(name);
+            fs.writeFile(file, text, utf, error => this.push('save', !error));
+        }
+        else if (type === 'load' && this.files) fs.readFile(this.find(data), utf, (error, text) => this.push('load', text || ''));
+        else if (type === 'open' && this.files) fs.readdir(this.files, (error, files) => this.push('open', files || []));
+        else if (type === 'eval' && this.open) this.scheme.write(data);
+        else if (type === 'kill' && this.open) this.scheme.kill(data);
+        else console.error('invalid type', type);
+    }
+    close() {
+        this.exit(this.connected, this.open);
 
-        this.scheme.stdout.on('error', this.error('scheme stdout'));
-        this.scheme.stdout.on('data', data => {
-            if (this.pid) this.send('stdout', data.toString());
-            else this.pid = +data.toString().trim();
-        });
-    }
-    send(source, content) {
+        if (this.open && this.scheme.state === 3) {
+            this.open = false;
+            this.scheme.close();
+        }
+
         if (this.connected && this.socket.readyState === 1) {
-            this.socket.send(JSON.stringify({source, content}));
+            this.connected = false;
+            this.socket.close();
         }
     }
-    data(value) {
-        // we're not *really* guaranteed to receive only valid JSON from the pipe
-        try {
-            this.send('data', JSON.parse(value));
-        } catch (error) {
-            console.error(error);
+    send(message) {
+        if (this.connected && this.socket.readyState === 1) {
+            this.socket.send(message);
         }
     }
-    push(data) {
-        const values = (this.buffer + data).split(delimiter);
-        this.buffer = values.pop();
-        values.forEach(value => this.data(value));
+    push(type, data) {
+        this.send(JSON.stringify({type, data}));
     }
     find(name) {
-        return path.resolve(this.path, 'files', name.split('/').join('-'));
+        return path.resolve(this.files, name.split('/').join('-'));
     }
 }
 

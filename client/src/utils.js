@@ -2,11 +2,11 @@
  * Created by joel on 8/28/16.
  */
 
-const stdout = document.getElementById('stdout');
+const stdout_element = document.getElementById('stdout');
 
-function log(text) {
-    stdout.innerText += text;
-    stdout.scrollTop = stdout.scrollHeight;
+function stdout(text) {
+    stdout_element.innerText += text;
+    stdout_element.scrollTop = stdout_element.scrollHeight;
 }
 
 const defaults = {
@@ -37,4 +37,4 @@ function strip(string) {
     return string.split('\n').join(' ');
 }
 
-export {strip, state, defaults, stdout, log};
+export {strip, state, defaults, stdout};
