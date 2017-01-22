@@ -18,7 +18,7 @@ You can also do some fun symbolic computing thanks to [scmutils](https://groups.
 The help panel summarizes the available keyboard shortcuts and commands - if you're already used to Emacs or Sublime, most of the existing commands should work here as well. And if you're not, great! You don't really need them anyway - just click on the commands in the help panel instead.
 
 ## Installation
-Thing you need:
+Things you need:
 - [Node.js](https://nodejs.org/en/) v6+
 - [schroot](https://wiki.debian.org/Schroot)
 - Ubuntu 14.04+ / Debian 8+
@@ -48,9 +48,9 @@ Lambda is designed to support user accounts. There are two authentication module
 
 None of this would be possible without the incredible work of many free and open-source projects, and none of them get enough thanks:
 
-- scmutils
-- CodeMirror
-- D3.js
-- Katex
+- [scmutils](https://groups.csail.mit.edu/mac/users/gjs/6946/)
+- [CodeMirror](https://github.com/codemirror/CodeMirror)
+- [D3.js](https://github.com/d3/d3)
+- [Katex](https://github.com/Khan/KaTeX)
 
 And obligatory thanks to Professor Sussman for his indispensable insight and guidance.
