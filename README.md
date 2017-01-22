@@ -1,4 +1,4 @@
-# lambda
+# Ozymandias
 Scheme is a beautiful language, but for those afraid of Emacs it can be difficult to use, and things that are difficult to use are difficult to learn.
 This project is a modern MIT Scheme environment in the browser that tries its best to be friendly and usable.
 
@@ -43,7 +43,7 @@ sudo nodejs server/server.js
 Since each Scheme subprocess is sandboxed in a chroot jail, the server needs to be run with sudo permissions so it can write to `/etc/schroot` and manipulate file mounts. There's *probably* a way to get around this (pull requests welcomed) but if it's that concerning you probably shouldn't be doing it anyway - chroot jails are not that secure and you're literally letting strangers on the Internet execute code on your computer. Don't run this publicly on a machine you really care about.
 
 ### Authentication
-Lambda is designed to support user accounts. There are two authentication modules in `server/authentication/` for [MIT Touchstone](https://ist.mit.edu/touchstone) and [GitHub](https://developer.github.com/v3/), but it's designed to be extensible. Any scheme (ha) you want to implement just has to attach the appropriate routing middleware to the express app, and pass the appropriate username into every new `Connection`. The default is the `null` user, which is a public directory, readable and writable by everyone.
+Ozymandias is designed to support user accounts. There are two authentication modules in `server/authentication/` for [MIT Touchstone](https://ist.mit.edu/touchstone) and [GitHub](https://developer.github.com/v3/), but it's designed to be extensible. Any scheme (ha) you want to implement just has to attach the appropriate routing middleware to the express app, and pass the appropriate username into every new `Connection`. The default is the `null` user, which is a public directory, readable and writable by everyone.
 
 ## Credits
 
