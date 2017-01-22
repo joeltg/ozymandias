@@ -2,7 +2,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const {MITScheme} = require('mit-scheme');
+const root = path.resolve(__dirname, '..');
+const MITScheme = require('mit-scheme')(root, 'scheme');
 
 const utf = 'utf8';
 
