@@ -1,6 +1,6 @@
 {
   "name": "lambda",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "MIT Scheme IDE, mechanics utilities, and dark magic for the browser",
   "main": "index.js",
   "scripts": {
