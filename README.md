@@ -7,11 +7,11 @@ The editor is a little different than the usual editor/repl split, and is more s
 
 For example, typing `(apply vector (map square (iota 3)))` in the editor and then evaluating it with `Ctrl-Enter` (or `Cmd-Enter`) will print the commented result `#(0 1 4)` below. But we can also tab between Scheme and TeX representations of results:
 
-![such graphics, many latex](lambda.gif)
+![such graphics, many latex](http://joelgustafson.com/projects/ozymandias/lambda.gif)
 
 You can also do some fun symbolic computing thanks to [scmutils](https://groups.csail.mit.edu/mac/users/gjs/6946/refman.txt):
 
-![much symbol, so algebra](lambda2.gif)
+![much symbol, so algebra](http://joelgustafson.com/projects/ozymandias/lambda2.gif)
 
 The help panel summarizes the available keyboard shortcuts and commands - if you're already used to Emacs or Sublime, most of the existing commands should work here as well. And if you're not, great! You don't really need them anyway - just click on the commands in the help panel instead.
 
