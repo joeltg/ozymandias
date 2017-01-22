@@ -22,18 +22,14 @@ The help panel summarizes the available keyboard shortcuts and commands - if you
 ## Installation
 These instructions assume you want to host your own server and have Ubuntu 14.04 or higher.
 It probably works with earlier versions, other \*nixes, and maybe even macOS, but that's never been tried.
-If you try to run it on Windows, Prof. Sussman will hunt you down and throw chalk at you.
+If you try to run it on Windows, Gerry Sussman will hunt you down and throw chalk at you.
 
-You also need Node v6+ and `schroot`, if you don't already.
-Before running the server, you need to configure some schroot jails:
-```
-sudo ./make-schroot.sh
-```
-and then finally:
+You also need Node v6+ and `schroot`, if you don't already. Since each Scheme subprocess is sandboxed in a chroot jail, the server needs to be run with sudo permissions so it can write to `/etc/schroot` and manipulate file mounts.
+
 ```
 npm install
 npm run build
-npm run dev
+sudo nodejs server/server.js
 > socket listening on port 1947
 > server listening on port 3000
 ```
@@ -42,11 +38,7 @@ npm run dev
 ## Notes
 
 ### Authentication
-I'm using GitHub for authentication and user accounts right now,b ut it's designed to be pretty extensible. 
-Any scheme (ha) you implement just has to execute `./make-user.sh [user]` to create a user, and pass the appropriate `user` name into every new `Connection`. The default is the `null` user, which is a public, shared schroot directory in `/jail`.
-
-### Extension
-For every client connection, the server starts a new schroot jail from the appropriate user's folder (so that `/users/[user]/files/[foo.scm]` is mounted at `/files/[foo.scm]`). The schroot jail also creates a read-only mount of `/root`, which contains the actual Scheme library and some extra utilities. You can add files in here and they'll show up in all the schroots.
+Lambda is designed to support user accounts. I've written two authentication modules in `server/authentication/` for MIT Touchstone and GitHub, but it's designed to be extensible. Any scheme (ha) you want to implement just has to attach the appropriate routing middleware to the express app, and pass the appropriate username into every new `Connection`. The default is the `null` user, which is a shared directory, readable and writable by everyone.
 
 ### Credits
 
@@ -57,4 +49,4 @@ None of this would be possible without the incredible work of many free and open
 - D3.js
 - Katex
 
-And obligatory thanks to Prof. Gerry Sussman for his indispensable insight and guidance.
+And obligatory thanks to Professor Sussman for his indispensable insight and guidance.
