@@ -11,47 +11,10 @@ const modes = [
     'render_latex_display'
 ];
 
-const key = '\\matrix';
-const len = key.length;
-
-// This is a hack and will definitely break someday. I'm sorry.
-function fix_matrix(string, index) {
-    for (let i = index + len + 1, count = 0; i < string.length; i++) switch (string[i]) {
-        case '{':
-            count += 1;
-            break;
-        case '}':
-            if (count === 0) return replace(string, index, i);
-            count -= 1;
-            break;
-    }
-    return string;
-}
-
-function replace(string, index, i) {
-    const beginning = string.slice(0, index);
-    const middle = string.slice(index + len + 1, i);
-    const end = string.slice(i + 1);
-    return `${beginning}\\begin{matrix}${middle}\\end{matrix}${end}`;
-}
-
-function fix_matrices(string) {
-    let index, c = 0;
-    while ((index = string.indexOf(key)) > -1 && c++ < string.length / len) string = fix_matrix(string, index);
-    return string;
-}
-
 class Expression {
     constructor(string, tex, index) {
         this.string = string;
-        const key = '$$';
-        if (tex) {
-            const start = tex.indexOf(key) + key.length;
-            const end = tex.lastIndexOf(key);
-            this.latex = fix_matrices(tex.substring(start, end));
-        } else {
-            this.latex = false;
-        }
+        this.tex = tex;
         this.node = document.createElement('span');
         this.update(index);
     }
@@ -60,12 +23,12 @@ class Expression {
         this.node.className = 'cm-comment';
     }
     render_latex(mode) {
-        if (this.latex) {
+        if (this.tex) {
             this.node.textContent = '';
             this.node.className = 'cm-latex';
             const child = document.createElement('span');
             this.node.appendChild(child);
-            katex.render(this.latex, child, {displayMode: mode, throwOnError: false});
+            katex.render(this.tex, child, {displayMode: mode, throwOnError: false});
         } else {
             this.render_string();
         }
