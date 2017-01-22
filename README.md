@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="/styles/tufte.css">
+
 # lambda
 
 Scheme is a beautiful language, but for those afraid of Emacs it can be difficult to use, and things that are difficult to use are difficult to learn.
