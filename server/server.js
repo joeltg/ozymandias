@@ -11,8 +11,8 @@ const root = path.resolve(__dirname, '..');
 
 dotenv.config({path: path.resolve(root, '.env')});
 const auth = process.env.AUTH;
-const socket_port = +process.env.SOCKET_PORT;
-const server_port = +process.env.SERVER_PORT;
+const socket_port = +(process.env.SOCKET_PORT || 3000);
+const server_port = +(process.env.SERVER_PORT || 1947);
 
 const Connection = require('./connection');
 const connections = {};
