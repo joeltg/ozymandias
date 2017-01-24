@@ -6,38 +6,40 @@ const express = require('express');
 const uuidV4 = require('uuid/v4');
 const handlebars = require('express-handlebars');
 const ws = require('ws');
+const dotenv = require('dotenv');
+const root = path.resolve(__dirname, '..');
+
+dotenv.config({path: path.resolve(root, '.env')});
+const auth = process.env.AUTH;
+const socket_port = +process.env.SOCKET_PORT;
+const server_port = +process.env.SERVER_PORT;
 
 const Connection = require('./connection');
-const socket_port = 1947;
-const server_port = process.argv[2] || 3000;
-const authentication = process.argv[3];
-
 const connections = {};
-const client = path.resolve(__dirname, '..', 'client');
 
 const app = express();
 app.engine('html', handlebars({extname: '.html'}));
 app.set('view engine', 'html');
 app.set('views', path.resolve(__dirname, 'views'));
-app.use('/images', express.static(path.resolve(client, 'images')));
-app.use('/build', express.static(path.resolve(client, 'build')));
+app.use('/images', express.static(path.resolve(root, 'client', 'images')));
+app.use('/build', express.static(path.resolve(root, 'client', 'build')));
 
 function render(req, res) {
     const {user, file} = req.params;
     const uuid = uuidV4();
-    function close(connected, open) {
+    function exit(connected, open) {
         delete connections[uuid];
     }
-    connections[uuid] = new Connection(user, file, close);
-    res.render('index.html', {uuid, user, file});
+    connections[uuid] = new Connection(user, file, exit);
+    res.render('index.html', {uuid, user, file, auth, port: socket_port});
 }
 
 app.get('/', render);
 app.get('/files/:file', render);
 
-if (authentication === 'mit') {
+if (auth === 'mit') {
     require('./authentication/mit')(app, render);
-} else if (authentication === 'github') {
+} else if (auth === 'github') {
     require('./authentication/github')(app, render);
 }
 

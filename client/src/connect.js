@@ -2,7 +2,7 @@
  * Created by joel on 8/28/16.
  */
 
-const socket = new WebSocket(`ws://${window.location.hostname}:1947/${window.uuid}`);
+const socket = new WebSocket(`ws://${window.location.hostname}:${window.port}/${window.uuid}`);
 
 function send(type, data) {
     if (socket.readyState === 1) {

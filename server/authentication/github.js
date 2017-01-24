@@ -7,13 +7,9 @@ const path = require('path');
 const request = require('request');
 const uuidV4 = require('uuid/v4');
 const cookieParser = require('cookie-parser');
-const dotenv = require('dotenv');
 
 const tokens = {};
 const secrets = {};
-const root = path.resolve(__dirname, '..', '..');
-
-dotenv.config({path: path.resolve(root, '.env')});
 
 const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;

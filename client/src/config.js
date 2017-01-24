@@ -123,12 +123,16 @@ const filename = document.getElementById('filename');
 const login = document.getElementById('login');
 function set_filename(changed) {
     const {user, file} = state;
-    if (user) {
+    if (window.auth === '') {
+        login.href = '/';
+        login.textContent = '';
+        login.style.display = 'none';
+    } else if (user) {
         login.href = '/logout';
         login.textContent = 'Logout';
     } else {
         login.href = '/login';
-        login.textContent = 'Login';
+        login.textContent = window.auth + ' login';
     }
     const title = (user || 'Lambda') + (file ? ': ' + file : '') + (changed ? ' ∙' : '');
     filename.textContent = title;
