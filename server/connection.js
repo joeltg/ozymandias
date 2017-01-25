@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const root = path.resolve(__dirname, '..');
-const MITScheme = require('mit-scheme')(root, 'scheme');
+const MITScheme = require('../../mit-scheme')(root, 'scheme');
 
 const utf = 'utf8';
 
@@ -22,7 +22,7 @@ class Connection {
     connect(socket) {
         this.socket = socket;
         this.connected = true;
-        this.socket.on('message', data => this.message(JSON.parse(data)));
+        this.socket.on('message', ({utf8Data}) => this.message(JSON.parse(utf8Data)));
         this.socket.on('error', error => console.error(error));
         this.socket.on('close', event => {
             this.connected = false;
@@ -72,8 +72,8 @@ class Connection {
         }
     }
     send(message) {
-        if (this.connected && this.socket.readyState === 1) {
-            this.socket.send(message);
+        if (this.connected && this.socket.connected) {
+            this.socket.sendUTF(message);
         }
     }
     push(type, data) {
