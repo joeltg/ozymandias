@@ -3,18 +3,17 @@
  */
 
 import CodeMirror from 'codemirror';
-import {defaults, strip, state} from '../utils';
-import {Expression, modes} from '../graphics/expression';
+import {defaults, strip, state, test} from '../utils';
+import {Expression} from '../graphics/expression';
 import {send} from '../connect';
 import {keywords} from './keywords';
-import {test} from '../config';
 
 const marks = [];
 
 function tab(sign) {
     const direction = sign ? 1 : -1;
     const indentation = sign ? 'indentMore' : 'indentLess';
-    return cm => view(cm, direction) || cm.execCommand(indentation);
+    return cm => cm_view(cm, direction) || cm.execCommand(indentation);
 }
 
 const editor_element = document.getElementById('editor');
@@ -49,20 +48,20 @@ function complain(cm) {
     cm.openNotification(complain_notification, {duration: 3000});
 }
 
-function range(a, b, c) {
-    return (b.line >= a.line) && (b.line <= c.line);
-}
-
-function view(cm, delta) {
-    const start = cm.getCursor('from');
-    const end = cm.getCursor('to');
-    const update = ({from, to}) => range(start, from, end) || range(start, to, end);
-
-    const updates = marks.filter(mark => update(mark.find() || {from: -1, to: -1}));
-    if (updates.length === 0) return false;
-    const index = Math.abs((updates[0].expression.index + delta) % modes.length);
-    updates.forEach(mark => mark.expression.update(index) && mark.changed());
-    return true;
+function cm_view(cm, delta) {
+    const {line} = cm.getCursor();
+    const clear = cm.getLine(line) === '';
+    const match = l => (l === line) || (clear && l === line - 1);
+    const mark = marks.find(mark => match(cm.getLineNumber(mark.line)));
+    if (mark) {
+        const {expression} = mark;
+        const radix = expression.modes.length;
+        const index = (expression.index + delta + radix) % radix;
+        mark.expression.update(index);
+        mark.changed();
+        return true;
+    }
+    return false;
 }
 
 function eval_expression(cm) {
@@ -72,7 +71,7 @@ function eval_expression(cm) {
         const {start, end} = get_outer_expression(cm, position);
         const {line} = end;
         const value = cm.getRange(start, end);
-        state.expressions = false;
+        state.expressions = [];
         evaluate(value, {line});
     }
 }
@@ -104,7 +103,7 @@ function eval_document(cm) {
         if (expressions.length > 0) {
             state.expressions = expressions;
             pop_expression();
-        } else state.expressions = false;
+        } else state.expressions = [];
     }
 }
 
@@ -136,7 +135,6 @@ function get_paren_block(position, token) {
         end.ch += 1;
         state.position = {line: end.line + 1, ch: 0};
         editor.setCursor(state.position);
-        editor.scrollIntoView();
         return {start, end}
     } else return false;
 }
@@ -150,60 +148,47 @@ function pop_expression() {
     const [{start, end}] = state.expressions.splice(0, 1);
     const from = {line: editor.getLineNumber(start.line), ch: start.ch};
     const to = {line: editor.getLineNumber(end.line), ch: end.ch};
+    editor.setCursor(to);
     const text = editor.getRange(from, to);
     const {line} = to;
     evaluate(text, {line});
 }
 
+function value([text, pretty, latex]) {
+    const {position, expressions} = state;
 
-function value([text, latex]) {
-    if (state.error) {
-        console.error(text, latex);
-    } else {
-        const {position} = state;
-        if (position) {
-            editor.setCursor(position);
-            const line = position.line + 1;
-            const nextLine = editor.getLine(line);
-            const nextNextLine = editor.getLine(line + 1);
+    const {line} = position;
+    const nextLine = editor.getLine(line + 1);
+    const nextNextLine = editor.getLine(line + 2);
 
-            if (nextLine && !test(nextLine)) editor.replaceRange('\n\n', position, {line: line + 1});
-            else if (nextLine || nextLine === undefined) editor.replaceRange('\n\n', position);
-            else if (nextNextLine || nextNextLine === undefined) editor.replaceRange('\n', position);
-            state.position = editor.getCursor();
+    if (nextLine && !test(nextLine)) editor.replaceRange('\n\n', position, {line: line + 2});
+    else if (nextLine || nextLine === undefined) editor.replaceRange('\n\n', position);
+    else if (nextNextLine || nextNextLine === undefined) editor.replaceRange('\n', position);
 
-            const start = {line, ch: 0}, end = {line};
-            editor.replaceRange(strip(text), start, end);
+    state.position = editor.getCursor();
+    const start = {line: line + 1, ch: 0}, end = {line: line + 1};
+    editor.replaceRange('#; ' + strip(text), start, end);
 
-            if (latex) {
-                const expression = new Expression(text, latex, defaults.mode_index);
-                const mark = editor.markText(start, end, {
-                    replacedWith: expression.node,
-                    inclusiveLeft: false,
-                    inclusiveRight: true
-                });
-                expression.mark = mark;
-                mark.expression = expression;
-                marks.push(mark);
-            } else {
-                const element = document.createElement('span');
-                element.textContent = strip(text);
-                element.className = 'cm-comment';
+    const expression = new Expression(text, pretty, latex);
+    const mark = editor.addLineWidget(line + 1, expression.node);
+    editor.addLineClass(mark.line, 'background', 'cm-expression');
+    expression.mark = mark;
+    mark.expression = expression;
+    marks.push(mark);
+    editor.scrollIntoView();
 
-                editor.markText(start, end, {
-                    replacedWith: element,
-                    inclusiveLeft: false,
-                    inclusiveRight: true
-                });
-            }
-        }
-        if (state.expressions && state.expressions.length > 0) pop_expression();
-    }
+    if (expressions.length > 0) pop_expression();
 }
 
 function clear_values(cm) {
-    cm.setValue(cm.getValue().split('\n').filter(test).join('\n'));
+    const {line} = editor.getCursor();
+    const lines = cm.getValue().split('\n');
+    const first = lines.slice(0, line).filter(test);
+    const last = lines.slice(line).filter(test);
+    const newLine = first.length;
+    cm.setValue(first.concat(last).join('\n'));
+    cm.setCursor(newLine);
     cm.focus();
 }
 
-export {editor, editor_element, value, view}
+export {editor, editor_element, value, cm_view}

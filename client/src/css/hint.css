@@ -117,7 +117,7 @@ form, input, label {
     font-size: 16px;
 }
 
-#stdout {
+#log {
     margin: 4px;
     max-height: 360px;
     white-space: nowrap;

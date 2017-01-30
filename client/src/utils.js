@@ -2,18 +2,17 @@
  * Created by joel on 8/28/16.
  */
 
-const stdout_element = document.getElementById('stdout');
+const log_element = document.getElementById('log');
 
-function stdout(text) {
-    stdout_element.innerText += text;
-    stdout_element.scrollTop = stdout_element.scrollHeight;
+function log(text) {
+    log_element.innerText += text + '\n';
+    log_element.scrollTop = log_element.scrollHeight;
 }
 
 const defaults = {
     keyMap: 'sublime',
     visibility: 'close',
     theme: 'monokai',
-    mode_index: 0,
     width: 400,
     height: 300
 };
@@ -24,17 +23,16 @@ const state = {
     position: false,
     windows: {},
     canvases: {},
-    expressions: {},
+    expressions: [],
     visibility: defaults.visibility,
     theme: defaults.theme,
     keyMap: defaults.keyMap,
-    error: false
+    mode: null
 };
+
+const strip = text => text.split('\n').map(s => s.trim()).filter(s => s).join(' ');
+const test = text => text.substring(0, 2) !== '#;';
 
 window.state = state;
 
-function strip(string) {
-    return string.split('\n').join(' ');
-}
-
-export {strip, state, defaults, stdout};
+export {state, defaults, strip, test, log};

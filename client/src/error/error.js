@@ -11,6 +11,7 @@ function clear(panel) {
     editor.setOption('readOnly', false);
     editor.focus();
     state.error = false;
+    state.mode = null;
 }
 
 function restart(panel, index, value) {
@@ -84,6 +85,7 @@ function error([text, restarts, stack]) {
     });
     const panel = editor.addPanel(div, {position: 'bottom'});
     editor.setOption('readOnly', 'nocursor');
+    state.mode = 'error';
     state.error = {
         clear: () => clear(panel),
         length: inputs.length,

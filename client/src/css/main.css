@@ -126,6 +126,35 @@ html, body {
 li.CodeMirror-hint-active {  background: #272822 !important;  }
 
 span.katex-display {
-    margin: 0 8px;
     text-align: left;
+}
+
+pre.cm-pretty, pre.cm-latex {
+    margin: 16px;
+    display: block;
+}
+
+.cm-expression {
+    background: #373831;
+}
+
+.crosshair {
+    display: none;
+
+    position: absolute;
+    background: white;
+    -webkit-filter: invert(100%);
+    filter: invert(100%);
+
+    width: 1px;
+    height: 300px;
+}
+
+.crosshair + .crosshair {
+    width: 300px;
+    height: 1px;
+}
+
+td:hover .crosshair {
+    display: inherit;
 }

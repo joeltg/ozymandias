@@ -392,10 +392,11 @@ var keyMap = CodeMirror.keyMap.emacs = CodeMirror.normalizeKeyMap({
   "Ctrl-U": addPrefixMap,
   "Alt-P": "previous",
   "Alt-N": "next",
-  "Ctrl-X Ctrl-A": "eval-document",
-  "Ctrl-X Ctrl-E": "eval-expression",
-  "Ctrl-X Ctrl-U": "clear-values",
-  "Shift-Tab": "view",
+  "Alt-Z": "eval-expression",
+  "Alt-O": "eval-document",
+  "Ctrl-Shift-Backspace": "clear-values",
+  "Alt-Tab": "view",
+  "Shift-Tab": "indentLess",
   "Ctrl-C": "interrupt",
   "Alt-H": "help"
 });
