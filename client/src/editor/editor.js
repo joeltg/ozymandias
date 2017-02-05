@@ -40,14 +40,6 @@ CodeMirror.commands['eval-document']= eval_document;
 CodeMirror.commands['eval-expression'] = eval_expression;
 CodeMirror.registerHelper('hintWords', 'scheme', keywords.sort());
 
-const complain_notification = document.createElement('span');
-
-complain_notification.textContent = 'Resolve error before continuing evaluation';
-
-function complain(cm) {
-    cm.openNotification(complain_notification, {duration: 3000});
-}
-
 function cm_view(cm, delta) {
     const {line} = cm.getCursor();
     const clear = cm.getLine(line) === '';
@@ -64,100 +56,168 @@ function cm_view(cm, delta) {
     return false;
 }
 
-function eval_expression(cm) {
-    if (state.error) complain(cm);
-    else {
-        const position = cm.getCursor();
-        const {start, end} = get_outer_expression(cm, position);
-        const {line} = end;
-        const value = cm.getRange(start, end);
-        state.expressions = [];
-        evaluate(value, {line});
-    }
+function predicate({state: {depth, mode}, type}) {
+    if (type === 'comment' || mode === 'comment' || mode === 's-expr-comment') return false;
+    return depth === 0;
 }
 
-function eval_document(cm) {
-    if (state.error) complain(cm);
-    else {
-        const expressions = [];
-        let open = false;
-        cm.eachLine(line_handle => {
-            if (test(line_handle.text)) {
-                const line = cm.getLineNumber(line_handle);
-                const tokens = cm.getLineTokens(line);
-                tokens.forEach(token => {
-                    const {start, end, type, state: {depth, mode}} = token;
-                    if (depth === 0 && mode !== 'comment') {
-                        if (type === 'bracket') {
-                            if (open) {
-                                expressions.push({start: open, end: {line: line_handle, ch: end}});
-                                open = false;
-                            } else open = {line: line_handle, ch: start};
-                        } else if (type === 'comment') {
-
-                        } else expressions.push({start: {line: line_handle, ch: start}, end: {line: line_handle, ch: end}});
-                    }
-                });
+function find_next_expression(cm, {line, ch}) {
+    const lines = cm.lineCount();
+    for (let t = cm.getLineTokens(line).filter(({start}) => start > ch); line < lines; t = cm.getLineTokens(++line)) {
+        for (let i = 0; i < t.length; i++) {
+            const token = t[i];
+            if (predicate(token)) {
+                return {line, token};
             }
-        });
-        if (expressions.length > 0) {
-            state.expressions = expressions;
-            pop_expression();
-        } else state.expressions = [];
+        }
     }
+    return null;
 }
 
-function select_expression(line, token) {
+function find_previous_expression(cm, {line, ch}) {
+    // father forgive me, for I know not what I do
+    for (let t = cm.getLineTokens(line).filter(({start}) => start < ch); line >= 0; t = cm.getLineTokens(--line)) {
+        for (let i = t.length - 1; i >= 0; i--) {
+            const token = t[i];
+            if (predicate(token)) {
+                return {line, token};
+            }
+        }
+    }
+    return null;
+}
+
+function select_expression(cm, line, token) {
     const start = {line, ch: token.start}, end = {line, ch: token.end};
-    if (token.type === 'bracket') return get_paren_block(end, token);
-    else if (token.type === 'string') start.ch -= 1;
-    return {start, end};
+    if (token.type === 'paren') {
+        return select_paren(end);
+    } else if (token.type === 'string') {
+        const backward = select_string_backward(cm, token, start);
+        const forward = select_string_forward(cm, token, end);
+        return {start: backward, end: forward};
+    } else {
+        return {start, end};
+    }
 }
 
-// father forgive me, for I know not what I do
-function get_outer_expression(cm, {line, ch}) {
-    let tokens = cm.getLineTokens(line);
-    for (tokens = tokens.filter(token => token.start < ch); line > -1; tokens = cm.getLineTokens(--line)) {
-        for (let i = tokens.length - 1; i > -1; i--) {
-            if (tokens[i].state.depth === 0 && tokens[i].type !== 'comment' && tokens[i].state.mode !== 'comment') {
-                return select_expression(line, tokens[i]);
-            }
+function select_string_forward(cm, {string}, end) {
+    if (string[string.length - 1] === '"') {
+        return end;
+    } else {
+        const next = find_next_expression(cm, end);
+        if (next && next.token.type === 'string') {
+            const {line, token} = next;
+            return select_string_forward(cm, token, {line, ch: token.end});
+        } else {
+            return null;
         }
     }
 }
 
-function get_paren_block(position, token) {
-    const parens = editor.findMatchingBracket(position);
-    if (parens && parens.match) {
-        const start = parens.forward ? parens.from : parens.to;
-        const end = parens.forward ? parens.to : parens.from;
-        if ((token.string === '[' || token.string === ']') && editor.getLine(start.line)[start.ch - 1] === '#') start.ch -= 1;
+function select_string_backward(cm, {string}, start) {
+    if (string[0] === '"') {
+        return start;
+    } else {
+        const prev = find_previous_expression(cm, start);
+        if (prev && prev.token.type === 'string') {
+            const {line, token} = prev;
+            return select_string_backward(cm, token, {line, ch: token.start});
+        } else {
+            return null;
+        }
+    }
+}
+
+function select_paren(position) {
+    const brackets = editor.findMatchingBracket(position);
+    if (brackets && brackets.match) {
+        const {forward, from, to} = brackets;
+        const start = forward ? from : to;
+        const end = forward ? to : from;
         end.ch += 1;
-        state.position = {line: end.line + 1, ch: 0};
-        editor.setCursor(state.position);
-        return {start, end}
-    } else return false;
+        return {start, end};
+    } else {
+        return null;
+    }
 }
 
-function evaluate(value, position) {
+function eval_expression(cm) {
+    state.expressions = [];
+    const position = cm.getCursor();
+    const previous = find_previous_expression(cm, position);
+    if (previous) {
+        const {line, token} = previous;
+        const expression = select_expression(cm, line, token);
+        if (expression) {
+            const {start, end} = expression;
+            if (start && end) {
+                const value = cm.getRange(start, end);
+                return evaluate(cm, value, end);
+            }
+        }
+    }
+    console.error('could not select expression');
+}
+
+function eval_document(cm) {
+    const expressions = [];
+    let open = false;
+    const lines = [];
+    cm.eachLine(e => lines.push(e));
+    lines.filter(test).forEach(function(handle) {
+        const line = cm.getLineNumber(handle);
+        const tokens = cm.getLineTokens(line);
+        tokens.forEach(function({start, end, type, state: {depth, mode}}) {
+            if (depth === 0 && mode !== 'comment') {
+                if (type === 'bracket') {
+                    if (open) {
+                        expressions.push({start: open, end: {line: handle, ch: end}});
+                        open = false;
+                    } else {
+                        open = {line: handle, ch: start};
+                    }
+                } else if (type === 'comment') {
+
+                } else {
+                    expressions.push({start: {line: handle, ch: start}, end: {line: handle, ch: end}});
+                }
+            }
+        });
+    });
+    if (expressions.length > 0) {
+        state.expressions = expressions;
+        pop_expression(cm);
+    } else {
+        state.expressions = [];
+    }
+}
+
+function evaluate(cm, value, position) {
+    const {line} = position;
+
+    // cm.setCursor(position);
+    // cm.replaceRange('\n', position);
+
+    // state.position = {line: line + 1, ch: 0};
     state.position = position;
-    send('eval', strip(value) + '\n', true);
+    cm.setCursor(state.position);
+    send('eval', value.trim() + '\n', true);
 }
 
-function pop_expression() {
+function pop_expression(cm) {
     const [{start, end}] = state.expressions.splice(0, 1);
-    const from = {line: editor.getLineNumber(start.line), ch: start.ch};
-    const to = {line: editor.getLineNumber(end.line), ch: end.ch};
-    editor.setCursor(to);
-    const text = editor.getRange(from, to);
+    const from = {line: cm.getLineNumber(start.line), ch: start.ch};
+    const to = {line: cm.getLineNumber(end.line), ch: end.ch};
+    cm.setCursor(to);
+    const text = cm.getRange(from, to);
     const {line} = to;
-    evaluate(text, {line});
+    evaluate(cm, text, {line});
 }
 
 function value([text, pretty, latex]) {
     const {position, expressions} = state;
-
     const {line} = position;
+    // const text = editor.getLine(line);
     const nextLine = editor.getLine(line + 1);
     const nextNextLine = editor.getLine(line + 2);
 
@@ -177,7 +237,9 @@ function value([text, pretty, latex]) {
     marks.push(mark);
     editor.scrollIntoView();
 
-    if (expressions.length > 0) pop_expression();
+    if (expressions.length > 0) {
+        pop_expression(editor);
+    }
 }
 
 function clear_values(cm) {

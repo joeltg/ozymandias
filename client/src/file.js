@@ -167,4 +167,4 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-export {cm_save};
+export {cm_save, cm_open, open, save, load};

@@ -10,7 +10,7 @@ import CodeMirror from 'codemirror';
 import {keywords, indented_keywords} from './keywords';
 
 CodeMirror.defineMode('scheme', function() {
-    const BUILTIN = 'builtin', COMMENT = 'comment', STRING = 'string', ATOM = 'atom', NUMBER = 'number', BRACKET = 'bracket';
+    const BUILTIN = 'builtin', COMMENT = 'comment', STRING = 'string', ATOM = 'atom', NUMBER = 'number', PAREN = 'paren', OBJECT = 'object';
     const INDENT_WORD_SKIP = 2;
     
     const binaryMatcher = new RegExp(/^(?:[-+]i|[-+][01]+#*(?:\/[01]+#*)?i|[-+]?[01]+#*(?:\/[01]+#*)?@[-+]?[01]+#*(?:\/[01]+#*)?|[-+]?[01]+#*(?:\/[01]+#*)?[-+](?:[01]+#*(?:\/[01]+#*)?)?i|[-+]?[01]+#*(?:\/[01]+#*)?)(?=[()\s;"]|$)/i);
@@ -106,8 +106,15 @@ CodeMirror.defineMode('scheme', function() {
                     const ch = stream.next();
                     state.increment = state.increment && state.depth++ && false;
                     if (ch === '"') {
-                        state.mode = 'string';
                         returnType = STRING;
+                        state.mode = 'string';
+                        while ((next = stream.next()) != null) {
+                            if (next === '"' && !escaped) {
+                                state.mode = false;
+                                break;
+                            }
+                            escaped = !escaped && next === '\\';
+                        }
                     } else if (ch === "'") {
                         stream.eatWhile(/[\w_\-!$%&*+.\/:<=>?@\^~]/);
                         returnType = ATOM;
@@ -120,6 +127,10 @@ CodeMirror.defineMode('scheme', function() {
                         } else if (stream.eat(';')) {                // S-Expr comment
                             state.mode = 's-expr-comment';
                             returnType = COMMENT;
+                        } else if (stream.eat('[')) {
+                            stream.eatWhile(/[^\]]/);
+                            stream.eat(']');
+                            returnType = OBJECT;
                         } else {
                             let numTest = null, hasExactness = false, hasRadix = true;
 
@@ -146,7 +157,7 @@ CodeMirror.defineMode('scheme', function() {
                     } else if (ch === ';') { // comment
                         stream.skipToEnd(); // rest of the line is a comment
                         returnType = COMMENT;
-                    } else if (ch === '(' || ch === '[') {
+                    } else if (ch === '(') {
                         let keyWord = '', indentTemp = stream.column(), letter;
                         /**
                         Either
@@ -154,7 +165,7 @@ CodeMirror.defineMode('scheme', function() {
                         (non-indent-word ..
                         (;something else, bracket, etc.
                         */
-                        while ((letter = stream.eat(/[^\s(\[;)\]]/)) != null) keyWord += letter;
+                        while ((letter = stream.eat(/[^\s(;)]/)) != null) keyWord += letter;
 
                         if (keyWord.length > 0 && indentKeys.propertyIsEnumerable(keyWord)) pushStack(state, indentTemp + INDENT_WORD_SKIP, ch); // indent-word
                         else { // non-indent word
@@ -169,11 +180,11 @@ CodeMirror.defineMode('scheme', function() {
 
                         if (typeof state.sExprComment === 'number') state.sExprComment++;
 
-                        returnType = BRACKET;
+                        returnType = PAREN;
                         state.increment = true;
-                    } else if (ch === ')' || ch === ']') {
-                        returnType = BRACKET;
-                        if (state.indentStack !== null && state.indentStack.type === (ch === ')' ? '(' : '[')) {
+                    } else if (ch === ')') {
+                        returnType = PAREN;
+                        if (state.indentStack !== null && state.indentStack.type === '(') {
                             state.depth--;
                             popStack(state);
                             if (typeof state.sExprComment === 'number' && --state.sExprComment == 0) {
