@@ -51,7 +51,7 @@ class Canvas {
 
         if (position) {
             const {line} = position;
-            editor.replaceRange(`\n#; [canvas ${this.id}]`, position, position);
+            editor.replaceRange(`\n#; (canvas ${this.id})`, position, position);
             const widget = editor.addLineWidget(line + 1, this.frame, {});
 
             // editor.markText({line: line + 1, ch: 0}, {line: line + 1}, {inclusiveLeft: false, inclusiveRight: true, atomic: true, readOnly: true});

@@ -92,7 +92,8 @@ CodeMirror.defineMode('scheme', function() {
                     break;
                 case 's-expr-comment': // s-expr commenting mode
                     state.mode = false;
-                    if (stream.peek() == '(' || stream.peek() == '[') {
+                    let peek = stream.peek();
+                    if (peek === '(' || peek === '#' || peek === '"') {
                         // actually start scheme s-expr commenting mode
                         state.sExprComment = 0;
                         break;
