@@ -9,6 +9,8 @@ import {send} from '../connect';
 import {keywords} from './keywords';
 
 const marks = [];
+const prefix = '#; ';
+let highlight = null;
 
 function tab(sign) {
     const direction = sign ? 1 : -1;
@@ -141,6 +143,38 @@ function select_paren(position) {
     }
 }
 
+function thing(cm) {
+    if (cm.somethingSelected()) {
+        if (highlight) {
+            highlight.clear();
+        }
+        highlight = null;
+    } else {
+        const position = cm.getCursor();
+        const previous = find_previous_expression(cm, position);
+        if (previous) {
+            const {line, token} = previous;
+            const expression = select_expression(cm, line, token);
+            if (expression) {
+                const {start, end} = expression;
+                if (start && end) {
+                    if (highlight) {
+                        highlight.clear();
+                    }
+                    highlight = cm.markText(start, end, {startStyle: 'cm-ce', endStyle: 'cm-ce'});
+                } else {
+                    if (highlight) {
+                        highlight.clear();
+                    }
+                    highlight = null;
+                }
+            }
+        }
+    }
+}
+
+// editor.on('cursorActivity', thing);
+
 function eval_expression(cm) {
     state.expressions = [];
     const position = cm.getCursor();
@@ -193,14 +227,13 @@ function eval_document(cm) {
 }
 
 function evaluate(cm, value, position) {
-    const {line} = position;
+    state.position = position;
+    cm.setCursor(state.position);
 
     // cm.setCursor(position);
     // cm.replaceRange('\n', position);
+    // state.position = cm.getCursor();
 
-    // state.position = {line: line + 1, ch: 0};
-    state.position = position;
-    cm.setCursor(state.position);
     send('eval', value.trim() + '\n', true);
 }
 
@@ -217,7 +250,7 @@ function pop_expression(cm) {
 function value([text, pretty, latex]) {
     const {position, expressions} = state;
     const {line} = position;
-    // const text = editor.getLine(line);
+
     const nextLine = editor.getLine(line + 1);
     const nextNextLine = editor.getLine(line + 2);
 
@@ -227,11 +260,12 @@ function value([text, pretty, latex]) {
 
     state.position = editor.getCursor();
     const start = {line: line + 1, ch: 0}, end = {line: line + 1};
-    editor.replaceRange('#; ' + strip(text), start, end);
+    editor.replaceRange(prefix + strip(text), start, end);
 
     const expression = new Expression(text, pretty, latex);
     const mark = editor.addLineWidget(line + 1, expression.node);
-    editor.addLineClass(mark.line, 'background', 'cm-expression');
+
+    editor.addLineClass(mark.line, 'background', 'cm-e');
     expression.mark = mark;
     mark.expression = expression;
     marks.push(mark);

@@ -8,6 +8,7 @@ import {editor} from './editor/editor';
 
 const filename = document.getElementById('filename');
 const login = document.getElementById('login');
+
 function set_filename(changed) {
     const {user, file} = state;
     if (window.auth === '') {

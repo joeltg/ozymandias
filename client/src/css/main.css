@@ -134,8 +134,14 @@ pre.cm-pretty, pre.cm-latex {
     display: block;
 }
 
-.cm-expression {
+.cm-e {
+    background: black;
+    opacity: 0.2;
+}
+
+.cm-ce {
     background: #373831;
+    /*text-decoration: underline;*/
 }
 
 .crosshair {
