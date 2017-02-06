@@ -35,7 +35,7 @@ class Connection {
             this.files = this.scheme.files;
             if (this.file) {
                 const file = this.find(this.file);
-                fs.readFile(file, utf, (error, text) => this.push('load', text || ''));
+                fs.readFile(file, utf, (error, text) => this.push('load', {file: this.file, text}));
             }
         });
 
@@ -50,9 +50,9 @@ class Connection {
         if (type === 'save' && this.files) {
             const {name, text} = data;
             const file = this.find(name);
-            fs.writeFile(file, text, utf, error => this.push('save', !error));
+            fs.writeFile(file, text, utf, error => this.push('save', {error, name}));
         }
-        else if (type === 'load' && this.files) fs.readFile(this.find(data), utf, (error, text) => this.push('load', text || ''));
+        else if (type === 'load' && this.files) fs.readFile(this.find(data), utf, (error, text) => this.push('load', {file: data, text}));
         else if (type === 'open' && this.files) fs.readdir(this.files, (error, files) => this.push('open', files || []));
         else if (type === 'eval' && this.open) this.scheme.write(data);
         else if (type === 'kill' && this.open) this.scheme.kill(data);

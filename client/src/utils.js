@@ -27,7 +27,8 @@ const state = {
     visibility: defaults.visibility,
     theme: defaults.theme,
     keyMap: defaults.keyMap,
-    mode: null
+    mode: null,
+    clean: true
 };
 
 const strip = text => text.split('\n').map(s => s.trim()).filter(s => s).join(' ');
