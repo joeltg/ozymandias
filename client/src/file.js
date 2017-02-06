@@ -69,7 +69,6 @@ function open(files) {
 }
 
 function load({file, text}) {
-    console.log('load', file, text);
     state.file = file;
     const pathname = get_pathname(state);
     const title = get_title(state);
