@@ -5,7 +5,6 @@
 const hints = {
     reference: {element: document.getElementById('reference'), state: 0},
     settings: {element: document.getElementById('settings'), state: 0},
-    graphics: {element: document.getElementById('graphics'), state: 0},
     console: {element: document.getElementById('console'), state: 0}
 };
 

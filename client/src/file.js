@@ -3,7 +3,7 @@
  */
 
 import {send} from './connect';
-import {state} from './utils';
+import {state, defaults} from './utils';
 import {editor} from './editor/editor';
 
 const name = 'Lambda';
@@ -35,20 +35,29 @@ function set_filename() {
 
     const title = get_title(state);
     filename.textContent = title;
-    document.title = name + ': ' + title;
+    document.title = title;
 }
 
 set_filename();
 
 let dialog = false;
 
-function move(file) {
+window.onpopstate = function(event) {
+    const {text} = defaults;
+    if (event.state && event.state.file) {
+        move(state.file = event.state.file, false);
+    } else if (location.pathname === '/') {
+        load({file: null, text});
+    }
+};
 
-    // const path = location.pathname.split('/');
-    // if (path && path.pop() && path.pop() === 'files') history.pushState({}, file, file);
-    // else history.pushState({}, file, 'files/' + file);
-    // history.replaceState({}, file, file);
-
+function move(file, push) {
+    if (push) {
+        state.file = file;
+        const pathname = get_pathname(state);
+        const title = get_title(state);
+        history.pushState({file}, title, pathname);
+    }
     send('load', file);
     if (dialog) dialog();
     dialog = false;
@@ -57,7 +66,7 @@ function move(file) {
 function make(file) {
     const button = document.createElement('button');
     button.textContent = file;
-    button.addEventListener('click', e => move(file));
+    button.addEventListener('click', e => move(file, true));
     open_files.appendChild(button);
 }
 
@@ -70,9 +79,6 @@ function open(files) {
 
 function load({file, text}) {
     state.file = file;
-    const pathname = get_pathname(state);
-    const title = get_title(state);
-    history.pushState({}, title, pathname);
     editor.setValue(text || '');
     editor.clearHistory();
     editor.markClean();
@@ -104,7 +110,7 @@ const input = document.createElement('input');
 new_label.textContent = 'New file: ';
 input.type = 'text';
 input.placeholder = 'Enter filename';
-input.addEventListener('keydown', e => e.keyCode === 13 && move(input.value));
+input.addEventListener('keydown', e => e.keyCode === 13 && move(input.value, true));
 new_prompt.appendChild(new_label);
 new_prompt.appendChild(input);
 

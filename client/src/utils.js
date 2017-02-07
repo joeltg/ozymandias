@@ -14,7 +14,8 @@ const defaults = {
     visibility: 'close',
     theme: 'monokai',
     width: 400,
-    height: 300
+    height: 300,
+    text: ';;;; Lambda v0.3\n\n'
 };
 
 const state = {
