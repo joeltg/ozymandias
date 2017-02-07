@@ -44,9 +44,10 @@ let dialog = false;
 
 window.onpopstate = function(event) {
     const {text} = defaults;
+    const pathname = location.pathname.split('/');
     if (event.state && event.state.file) {
         move(state.file = event.state.file, false);
-    } else if (location.pathname === '/') {
+    } else if (pathname[0] !== 'files' && pathname[2] !== 'files') {
         load({file: null, text});
     }
 };

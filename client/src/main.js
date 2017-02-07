@@ -53,4 +53,4 @@ log('connecting to server...');
 socket.onmessage = event => pipe(JSON.parse(event.data));
 socket.onerror   = event => console.error(event);
 socket.onopen    = event => log('connected.');
-socket.onclose   = event => log('lost connection to server');
+socket.onclose   = event => log('lost connection to server. reload the page.');
