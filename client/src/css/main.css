@@ -118,6 +118,10 @@ html, body {
     max-width: 512px;
 }
 
+td pre {
+    margin: 0;
+}
+
 .panel .subproblems td {
     vertical-align: top;
 }

@@ -3,15 +3,16 @@
 const fs = require('fs');
 const path = require('path');
 const root = path.resolve(__dirname, '..');
-const MITScheme = require('mit-scheme')(root, 'scheme');
+const MITScheme = require('../../mit-scheme')(root, 'scheme');
 
 const utf = 'utf8';
 
 class Connection {
-    constructor(name, file, exit) {
+    constructor(name, file, exit, band) {
         this.name = name;
         this.file = file;
         this.exit = exit;
+        this.band = band;
 
         this.files = null;
         this.socket = null;
@@ -29,7 +30,7 @@ class Connection {
             this.close();
         });
 
-        this.scheme = new MITScheme(this.name);
+        this.scheme = new MITScheme(this.name, this.band);
         this.scheme.on('open', event => {
             this.open = true;
             this.files = this.scheme.files;

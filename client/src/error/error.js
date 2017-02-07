@@ -39,8 +39,8 @@ function attachHandler(panel, input, arity, index) {
 function subproblem({env, exp}, index) {
     const tr = dom('tr');
     tr.appendChild(dom('td', index.toString()));
-    tr.appendChild(dom('td', dom('code', exp || '')));
-    tr.appendChild(dom('td', dom('code', env || '')));
+    tr.appendChild(dom('td', dom('pre', exp || '')));
+    tr.appendChild(dom('td', dom('pre', env || '')));
     return tr;
 }
 

@@ -11,7 +11,6 @@ const size = 300;
 const point = 1;
 
 const panel = document.getElementById('graphics-panel');
-const message = document.getElementById('graphics-message');
 const dom = tag => document.createElement(tag);
 const make = (e, l) => new Array(l).fill(e).map(dom);
 class Canvas {
@@ -31,7 +30,6 @@ class Canvas {
         this.canvas.onmousemove = e => this.hair && ((this.hair = false) || this.mousemove(e));
         this.context = this.canvas.getContext('2d');
         this.canvas.height = this.canvas.width = size;
-        if (Object.keys(canvases).length === 0) message.style.display = 'none';
         this.cursor = [0, 0];
         cells[1].appendChild(this.x_left);
         cells[1].appendChild(this.x_right);
@@ -57,7 +55,6 @@ class Canvas {
         }
 
         if (state.visibility === 'settings') set_visibility('close');
-        if (hints.graphics.state === 1) update(hints.graphics, 0)
     }
     mousemove({offsetX, offsetY}) {
         this.x_hair.style.marginLeft = offsetX + 'px';
@@ -91,7 +88,6 @@ class Canvas {
     close(value) {
         this.canvas.parentNode.removeChild(this.canvas);
         delete canvases[this.id];
-        if (Object.keys(canvases).length === 0) message.style.display = 'inline';
     }
     set_coordinate_limits(value) {
         [this.xmin, this.ymax, this.xmax, this.ymin] = value;
