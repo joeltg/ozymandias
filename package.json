@@ -1,6 +1,6 @@
 {
   "name": "lambda",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "MIT Scheme IDE, mechanics utilities, and dark magic for the browser",
   "main": "index.js",
   "scripts": {
@@ -67,7 +67,7 @@
     "express": "^4.14.0",
     "express-handlebars": "^3.0.0",
     "express-session": "^1.14.2",
-    "mit-scheme": "^0.3.3",
+    "mit-scheme": "^0.3.4",
     "request": "^2.79.0",
     "uuid": "^3.0.1",
     "websocket": "^1.0.24"
