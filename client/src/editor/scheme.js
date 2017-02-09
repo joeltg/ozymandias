@@ -103,6 +103,9 @@ CodeMirror.defineMode('scheme', function() {
                         if (stream.peek() === '[') {
                             stream.eatWhile(/[^\]]/);
                             stream.eat(']');
+                        } else if (stream.peek() === '(') {
+                            state.sExprComment = 0;
+                            break;
                         } else {
                             stream.eatWhile(/[^\s]/);
                         }

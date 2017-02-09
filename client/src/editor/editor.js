@@ -192,7 +192,7 @@ function thing(cm) {
     }
 }
 
-editor.on('cursorActivity', thing);
+// editor.on('cursorActivity', thing);
 
 function eval_expression(cm) {
     // state.expressions = [];
