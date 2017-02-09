@@ -34,7 +34,7 @@ class Connection {
             this.close();
         });
 
-        this.scheme = new MITScheme({scmutils, path});
+        this.scheme = new MITScheme({scmutils, path, root});
 
         this.scheme.on('open', event => {
             this.open = true;
