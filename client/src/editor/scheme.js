@@ -93,13 +93,24 @@ CodeMirror.defineMode('scheme', function() {
                 case 's-expr-comment': // s-expr commenting mode
                     state.mode = false;
                     let peek = stream.peek();
-                    if (peek === '(' || peek === '#' || peek === '"') {
+                    if (peek === '(' || peek === '"') {
                         // actually start scheme s-expr commenting mode
                         state.sExprComment = 0;
                         break;
+                    }
+                    else if (peek === '#') {
+                        stream.eat('#');
+                        if (stream.peek() === '[') {
+                            stream.eatWhile(/[^\]]/);
+                            stream.eat(']');
+                        } else {
+                            stream.eatWhile(/[^\s]/);
+                        }
+                        returnType = COMMENT;
+                        break;
                     } else {
                         // if not we just comment the entire of the next token
-                        stream.eatWhile(/[^/s]/); // eat non spaces
+                        stream.eatWhile(/[^\s]/); // eat non spaces
                         returnType = COMMENT;
                         break;
                     }
@@ -123,8 +134,6 @@ CodeMirror.defineMode('scheme', function() {
                         if (stream.eat('|')) {                    // Multi-line comment
                             state.mode = 'comment'; // toggle to comment mode
                             returnType = COMMENT;
-                        } else if (stream.eat(/[tf]/i)) {            // #t/#f (atom)
-                            returnType = ATOM;
                         } else if (stream.eat(';')) {                // S-Expr comment
                             state.mode = 's-expr-comment';
                             returnType = COMMENT;
@@ -132,6 +141,11 @@ CodeMirror.defineMode('scheme', function() {
                             stream.eatWhile(/[^\]]/);
                             stream.eat(']');
                             returnType = OBJECT;
+                        } else if (stream.eat(/[tf]/i)) {            // #t/#f (atom)
+                            returnType = ATOM;
+                        } else if (stream.eat(/[\\!]/)) {
+                            stream.eatWhile(/[\w_\-!$%&*+.\/:<=>?@\^~]/);
+                            returnType = ATOM;
                         } else {
                             let numTest = null, hasExactness = false, hasRadix = true;
 

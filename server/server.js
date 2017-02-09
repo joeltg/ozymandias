@@ -18,7 +18,7 @@ const root = path.resolve(__dirname, '..');
 dotenv.config({path: path.resolve(root, '.env')});
 const auth = process.env.AUTH || null;
 const port = process.env.PORT || 3000;
-const band = process.env.BAND || 'runtime.com';
+const scmutils = process.env.SCMUTILS === 'true';
 const connections = {};
 
 const app = express();
@@ -34,7 +34,7 @@ function render(req, res) {
     function exit(connected, open) {
         delete connections[uuid];
     }
-    connections[uuid] = new Connection(user, file, exit, band);
+    connections[uuid] = new Connection(user, file, exit, scmutils);
     res.render('index.html', {uuid, user, file, auth, port});
 }
 

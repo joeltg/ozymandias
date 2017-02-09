@@ -48,9 +48,9 @@ CodeMirror.commands.interrupt = cm => {
     send('kill', 'SIGINT');
 };
 
-log('connecting to server...');
+log('connecting to server...\n');
 
 socket.onmessage = event => pipe(JSON.parse(event.data));
 socket.onerror   = event => console.error(event);
-socket.onopen    = event => log('connected.');
-socket.onclose   = event => log('lost connection to server. reload the page.');
+socket.onopen    = event => log('connected.\n');
+socket.onclose   = event => log('\nlost connection to server. reload the page.\n');

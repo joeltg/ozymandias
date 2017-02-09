@@ -14,9 +14,14 @@ class Expression {
         this.node = document.createElement('pre');
         this.child = null;
 
-        this.modes = ['render_empty', 'render_pretty'];
-        if (this.latex) this.modes.push('render_latex');
-        if (this.pretty !== text) this.update(1);
+        this.modes = ['render_empty'];
+        if (this.pretty && this.pretty !== text) {
+            this.modes.push('render_pretty');
+            if (this.latex) {
+                this.modes.push('render_latex');
+            }
+            this.update(1);
+        }
     }
     render_empty() {
         if (this.child) {

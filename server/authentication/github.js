@@ -2,8 +2,8 @@
  * Created by joelg on 1/19/17.
  */
 
-const fs = require('fs');
-const path = require('path');
+const {readFile, writeFile} = require('fs');
+const {resolve} = require('path');
 const request = require('request');
 const uuidV4 = require('uuid/v4');
 const cookieParser = require('cookie-parser');

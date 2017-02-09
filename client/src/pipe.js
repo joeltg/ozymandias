@@ -5,7 +5,7 @@
 import {open, save, load} from './file';
 
 import {stdout} from './stdout';
-import {value} from './editor/editor';
+import {value, print} from './editor/editor';
 import {error} from './error/error';
 import {canvas} from './graphics/canvas';
 import {state} from './utils';
@@ -14,6 +14,7 @@ const types = {
     canvas,
     stdout,
     value,
+    print,
     error,
     open,
     save,

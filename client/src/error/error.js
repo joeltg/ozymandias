@@ -51,7 +51,7 @@ function dom(tag, content) {
     return element;
 }
 
-function error([text, restarts, stack]) {
+function error({message, stack, restarts}) {
     const div = dom('div'), subproblemTable = dom('table'), restartTable = dom('table'), label = dom('tr');
     subproblemTable.classList.add('subproblems');
     restartTable.classList.add('restarts');
@@ -59,14 +59,14 @@ function error([text, restarts, stack]) {
     label.appendChild(dom('th', 'Expression'));
     label.appendChild(dom('th', 'Environment'));
     subproblemTable.appendChild(label);
-    div.appendChild(dom('h2', text));
+    div.appendChild(dom('h2', message));
     div.appendChild(dom('h3', 'Subproblems'));
     div.appendChild(subproblemTable);
     div.appendChild(dom('h3', 'Restarts'));
     div.appendChild(restartTable);
     stack.map(subproblem).forEach(tr => subproblemTable.appendChild(tr));
     div.classList.add('panel');
-    const inputs = restarts.map(function([name, report, arity]) {
+    const inputs = restarts.map(function({name, report, arity}) {
         const row = dom('tr'), input = dom('input');
 
         if (arity > 0) {

@@ -5,7 +5,7 @@
 const log_element = document.getElementById('log');
 
 function log(text) {
-    log_element.innerText += text + '\n';
+    log_element.innerText += text;
     log_element.scrollTop = log_element.scrollHeight;
 }
 

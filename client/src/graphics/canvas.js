@@ -171,21 +171,9 @@ class Canvas {
     }
 }
 
-function canvas([action, id, value]) {
-    if (!(id in canvases)) {
-        const {mode} = state;
-        if (mode === 'error') {
-
-        } else if (mode === 'stdout') {
-            exitPrinter();
-        } else {
-
-        }
-        state.mode = 'canvas';
-        canvases[id] = new Canvas(id);
-    }
+function canvas({action, id, value}) {
+    if (!(id in canvases)) canvases[id] = new Canvas(id);
     if (action in canvases[id]) canvases[id][action](value);
-    else console.error('invalid canvas operation', action);
 }
 
 export {canvas};
