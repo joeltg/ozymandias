@@ -39,11 +39,11 @@ const labels = [
         emacs: 'Ctrl-Shift-Backspace',
         sublime: ctrl + 'Shift-Backspace'
     },
-    {
-        element: document.getElementById('view'),
-        emacs: 'Tab',
-        sublime: 'Tab'
-    },
+    // {
+    //     element: document.getElementById('view'),
+    //     emacs: 'Tab',
+    //     sublime: 'Tab'
+    // },
     {
         element: document.getElementById('autocomplete'),
         emacs: 'Meta-/',

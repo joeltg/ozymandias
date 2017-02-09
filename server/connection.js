@@ -2,7 +2,7 @@
 
 const {readFile, writeFile, readdir} = require('fs');
 const {resolve} = require('path');
-const MITScheme = require('mit-scheme');
+const MITScheme = require('../../mit-scheme');
 
 const root = resolve(__dirname, '..');
 const jail = resolve(root, 'public');
