@@ -20,14 +20,16 @@ class Canvas {
         this.frame = document.createElement('table');
         this.frame.className = 'graphics-frame';
         const rows = make('tr', 2), cells = make('td', 4);
-        this.hair = true;
-        this.x_hair = dom('div');
-        this.y_hair = dom('div');
-        this.x_hair.className = this.y_hair.className = 'crosshair';
+
+        // this.hair = true;
+        // this.x_hair = dom('div');
+        // this.y_hair = dom('div');
+        // this.x_hair.className = this.y_hair.className = 'crosshair';
+
         [this.x_left, this.x_right, this.y_top, this.y_bot] = make('span', 4);
         this.canvas = document.createElement('canvas');
         this.canvas.onclick = e => this.click(e);
-        this.canvas.onmousemove = e => this.hair && ((this.hair = false) || this.mousemove(e));
+        // this.canvas.onmousemove = e => this.hair && ((this.hair = false) || this.mousemove(e));
         this.context = this.canvas.getContext('2d');
         this.canvas.height = this.canvas.width = size;
         this.cursor = [0, 0];
@@ -35,8 +37,10 @@ class Canvas {
         cells[1].appendChild(this.x_right);
         cells[2].appendChild(this.y_top);
         cells[2].appendChild(this.y_bot);
-        cells[3].appendChild(this.x_hair);
-        cells[3].appendChild(this.y_hair);
+
+        // cells[3].appendChild(this.x_hair);
+        // cells[3].appendChild(this.y_hair);
+
         cells[3].appendChild(this.canvas);
         rows[0].appendChild(cells[0]);
         rows[0].appendChild(cells[1]);
@@ -51,16 +55,16 @@ class Canvas {
             const {line} = position;
             editor.replaceRange(`\n#; (canvas ${this.id})`, position, position);
             const widget = editor.addLineWidget(line + 1, this.frame, {});
-            state.position = {line: line + 1, ch: 0};
+            state.position = {line: line + 1};
         }
 
         if (state.visibility === 'settings') set_visibility('close');
     }
-    mousemove({offsetX, offsetY}) {
-        this.x_hair.style.marginLeft = offsetX + 'px';
-        this.y_hair.style.marginTop = offsetY + 'px';
-        this.hair = true;
-    }
+    // mousemove({offsetX, offsetY}) {
+    //     this.x_hair.style.marginLeft = offsetX + 'px';
+    //     this.y_hair.style.marginTop = offsetY + 'px';
+    //     this.hair = true;
+    // }
     click({offsetX, offsetY, button}) {
         if (this.get_coordinates) {
             this.get_coordinates = false;
@@ -158,8 +162,9 @@ class Canvas {
     }
     set_background_color(value) {
         this.canvas.style.backgroundColor = value;
-        this.x_hair.style.backgroundColor = value;
-        this.y_hair.style.backgroundColor = value;
+
+        // this.x_hair.style.backgroundColor = value;
+        // this.y_hair.style.backgroundColor = value;
     }
     set_foreground_color(value) {
         this.context.fillStyle = value;

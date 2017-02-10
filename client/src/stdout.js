@@ -9,8 +9,8 @@ import {state, log} from './utils';
 function stdout(text) {
     log(text);
 
-    // editor.replaceRange(text, state.position);
-    // state.position = editor.getCursor();
+    editor.replaceRange(text, state.position);
+    state.position = editor.getCursor();
 }
 
 export {stdout};

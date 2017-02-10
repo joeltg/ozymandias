@@ -170,6 +170,7 @@ function thing(cm) {
         highlight = null;
     } else {
         const position = cm.getCursor();
+
         const previous = find_previous_expression(cm, position);
         if (previous) {
             const {line, token} = previous;
@@ -180,7 +181,7 @@ function thing(cm) {
                     if (highlight) {
                         highlight.clear();
                     }
-                    highlight = cm.markText(start, end, {startStyle: 'cm-ce', endStyle: 'cm-ce'});
+                    highlight = cm.markText(start, end, {style: 'cm-ce'});
                 } else {
                     if (highlight) {
                         highlight.clear();
@@ -192,7 +193,7 @@ function thing(cm) {
     }
 }
 
-// editor.on('cursorActivity', thing);
+editor.on('cursorActivity', thing);
 
 function eval_expression(cm) {
     // state.expressions = [];
@@ -215,41 +216,27 @@ function eval_expression(cm) {
 
 function eval_document(cm) {
     const position = {line: 0, ch: 0};
+    clear_values(cm);
     eval_forward(cm, position);
-    // const expressions = [];
-    // let open = false;
-    // const lines = [];
-    // cm.eachLine(e => lines.push(e));
-    // lines.filter(test).forEach(function(handle) {
-    //     const line = cm.getLineNumber(handle);
-    //     const tokens = cm.getLineTokens(line);
-    //     tokens.forEach(function({start, end, type, state: {depth, mode}}) {
-    //         if (depth === 0 && mode !== 'comment') {
-    //             if (type === 'bracket') {
-    //                 if (open) {
-    //                     expressions.push({start: open, end: {line: handle, ch: end}});
-    //                     open = false;
-    //                 } else {
-    //                     open = {line: handle, ch: start};
-    //                 }
-    //             } else if (type === 'comment') {
-    //
-    //             } else {
-    //                 expressions.push({start: {line: handle, ch: start}, end: {line: handle, ch: end}});
-    //             }
-    //         }
-    //     });
-    // });
-    // if (expressions.length > 0) {
-    //     state.expressions = expressions;
-    //     pop_expression(cm);
-    // } else {
-    //     state.expressions = [];
-    // }
 }
 
 function evaluate(cm, value, position) {
-    state.position = position;
+    const {line} = position;
+    const last = cm.lastLine();
+    if (line === last) {
+        cm.replaceRange('\n', position);
+        state.position = {line: line + 1, ch: 0};
+    } else {
+        let l = line + 1, t;
+        while (l <= last) {
+            t = cm.getLine(l);
+            if (test(t)) break;
+            l += 1;
+        }
+        cm.replaceRange('\n', position, {line: l});
+        state.position = {line: l, ch: 0};
+    }
+
     cm.setCursor(state.position);
 
     send('eval', value.trim() + '\n', true);
@@ -266,6 +253,7 @@ function eval_forward(cm, position) {
             if (start && end) {
                 state.forward = true;
                 const value = cm.getRange(start, end);
+                console.log('end', end);
                 return evaluate(cm, value, end);
             }
         }
@@ -277,25 +265,18 @@ function value({text, pretty, latex}) {
     const {position, forward} = state;
     const {line} = position;
 
-    const nextLine = editor.getLine(line + 1);
-    const nextNextLine = editor.getLine(line + 2);
-
-    if (nextLine && !test(nextLine)) editor.replaceRange('\n\n', position, {line: line + 2});
-    else if (nextLine || nextLine === undefined) editor.replaceRange('\n\n', position);
-    else if (nextNextLine || nextNextLine === undefined) editor.replaceRange('\n', position);
+    const newline = editor.getLine(line) ? '\n' : '';
+    editor.replaceRange(newline + prefix + text.trim() + '\n', position);
 
     state.position = editor.getCursor();
-    const start = {line: line + 1, ch: 0}, end = {line: line + 1};
-    editor.replaceRange(prefix + strip(text), start, end);
 
     if (pretty && pretty.trim() !== text) {
         const expression = new Expression(text, pretty, latex);
-        const mark = editor.addLineWidget(line + 1, expression.node);
+        const mark = editor.addLineWidget(state.position.line -1, expression.node);
 
         editor.addLineClass(mark.line, 'background', 'cm-e');
         expression.mark = mark;
         mark.expression = expression;
-        marks.push(mark);
     }
 
     editor.scrollIntoView();
@@ -308,29 +289,32 @@ function value({text, pretty, latex}) {
 function print({text, pretty, latex}) {
     const {position} = state;
     const {line} = position;
-    const start = {line: line + 1, ch: 0}, end = {line: line + 1};
-    editor.replaceRange(prefix + strip(text), start, end);
+
+    const newline = editor.getLine(line) ? '\n' : '';
+    editor.replaceRange(newline + prefix + text.trim() + '\n', position);
+
     state.position = editor.getCursor();
 
     if (pretty && pretty.trim() !== text) {
         const expression = new Expression(text, pretty, latex);
-        const mark = editor.addLineWidget(line + 1, expression.node);
+        const mark = editor.addLineWidget(state.position.line -1, expression.node);
 
         editor.addLineClass(mark.line, 'background', 'cm-e');
         expression.mark = mark;
         mark.expression = expression;
-        marks.push(mark);
     }
+
     editor.scrollIntoView();
 }
 
 function clear_values(cm) {
     const {line} = editor.getCursor();
     const lines = cm.getValue().split('\n');
+    const end = test(lines[lines.length - 1]);
     const first = lines.slice(0, line).filter(test);
     const last = lines.slice(line).filter(test);
     const newLine = first.length;
-    cm.setValue(first.concat(last).join('\n'));
+    cm.setValue(first.concat(last).join('\n') + (end ? '' : '\n'));
     cm.setCursor(newLine);
     cm.focus();
 }

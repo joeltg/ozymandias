@@ -93,12 +93,21 @@ CodeMirror.defineMode('scheme', function() {
                 case 's-expr-comment': // s-expr commenting mode
                     state.mode = false;
                     let peek = stream.peek();
-                    if (peek === '(' || peek === '"') {
-                        // actually start scheme s-expr commenting mode
+                    if (peek === '(') {
                         state.sExprComment = 0;
                         break;
-                    }
-                    else if (peek === '#') {
+                    } else if (peek === '"') {
+                        stream.eat('"');
+                        while ((next = stream.next()) != null) {
+                            if (next === '"' && !escaped) {
+                                state.mode = false;
+                                break;
+                            }
+                            escaped = !escaped && next === '\\';
+                        }
+                        returnType = COMMENT; // continue on in scheme-string mode
+                        break;
+                    } else if (peek === '#') {
                         stream.eat('#');
                         if (stream.peek() === '[') {
                             stream.eatWhile(/[^\]]/);
@@ -146,6 +155,8 @@ CodeMirror.defineMode('scheme', function() {
                             returnType = OBJECT;
                         } else if (stream.eat(/[tf]/i)) {            // #t/#f (atom)
                             returnType = ATOM;
+                        } else if (stream.eat('@')) {
+                            stream.eatWhile(/[^\s]/);
                         } else if (stream.eat(/[\\!]/)) {
                             stream.eatWhile(/[\w_\-!$%&*+.\/:<=>?@\^~]/);
                             returnType = ATOM;
