@@ -8,7 +8,6 @@ import {Expression} from '../graphics/expression';
 import {send} from '../connect';
 import {keywords} from './keywords';
 
-const marks = [];
 const prefix = '#; ';
 let highlight = null;
 
@@ -22,7 +21,6 @@ const editor_element = document.getElementById('editor');
 const editor = CodeMirror(editor_element, {
     mode: 'scheme',
     theme: defaults.theme,
-    styleActiveLine: true,
     autoCloseBrackets: true,
     autoMatchParens: true,
     matchBrackets: true,
@@ -163,14 +161,11 @@ function select_paren(position) {
 }
 
 function thing(cm) {
+    if (highlight) highlight.clear();
     if (cm.somethingSelected()) {
-        if (highlight) {
-            highlight.clear();
-        }
         highlight = null;
     } else {
         const position = cm.getCursor();
-
         const previous = find_previous_expression(cm, position);
         if (previous) {
             const {line, token} = previous;
@@ -178,25 +173,18 @@ function thing(cm) {
             if (expression) {
                 const {start, end} = expression;
                 if (start && end) {
-                    if (highlight) {
-                        highlight.clear();
-                    }
-                    highlight = cm.markText(start, end, {style: 'cm-ce'});
-                } else {
-                    if (highlight) {
-                        highlight.clear();
-                    }
-                    highlight = null;
+                    highlight = cm.markText(start, end, {className: 'cm-ce'});
+                    return highlight;
                 }
             }
         }
+        highlight = null;
     }
 }
 
 editor.on('cursorActivity', thing);
 
 function eval_expression(cm) {
-    // state.expressions = [];
     state.forward = false;
     const position = cm.getCursor();
     const previous = find_previous_expression(cm, position);
@@ -234,7 +222,7 @@ function evaluate(cm, value, position) {
             l += 1;
         }
         cm.replaceRange('\n', position, {line: l});
-        state.position = {line: l, ch: 0};
+        state.position = {line: line + 1, ch: 0};
     }
 
     cm.setCursor(state.position);
@@ -253,7 +241,6 @@ function eval_forward(cm, position) {
             if (start && end) {
                 state.forward = true;
                 const value = cm.getRange(start, end);
-                console.log('end', end);
                 return evaluate(cm, value, end);
             }
         }
