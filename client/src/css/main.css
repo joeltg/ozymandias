@@ -114,8 +114,7 @@ html, body {
 
 .panel th, td {
     text-align: start;
-    padding: 0 8px;
-    max-width: 512px;
+    padding: 0 4px;
 }
 
 td pre {
@@ -143,9 +142,13 @@ pre.cm-pretty, pre.cm-latex {
     opacity: 0.2;
 }
 
-.cm-ce {
+.cm-s-monokai .cm-ce {
     background: #373831;
     /*text-decoration: underline;*/
+}
+
+.cm-s-default .cm-ce {
+    background: #e8f2ff;
 }
 
 .crosshair {

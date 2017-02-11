@@ -3,7 +3,7 @@
  */
 
 import CodeMirror from 'codemirror';
-import {defaults, strip, state, test} from '../utils';
+import {defaults, state, test} from '../utils';
 import {Expression} from '../graphics/expression';
 import {send} from '../connect';
 import {keywords} from './keywords';

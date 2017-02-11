@@ -28,8 +28,6 @@ import './editor/sublime';
 import './editor/scheme';
 import './editor/emacs';
 
-import './hint';
-
 import {send, socket} from './connect';
 import {cm_help} from './config';
 import {cm_open, cm_save} from './file';

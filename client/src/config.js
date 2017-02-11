@@ -22,7 +22,6 @@ const icons = {
     }
 };
 const hint = document.getElementById('hint');
-hint.onfocus = e => console.log(e);
 const labels = [
     {
         element: document.getElementById('eval-expression'),

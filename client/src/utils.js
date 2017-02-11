@@ -2,11 +2,12 @@
  * Created by joel on 8/28/16.
  */
 
-const log_element = document.getElementById('log');
+// const log_element = document.getElementById('log');
 
 function log(text) {
-    log_element.innerText += text;
-    log_element.scrollTop = log_element.scrollHeight;
+    // log_element.innerText += text;
+    // log_element.scrollTop = log_element.scrollHeight;
+    console.log(text);
 }
 
 const defaults = {
@@ -32,9 +33,8 @@ const state = {
     clean: true
 };
 
-const strip = text => text.split('\n').map(s => s.trim()).filter(s => s).join(' ');
 const test = text => text.substring(0, 2) !== '#;';
 
 window.state = state;
 
-export {state, defaults, strip, test, log};
+export {state, defaults, test, log};
