@@ -147,6 +147,8 @@ form, input, label {
 
 .graphics-frame > tr + tr > td + td > span + span {
     top: auto;
+    right: auto;
+    left: 0;
     bottom: 0;
 }
 
