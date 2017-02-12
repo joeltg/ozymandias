@@ -215,7 +215,7 @@ function evaluate(cm, value, position) {
         cm.replaceRange('\n', position);
         state.position = {line: line + 1, ch: 0};
     } else if (test(cm.getLine(line + 1))) {
-        if (line + 1 === last || cm.getLine(line + 2)) {
+        if (line + 1 === last || cm.getLine(line + 1)) {
             cm.replaceRange('\n', position);
         }
         state.position = {line: line + 1, ch: 0};
@@ -258,8 +258,8 @@ function value({text, pretty, latex}) {
     const {line} = position;
 
     const newline = editor.getLine(line) ? '\n' : '';
-    const lastline = editor.getLine(line + 1) ? '\n' : '';
-    editor.replaceRange(newline + prefix + text.trim() + lastline, position);
+    // const lastline = editor.getLine(line + 1) ? '\n' : '';
+    editor.replaceRange(newline + prefix + text.trim() + '\n', position);
 
     state.position = editor.getCursor();
 
