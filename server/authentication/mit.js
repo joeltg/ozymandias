@@ -37,11 +37,11 @@ function authenticate(app, render) {
     function userResponse(req, res) {
         const {session} = req;
         const {user, file} = req.params;
-        req.session.file = file;
         if (session.user === user && uuids[session.uuid]) {
             delete uuids[session.uuid];
             render(req, res);
         } else {
+            req.session.file = file;
             res.redirect('/login');
         }
     }

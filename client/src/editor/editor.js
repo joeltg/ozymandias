@@ -3,32 +3,31 @@
  */
 
 import CodeMirror from 'codemirror';
-import {defaults, strip, state} from '../utils';
-import {Expression, modes} from '../graphics/expression';
+import {defaults, state, test} from '../utils';
+import {Expression} from '../graphics/expression';
 import {send} from '../connect';
 import {keywords} from './keywords';
-import {test} from '../config';
 
-const marks = [];
+const prefix = '#; ';
+let highlight = null;
 
 function tab(sign) {
     const direction = sign ? 1 : -1;
     const indentation = sign ? 'indentMore' : 'indentLess';
-    return cm => view(cm, direction) || cm.execCommand(indentation);
+    return cm => cm_view(cm, direction) || cm.execCommand(indentation);
 }
 
 const editor_element = document.getElementById('editor');
 const editor = CodeMirror(editor_element, {
     mode: 'scheme',
     theme: defaults.theme,
-    styleActiveLine: true,
     autoCloseBrackets: true,
     autoMatchParens: true,
     matchBrackets: true,
     indentUnit: 2,
     indentWithTabs: false,
     keyMap: defaults.keyMap,
-    value: ';;;; Lambda v0.3\n\n',
+    value: defaults.text,
     extraKeys: CodeMirror.normalizeKeyMap({
         'Tab': tab(true),
         'Shift-Tab': tab(false),
@@ -41,169 +40,276 @@ CodeMirror.commands['eval-document']= eval_document;
 CodeMirror.commands['eval-expression'] = eval_expression;
 CodeMirror.registerHelper('hintWords', 'scheme', keywords.sort());
 
-const complain_notification = document.createElement('span');
-
-complain_notification.textContent = 'Resolve error before continuing evaluation';
-
-function complain(cm) {
-    cm.openNotification(complain_notification, {duration: 3000});
+function cm_view(cm, delta) {
+    const mark = cm.findMarksAt(cm.getCursor())[0];
+    if (mark) {
+        const {expression} = mark;
+        const radix = expression.modes.length;
+        const index = (expression.index + delta + radix) % radix;
+        mark.expression.update(index);
+        mark.changed();
+        return true;
+    }
+    return false;
 }
 
-function range(a, b, c) {
-    return (b.line >= a.line) && (b.line <= c.line);
+function predicate({state: {depth, mode}, type}) {
+    if (type === 'comment' || mode === 'comment' || mode === 's-expr-comment') return false;
+    return depth === 0;
 }
 
-function view(cm, delta) {
-    const start = cm.getCursor('from');
-    const end = cm.getCursor('to');
-    const update = ({from, to}) => range(start, from, end) || range(start, to, end);
-
-    const updates = marks.filter(mark => update(mark.find() || {from: -1, to: -1}));
-    if (updates.length === 0) return false;
-    const index = Math.abs((updates[0].expression.index + delta) % modes.length);
-    updates.forEach(mark => mark.expression.update(index) && mark.changed());
-    return true;
+function find_next_expression(cm, {line, ch}) {
+    const lines = cm.lineCount();
+    for (let t = cm.getLineTokens(line).filter(({start}) => start > ch); line < lines; t = cm.getLineTokens(++line)) {
+        for (let i = 0; i < t.length; i++) {
+            const token = t[i];
+            if (predicate(token)) {
+                return {line, token};
+            }
+        }
+    }
+    return null;
 }
+
+function quoted({string, type, state: {depth, mode}}) {
+    const quasi = (type === 'variable' && string === '`');
+    const quote = (type === 'atom' && string === "'");
+    return (quasi || quote) && (depth === 0) && (mode === false);
+}
+
+function find_previous_expression(cm, {line, ch}) {
+    // father forgive me, for I know not what I do
+    for (let t = cm.getLineTokens(line).filter(({start}) => start < ch); line >= 0; t = cm.getLineTokens(--line)) {
+        for (let i = t.length - 1; i >= 0; i--) {
+            const token = t[i];
+            if (predicate(token)) {
+                if (i > 0 && quoted(t[i - 1])) return {line, token: t[i - 1], next: token};
+                else return {line, token};
+            }
+        }
+    }
+    return null;
+}
+
+function check_start_paren({start, end}) {
+    const {line, ch} = start;
+    const tokens = cm.getLineTokens(line);
+    const index = tokens.findIndex(({start}) => start === ch);
+    if (index > 0 && quoted(tokens[index - 1])) {
+        return {start: {line, ch: tokens[index - 1].start}, end};
+    } else {
+        return {start, end}
+    }
+}
+
+function select_expression(cm, line, token, next) {
+    const start = {line, ch: token.start}, end = {line, ch: token.end};
+    if (token.type === 'paren') {
+        const parens = select_paren(end);
+        if (token.string === '(') return parens;
+        else return check_start_paren(parens);
+    } else if (token.type === 'string') {
+        const backward = select_string_backward(cm, token, start);
+        const forward = select_string_forward(cm, token, end);
+        return {start: backward, end: forward};
+    } else if (quoted(token) && next) {
+        return {start, end: select_expression(cm, line, next).end};
+    } else {
+        return {start, end};
+    }
+}
+
+function select_string_forward(cm, {string}, end) {
+    if (string[string.length - 1] === '"') {
+        return end;
+    } else {
+        const next = find_next_expression(cm, end);
+        if (next && next.token.type === 'string') {
+            const {line, token} = next;
+            return select_string_forward(cm, token, {line, ch: token.end});
+        } else {
+            return null;
+        }
+    }
+}
+
+function select_string_backward(cm, {string}, start) {
+    if (string[0] === '"') {
+        return start;
+    } else {
+        const prev = find_previous_expression(cm, start);
+        if (prev && prev.token.type === 'string') {
+            const {line, token} = prev;
+            return select_string_backward(cm, token, {line, ch: token.start});
+        } else {
+            return null;
+        }
+    }
+}
+
+function select_paren(position) {
+    const brackets = editor.findMatchingBracket(position);
+    if (brackets && brackets.match) {
+        const {forward, from, to} = brackets;
+        const start = forward ? from : to;
+        const end = forward ? to : from;
+        end.ch += 1;
+        return {start, end};
+    } else {
+        return null;
+    }
+}
+
+function thing(cm) {
+    if (highlight) highlight.clear();
+    if (cm.somethingSelected()) {
+        highlight = null;
+    } else {
+        const position = cm.getCursor();
+        const previous = find_previous_expression(cm, position);
+        if (previous) {
+            const {line, token} = previous;
+            const expression = select_expression(cm, line, token);
+            if (expression) {
+                const {start, end} = expression;
+                if (start && end) {
+                    highlight = cm.markText(start, end, {className: 'cm-ce'});
+                    return highlight;
+                }
+            }
+        }
+        highlight = null;
+    }
+}
+
+editor.on('cursorActivity', thing);
 
 function eval_expression(cm) {
-    if (state.error) complain(cm);
-    else {
-        const position = cm.getCursor();
-        const {start, end} = get_outer_expression(cm, position);
-        const {line} = end;
-        const value = cm.getRange(start, end);
-        state.expressions = false;
-        evaluate(value, {line});
+    state.forward = false;
+    const position = cm.getCursor();
+    const previous = find_previous_expression(cm, position);
+    if (previous) {
+        const {line, token, next} = previous;
+        const expression = select_expression(cm, line, token, next);
+        if (expression) {
+            const {start, end} = expression;
+            if (start && end) {
+                const value = cm.getRange(start, end);
+                return evaluate(cm, value, end);
+            }
+        }
     }
+    console.error('could not select expression');
 }
 
 function eval_document(cm) {
-    if (state.error) complain(cm);
-    else {
-        const expressions = [];
-        let open = false;
-        cm.eachLine(line_handle => {
-            if (test(line_handle.text)) {
-                const line = cm.getLineNumber(line_handle);
-                const tokens = cm.getLineTokens(line);
-                tokens.forEach(token => {
-                    const {start, end, type, state: {depth, mode}} = token;
-                    if (depth === 0 && mode !== 'comment') {
-                        if (type === 'bracket') {
-                            if (open) {
-                                expressions.push({start: open, end: {line: line_handle, ch: end}});
-                                open = false;
-                            } else open = {line: line_handle, ch: start};
-                        } else if (type === 'comment') {
-
-                        } else expressions.push({start: {line: line_handle, ch: start}, end: {line: line_handle, ch: end}});
-                    }
-                });
-            }
-        });
-        if (expressions.length > 0) {
-            state.expressions = expressions;
-            pop_expression();
-        } else state.expressions = false;
-    }
+    const position = {line: 0, ch: 0};
+    clear_values(cm);
+    eval_forward(cm, position);
 }
 
-function select_expression(line, token) {
-    const start = {line, ch: token.start}, end = {line, ch: token.end};
-    if (token.type === 'bracket') return get_paren_block(end, token);
-    else if (token.type === 'string') start.ch -= 1;
-    return {start, end};
-}
-
-// father forgive me, for I know not what I do
-function get_outer_expression(cm, {line, ch}) {
-    let tokens = cm.getLineTokens(line);
-    for (tokens = tokens.filter(token => token.start < ch); line > -1; tokens = cm.getLineTokens(--line)) {
-        for (let i = tokens.length - 1; i > -1; i--) {
-            if (tokens[i].state.depth === 0 && tokens[i].type !== 'comment' && tokens[i].state.mode !== 'comment') {
-                return select_expression(line, tokens[i]);
-            }
+function evaluate(cm, value, position) {
+    const {line} = position;
+    const last = cm.lastLine();
+    if (line === last) {
+        cm.replaceRange('\n', position);
+        state.position = {line: line + 1, ch: 0};
+    } else if (test(cm.getLine(line + 1))) {
+        if (line + 1 === last || cm.getLine(line + 1)) {
+            cm.replaceRange('\n', position);
         }
-    }
-}
-
-function get_paren_block(position, token) {
-    const parens = editor.findMatchingBracket(position);
-    if (parens && parens.match) {
-        const start = parens.forward ? parens.from : parens.to;
-        const end = parens.forward ? parens.to : parens.from;
-        if ((token.string === '[' || token.string === ']') && editor.getLine(start.line)[start.ch - 1] === '#') start.ch -= 1;
-        end.ch += 1;
-        state.position = {line: end.line + 1, ch: 0};
-        editor.setCursor(state.position);
-        editor.scrollIntoView();
-        return {start, end}
-    } else return false;
-}
-
-function evaluate(value, position) {
-    state.position = position;
-    send('eval', strip(value) + '\n', true);
-}
-
-function pop_expression() {
-    const [{start, end}] = state.expressions.splice(0, 1);
-    const from = {line: editor.getLineNumber(start.line), ch: start.ch};
-    const to = {line: editor.getLineNumber(end.line), ch: end.ch};
-    const text = editor.getRange(from, to);
-    const {line} = to;
-    evaluate(text, {line});
-}
-
-
-function value([text, latex]) {
-    if (state.error) {
-        console.error(text, latex);
+        state.position = {line: line + 1, ch: 0};
     } else {
-        const {position} = state;
-        if (position) {
-            editor.setCursor(position);
-            const line = position.line + 1;
-            const nextLine = editor.getLine(line);
-            const nextNextLine = editor.getLine(line + 1);
+        let l = line + 1, t;
+        while (l <= last) {
+            t = cm.getLine(l);
+            if (test(t)) break;
+            l += 1;
+        }
+        cm.replaceRange('\n', position, {line: l});
+        state.position = {line: line + 1, ch: 0};
+    }
 
-            if (nextLine && !test(nextLine)) editor.replaceRange('\n\n', position, {line: line + 1});
-            else if (nextLine || nextLine === undefined) editor.replaceRange('\n\n', position);
-            else if (nextNextLine || nextNextLine === undefined) editor.replaceRange('\n', position);
-            state.position = editor.getCursor();
+    cm.setCursor(state.position);
 
-            const start = {line, ch: 0}, end = {line};
-            editor.replaceRange(strip(text), start, end);
+    send('eval', value.trim() + '\n', true);
+}
 
-            if (latex) {
-                const expression = new Expression(text, latex, defaults.mode_index);
-                const mark = editor.markText(start, end, {
-                    replacedWith: expression.node,
-                    inclusiveLeft: false,
-                    inclusiveRight: true
-                });
-                expression.mark = mark;
-                mark.expression = expression;
-                marks.push(mark);
-            } else {
-                const element = document.createElement('span');
-                element.textContent = strip(text);
-                element.className = 'cm-comment';
-
-                editor.markText(start, end, {
-                    replacedWith: element,
-                    inclusiveLeft: false,
-                    inclusiveRight: true
-                });
+function eval_forward(cm, position) {
+    cm.setCursor(position);
+    const next = find_next_expression(cm, position);
+    if (next) {
+        const {line, token} = next;
+        const expression = select_expression(cm, line, token);
+        if (expression) {
+            const {start, end} = expression;
+            if (start && end) {
+                state.forward = true;
+                const value = cm.getRange(start, end);
+                return evaluate(cm, value, end);
             }
         }
-        if (state.expressions && state.expressions.length > 0) pop_expression();
     }
+    state.forward = false;
+}
+
+function value({text, pretty, latex}) {
+    const {position, forward} = state;
+    const {line} = position;
+
+    const newline = editor.getLine(line) ? '\n' : '';
+    // const lastline = editor.getLine(line + 1) ? '\n' : '';
+    editor.replaceRange(newline + prefix + text.trim() + '\n', position);
+
+    state.position = editor.getCursor();
+
+    if (pretty && pretty.trim() !== text) {
+        const expression = new Expression(text, pretty, latex);
+        const mark = editor.addLineWidget(state.position.line -1, expression.node);
+
+        editor.addLineClass(mark.line, 'background', 'cm-e');
+        expression.mark = mark;
+        mark.expression = expression;
+    }
+
+    editor.scrollIntoView();
+
+    if (forward) {
+        eval_forward(editor, state.position);
+    }
+}
+
+function print({text, pretty, latex}) {
+    const {position} = state;
+    const {line} = position;
+
+    const newline = editor.getLine(line) ? '\n' : '';
+    editor.replaceRange(newline + prefix + text.trim() + '\n', position);
+
+    state.position = editor.getCursor();
+
+    if (pretty && pretty.trim() !== text) {
+        const expression = new Expression(text, pretty, latex);
+        const mark = editor.addLineWidget(state.position.line -1, expression.node);
+
+        editor.addLineClass(mark.line, 'background', 'cm-e');
+        expression.mark = mark;
+        mark.expression = expression;
+    }
+
+    editor.scrollIntoView();
 }
 
 function clear_values(cm) {
-    cm.setValue(cm.getValue().split('\n').filter(test).join('\n'));
+    const {line} = editor.getCursor();
+    const lines = cm.getValue().split('\n');
+    const end = test(lines[lines.length - 1]);
+    const first = lines.slice(0, line).filter(test);
+    const last = lines.slice(line).filter(test);
+    const newLine = first.length;
+    cm.setValue(first.concat(last).join('\n') + (end ? '' : '\n'));
+    cm.setCursor(newLine);
     cm.focus();
 }
 
-export {editor, editor_element, value, view}
+export {editor, editor_element, value, print, cm_view}

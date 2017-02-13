@@ -18,7 +18,6 @@ import 'codemirror/addon/scroll/simplescrollbars.css';
 import 'codemirror/addon/dialog/dialog';
 import 'codemirror/addon/dialog/dialog.css';
 import 'codemirror/addon/display/panel';
-import 'codemirror/addon/selection/active-line';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
 
@@ -29,31 +28,17 @@ import './editor/sublime';
 import './editor/scheme';
 import './editor/emacs';
 
-import './hint';
-
 import {send, socket} from './connect';
-import {cm_open, cm_save, help, open, save, load} from './config';
-import {state, stdout} from './utils';
+import {cm_help} from './config';
+import {cm_open, cm_save} from './file';
+import {state, log} from './utils';
 
-import {value, view} from './editor/editor';
-import {error} from './error/error';
-import {canvas} from './graphics/canvas';
+import {cm_view} from './editor/editor';
 
-const types = {
-    canvas,
-    stdout,
-    value,
-    error,
-    open,
-    save,
-    load
-};
+import {pipe} from './pipe';
 
-const pipe = ({type, data}) => types[type](data);
-
-
-CodeMirror.commands.view = view;
-CodeMirror.commands.help = help;
+CodeMirror.commands.view = cm_view;
+CodeMirror.commands.help = cm_help;
 CodeMirror.commands.save = cm_save;
 CodeMirror.commands.open = cm_open;
 CodeMirror.commands.interrupt = cm => {
@@ -61,9 +46,9 @@ CodeMirror.commands.interrupt = cm => {
     send('kill', 'SIGINT');
 };
 
-stdout('connecting to server...\n');
+log('connecting to server...\n');
 
 socket.onmessage = event => pipe(JSON.parse(event.data));
 socket.onerror   = event => console.error(event);
-socket.onopen    = event => stdout('connected.\n');
-socket.onclose   = event => console.log(event) || stdout('\nlost connection to server\n');
+socket.onopen    = event => log('connected.\n');
+socket.onclose   = event => log('\nlost connection to server. reload the page.\n');

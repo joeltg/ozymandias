@@ -1,20 +1,24 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const url = require('url');
 const path = require('path');
-const express = require('express');
-const uuidV4 = require('uuid/v4');
-const handlebars = require('express-handlebars');
-const ws = require('ws');
+const http = require('http');
+
 const dotenv = require('dotenv');
+const uuidV4 = require('uuid/v4');
+const express = require('express');
+const handlebars = require('express-handlebars');
+const WebSocketServer = require('websocket').server;
+
+const Connection = require('./connection');
+
 const root = path.resolve(__dirname, '..');
 
 dotenv.config({path: path.resolve(root, '.env')});
-const auth = process.env.AUTH;
-const socket_port = +(process.env.SOCKET_PORT || 3000);
-const server_port = +(process.env.SERVER_PORT || 1947);
-
-const Connection = require('./connection');
+const auth = process.env.AUTH || null;
+const port = process.env.PORT || 3000;
+const scmutils = process.env.SCMUTILS === 'true';
 const connections = {};
 
 const app = express();
@@ -30,8 +34,8 @@ function render(req, res) {
     function exit(connected, open) {
         delete connections[uuid];
     }
-    connections[uuid] = new Connection(user, file, exit);
-    res.render('index.html', {uuid, user, file, auth, port: socket_port});
+    connections[uuid] = new Connection(user, file, exit, scmutils);
+    res.render('index.html', {uuid, user, file, auth, port});
 }
 
 app.get('/', render);
@@ -43,19 +47,21 @@ if (auth === 'mit') {
     require('./authentication/github')(app, render);
 }
 
-app.listen(server_port);
+const httpServer = app.listen(port);
+const webSocketServer = new WebSocketServer({httpServer, autoAcceptConnections: false});
 
-// WebSocket Server
-const socket_server = new ws.Server({port: socket_port});
-socket_server.on('connection', function(socket) {
-    const uuid = socket.upgradeReq.url.substr(1);
+webSocketServer.on('request', function(request) {
+    const {query: {uuid}} = url.parse(request.resource, true);
     const connection = connections[uuid];
-    if (connection) connection.connect(socket);
-    else console.error('connection failed');
+    if (uuid && connection) {
+        const socket = request.accept('ozymandias', request.origin);
+        connection.connect(socket);
+    } else {
+        request.reject();
+    }
 });
 
-console.log('http server listening on port', server_port);
-console.log('socket listening on port', socket_port);
+console.log('server listening on port', port);
 
 process.on('SIGINT', e => process.exit());
 process.on('SIGTERM', e => process.exit());

@@ -5,18 +5,12 @@ This project is a modern MIT Scheme environment in the browser that tries its be
 ## Usage
 The editor is a little different than the usual editor/repl split, and is more similar to [LightTable](http://lighttable.com/) or the [Hydrogen plugin](https://atom.io/packages/hydrogen) for Atom than traditional editors. Expressions are evaluated inline and results are printed below each expression.
 
-For example, typing `(apply vector (map square (iota 3)))` in the editor and then evaluating it with `Ctrl-Enter` (or `Cmd-Enter`) will print the commented result `#(0 1 4)` below. But we can also tab between Scheme and TeX representations of results:
-
-![such graphics, many latex](http://joelgustafson.com/projects/ozymandias/lambda.gif)
-
-You can also do some fun symbolic computing thanks to [scmutils](https://groups.csail.mit.edu/mac/users/gjs/6946/refman.txt):
-
-![much symbol, so algebra](http://joelgustafson.com/projects/ozymandias/lambda2.gif)
+For example, typing `(apply vector (map square (iota 3)))` in the editor and then evaluating it with `Ctrl-Enter` (or `Cmd-Enter`) will print the commented result `#(0 1 4)` below. 
 
 The help panel summarizes the available keyboard shortcuts and commands - if you're already used to Emacs or Sublime, most of the existing commands should work here as well. And if you're not, great! You don't really need them anyway - just click on the commands in the help panel instead.
 
 ## Installation
-Things you need:
+Things you need to run your own server:
 
 - [Node.js](https://nodejs.org/en/) v6+
 - [schroot](https://wiki.debian.org/Schroot)
@@ -24,14 +18,15 @@ Things you need:
 
 It probably works with earlier versions, other \*nixes, and maybe even macOS, but it's never been tried.
 If you try to run it on Windows, Gerry Sussman will hunt you down and throw chalk at you.
+The `mit-scheme` npm package ([source](https://github.com/joeltg/mit-scheme)) is a sister project; it wraps a native MIT Scheme instance in a NodeJS Duplex Stream that is easier to interface with. Since it the package needs to write config files to `/etc/schroot`, you'll need to install it globally and with permissions.
 
 Things you do:
 
 ```
+sudo npm install -g mit-scheme --unsafe-perm
 npm install
 npm run build
-sudo nodejs server/server.js
-> socket listening on port 1947
+npm start
 > server listening on port 3000
 ```
 
@@ -40,7 +35,7 @@ sudo nodejs server/server.js
 ## Notes
 
 ### Permissions & Security
-Since each Scheme subprocess is sandboxed in a chroot jail, the server needs to be run with sudo permissions so it can write to `/etc/schroot` and manipulate file mounts. There's *probably* a way to get around this (pull requests welcomed) but if it's that concerning you probably shouldn't be doing it anyway - chroot jails are not that secure and you're literally letting strangers on the Internet execute code on your computer. Don't run this publicly on a machine you really care about.
+Each Scheme subprocess is sandboxed in a chroot jail, but it's not that secure and you should expect Scheme to be able to execute arbitrary code on your computer. Don't run this publicly on a machine you really care about. Or, better yet, propose a better security model!
 
 ### Authentication
 Ozymandias is designed to support user accounts. There are two authentication modules in `server/authentication/` for [MIT Touchstone](https://ist.mit.edu/touchstone) and [GitHub](https://developer.github.com/v3/), but it's designed to be extensible. Any scheme (ha) you want to implement just has to attach the appropriate routing middleware to the express app, and pass the appropriate username into every new `Connection`. The default is the `null` user, which is a public directory, readable and writable by everyone.

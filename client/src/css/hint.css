@@ -91,15 +91,15 @@ form, input, label {
     font-weight: bold;
 }
 
-#settings + ul > li {
+#settings li {
     padding: 6px 0;
 }
 
-#reference + ul > li {
+#reference li {
     cursor: pointer;
 }
 
-#reference + ul > li:hover {
+#reference li:hover {
     font-weight: bold;
     font-style: italic;
 }
@@ -117,49 +117,38 @@ form, input, label {
     font-size: 16px;
 }
 
-#stdout {
-    margin: 4px;
-    max-height: 360px;
-    white-space: nowrap;
-    overflow-y: auto;
-}
-
-#graphics-drawer {
-    max-height: 360px;
-    white-space: nowrap;
-    overflow-x: auto;
-    margin-left: 4px;
-}
-
 .graphics-frame {
     display: inline-table;
 }
 
-.graphics-frame > tr > td + td > span {
+.graphics-frame > tr > td > span {
     float: left;
 }
 
-.graphics-frame > tr > td + td > span + span {
+.graphics-frame > tr > td > span + span {
     float: right;
 }
 
-.graphics-frame > tr + tr > td {
+
+.graphics-frame > tr + tr > td + td {
     position: relative;
 }
 
-.graphics-frame > tr + tr > td + td {
+.graphics-frame > tr + tr > td {
     position: static;
     width: inherit;
 }
 
-.graphics-frame > tr + tr > td > span {
+.graphics-frame > tr + tr > td + td > span {
     position: absolute;
     top: 0;
     right: 0;
 }
 
-.graphics-frame > tr + tr > td > span + span {
+.graphics-frame > tr + tr > td + td > span + span {
     top: auto;
+    right: auto;
+    left: 0;
     bottom: 0;
 }
 

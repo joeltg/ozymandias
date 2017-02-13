@@ -1,17 +1,21 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-const root = path.resolve(__dirname, '..');
-const MITScheme = require('mit-scheme')(root, 'scheme');
+const {readFile, writeFile, readdir} = require('fs');
+const {resolve} = require('path');
+const MITScheme = require('mit-scheme');
+
+const root = resolve(__dirname, '..');
+const jail = resolve(root, 'public');
+const users = resolve(root, 'users');
 
 const utf = 'utf8';
 
 class Connection {
-    constructor(name, file, exit) {
-        this.name = name;
+    constructor(name, file, exit, scmutils) {
+        this.path = name ? resolve(users, name) : jail;
         this.file = file;
         this.exit = exit;
+        this.scmutils = !!scmutils;
 
         this.files = null;
         this.socket = null;
@@ -20,22 +24,23 @@ class Connection {
         this.open = false;
     }
     connect(socket) {
+        const {scmutils, file, path} = this;
         this.socket = socket;
         this.connected = true;
-        this.socket.on('message', data => this.message(JSON.parse(data)));
+        this.socket.on('message', ({utf8Data}) => this.message(JSON.parse(utf8Data)));
         this.socket.on('error', error => console.error(error));
         this.socket.on('close', event => {
             this.connected = false;
             this.close();
         });
 
-        this.scheme = new MITScheme(this.name);
+        this.scheme = new MITScheme({scmutils, path, root});
+
         this.scheme.on('open', event => {
             this.open = true;
             this.files = this.scheme.files;
-            if (this.file) {
-                const file = this.find(this.file);
-                fs.readFile(file, utf, (error, text) => this.push('load', text || ''));
+            if (file) {
+                readFile(this.find(file), utf, (error, text) => this.push('load', {file, text}));
             }
         });
 
@@ -50,10 +55,10 @@ class Connection {
         if (type === 'save' && this.files) {
             const {name, text} = data;
             const file = this.find(name);
-            fs.writeFile(file, text, utf, error => this.push('save', !error));
+            writeFile(file, text, utf, error => this.push('save', {error, name}));
         }
-        else if (type === 'load' && this.files) fs.readFile(this.find(data), utf, (error, text) => this.push('load', text || ''));
-        else if (type === 'open' && this.files) fs.readdir(this.files, (error, files) => this.push('open', files || []));
+        else if (type === 'load' && this.files) readFile(this.find(data), utf, (error, text) => this.push('load', {file: data, text}));
+        else if (type === 'open' && this.files) readdir(this.files, (error, files) => this.push('open', files || []));
         else if (type === 'eval' && this.open) this.scheme.write(data);
         else if (type === 'kill' && this.open) this.scheme.kill(data);
         else console.error('invalid type', type);
@@ -72,15 +77,15 @@ class Connection {
         }
     }
     send(message) {
-        if (this.connected && this.socket.readyState === 1) {
-            this.socket.send(message);
+        if (this.connected && this.socket.connected) {
+            this.socket.sendUTF(message);
         }
     }
     push(type, data) {
         this.send(JSON.stringify({type, data}));
     }
     find(name) {
-        return path.resolve(this.files, name.split('/').join('-'));
+        return resolve(this.files, name.split('/').join('-'));
     }
 }
 
