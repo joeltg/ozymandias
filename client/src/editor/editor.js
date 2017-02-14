@@ -26,6 +26,7 @@ const editor = CodeMirror(editor_element, {
     theme: defaults.theme,
     autoCloseBrackets: true,
     autoMatchParens: true,
+    lineWrapping: true,
     matchBrackets: true,
     indentUnit: 2,
     indentWithTabs: false,
