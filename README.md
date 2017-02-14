@@ -18,7 +18,8 @@ Things you need to run your own server:
 
 It probably works with earlier versions, other \*nixes, and maybe even macOS, but it's never been tried.
 If you try to run it on Windows, Gerry Sussman will hunt you down and throw chalk at you.
-The `mit-scheme` npm package ([source](https://github.com/joeltg/mit-scheme)) is a sister project; it wraps a native MIT Scheme instance in a NodeJS Duplex Stream that is easier to interface with. Since it the package needs to write config files to `/etc/schroot`, you'll need to install it globally and with permissions.
+
+The `mit-scheme` npm package (on [GitHub](https://github.com/joeltg/mit-scheme) and [npm](https://www.npmjs.com/package/mit-scheme)) is a sister project; it wraps a native MIT Scheme instance in a NodeJS Duplex Stream that is easier to interface with. Since it needs to write config files to `/etc/schroot`, you'll need to install it globally and with permissions.
 
 Things you do:
 
@@ -36,7 +37,7 @@ npm start
 > server listening on port 3000
 ```
 
-... and it's live on `http://localhost:3000`! Amazing. 
+... and it's live on `http://localhost:3000`. Amazing.
 
 ## Notes
 
