@@ -17,7 +17,7 @@ const root = path.resolve(__dirname, '..');
 
 dotenv.config({path: path.resolve(root, '.env')});
 const port = process.env.PORT || 3000;
-const auth = process.env.AUTH === 'true';
+const auth = process.env.AUTH || null;
 const scmutils = process.env.SCMUTILS !== 'false';
 const connections = {};
 
