@@ -16,9 +16,9 @@ const Connection = require('./connection');
 const root = path.resolve(__dirname, '..');
 
 dotenv.config({path: path.resolve(root, '.env')});
-const auth = process.env.AUTH || null;
 const port = process.env.PORT || 3000;
-const scmutils = process.env.SCMUTILS === 'true';
+const auth = process.env.AUTH === 'true';
+const scmutils = process.env.SCMUTILS !== 'false';
 const connections = {};
 
 const app = express();
