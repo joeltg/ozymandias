@@ -1,11 +1,14 @@
 # Ozymandias
 Scheme is a beautiful language, but for those afraid of Emacs it can be difficult to use. 
-This project is a modern MIT Scheme environment in the browser that tries its best to be friendly and usable.
+This project is a modern MIT Scheme environment for the browser that tries its best to be friendly and usable.
 
 - [Demo](http://ozymandias.xyz/files/Demo.scm)
 - [This page, but with worse CSS](http://joelgustafson.com/ozymandias)
 
-## Usage
+## Overview
+
+![diagram](https://rawgit.com/joeltg/ozymandias/master/docs/images/diagram.svg)
+
 Ozymandias is more similar to [LightTable](http://lighttable.com/) or the [Hydrogen plugin](https://atom.io/packages/hydrogen) for Atom than traditional editors. 
 Expressions are evaluated with `Ctrl-Enter` (or `Cmd-Enter`), and results are inlined below each expression. 
 When appropriate, you can tab between Scheme object, pretty-printed, or Tex representations of values.
