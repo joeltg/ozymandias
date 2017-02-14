@@ -1,21 +1,19 @@
 # Ozymandias
-Scheme is a beautiful language, but for those afraid of Emacs it can be difficult to use, and things that are difficult to use are difficult to learn.
+Scheme is a beautiful language, but for those afraid of Emacs it can be difficult to use. 
 This project is a modern MIT Scheme environment in the browser that tries its best to be friendly and usable.
 
 ## Usage
-Ozymandias is a little different than the usual editor/repl split, and is more similar to [LightTable](http://lighttable.com/) or the [Hydrogen plugin](https://atom.io/packages/hydrogen) for Atom than traditional editors. Expressions are evaluated with `Ctrl-Enter` (or `Cmd-Enter`), and results are inlined below each expression. 
+Ozymandias is more similar to [LightTable](http://lighttable.com/) or the [Hydrogen plugin](https://atom.io/packages/hydrogen) for Atom than traditional editors. 
+Expressions are evaluated with `Ctrl-Enter` (or `Cmd-Enter`), and results are inlined below each expression. 
+When appropriate, you can tab between Scheme object, pretty-printed, or Tex representations of values.
 
 ![evaluation](https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/a.gif)
 
-... Graphics devices appear as HTML5 Canvases...
+... you can plot functions and their derivatives...
 
 ![graphics](https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/b.gif)
 
-... we can derrive the motion of ellipses...
-
-![ellipse](https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/c.gif)
-
-... or the mechanics of harmonic oscillators...
+... or find the Lagrangian of a harmonic oscillator...
 
 ![oscillator](https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/d.gif)
 
