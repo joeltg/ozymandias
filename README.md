@@ -23,7 +23,13 @@ The `mit-scheme` npm package ([source](https://github.com/joeltg/mit-scheme)) is
 Things you do:
 
 ```
+sudo apt-get install schroot
 sudo npm install -g mit-scheme --unsafe-perm
+
+git clone https://github.com/joeltg/ozymandias.git
+cd ozymandias
+
+npm link mit-scheme
 npm install
 npm run build
 npm start
