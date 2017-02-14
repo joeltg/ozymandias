@@ -27,6 +27,7 @@ The help panel summarizes the available keyboard shortcuts and commands - if you
 Things you need to run your own server:
 
 - [Node.js](https://nodejs.org/en/) v6+
+- [mit-scheme](https://github.com/joeltg/mit-scheme)
 - [schroot](https://wiki.debian.org/Schroot)
 - Ubuntu 14.04+ / Debian 8+
 
