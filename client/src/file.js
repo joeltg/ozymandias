@@ -6,7 +6,7 @@ import {send} from './connect';
 import {state, defaults} from './utils';
 import {editor} from './editor/editor';
 
-const name = 'Lambda';
+const name = 'Ozymandias';
 const filename = document.getElementById('filename');
 const login = document.getElementById('login');
 
