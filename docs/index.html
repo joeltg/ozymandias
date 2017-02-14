@@ -14,27 +14,26 @@
         <a href="https://github.com/joeltg/ozymandias">GitHub</a>, <a href="http://ozymandias.xyz">Demo</a>
     </p>
     <p>
-        Scheme is a beautiful language, but for those afraid of Emacs it can be difficult to use, and things that are difficult to use are difficult to learn.
+        Scheme is a beautiful language, but for those afraid of Emacs it can be difficult to use.
         This project is a modern MIT Scheme environment in the browser that tries its best to be friendly and usable.
     </p>
 
     <section id="usage">
         <h2>Usage</h2>
         <p>
-            Ozymandias is a little different than the usual editor/repl split, and is more similar to <a href="http://lighttable.com/">LightTable</a> or the <a href="https://atom.io/packages/hydrogen">Hydrogen plugin</a> for Atom than traditional editors.
-            Expressions are evaluated inline and results are printed below each expression.
+            Ozymandias is more similar to <a href="http://lighttable.com/">LightTable</a> or the <a href="https://atom.io/packages/hydrogen">Hydrogen plugin</a> for Atom than traditional editors.
             Expressions are evaluated with <code>Ctrl-Enter</code> (or <code>Cmd-Enter</code>), and results are inlined below each expression.
         </p>
 
-        <figure>
+        <figure class="fullwidth">
             <img src="https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/a.gif">
         </figure>
 
         <p>
-            ... Graphics devices appear as HTML5 Canvases...
+            ... Graphics devices are HTML5 Canvases...
         </p>
 
-        <figure>
+        <figure class="fullwidth">
             <img src="https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/b.gif">
         </figure>
 
@@ -42,7 +41,7 @@
             ... we can derrive the motion of ellipses...
         </p>
 
-        <figure>
+        <figure class="fullwidth">
             <img src="https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/c.gif">
         </figure>
 
@@ -50,7 +49,7 @@
             ... or the mechanics of harmonic oscillators...
         </p>
 
-        <figure>
+        <figure class="fullwidth">
             <img src="https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/d.gif">
         </figure>
 
@@ -58,7 +57,7 @@
             ... and there's even a primitive debugger!
         </p>
 
-        <figure>
+        <figure class="fullwidth">
             <img src="https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/e.gif">
         </figure>
 
@@ -95,18 +94,18 @@
         <figure>
             <pre>
                 <code>
-                    sudo apt-get install schroot
-                    sudo npm install -g mit-scheme --unsafe-perm
+sudo apt-get install schroot
+sudo npm install -g mit-scheme --unsafe-perm
 
-                    git clone https://github.com/joeltg/ozymandias.git
-                    cd ozymandias
+git clone https://github.com/joeltg/ozymandias.git
+cd ozymandias
 
-                    npm link mit-scheme
-                    npm install
-                    npm run build
-                    npm start
+npm link mit-scheme
+npm install
+npm run build
+npm start
 
-                    &gt; server listening on port 3000
+&gt; server listening on port 3000
                 </code>
             </pre>
         </figure>
