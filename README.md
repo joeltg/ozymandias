@@ -3,9 +3,25 @@ Scheme is a beautiful language, but for those afraid of Emacs it can be difficul
 This project is a modern MIT Scheme environment in the browser that tries its best to be friendly and usable.
 
 ## Usage
-The editor is a little different than the usual editor/repl split, and is more similar to [LightTable](http://lighttable.com/) or the [Hydrogen plugin](https://atom.io/packages/hydrogen) for Atom than traditional editors. Expressions are evaluated inline and results are printed below each expression.
+The editor is a little different than the usual editor/repl split, and is more similar to [LightTable](http://lighttable.com/) or the [Hydrogen plugin](https://atom.io/packages/hydrogen) for Atom than traditional editors. Expressions are evaluated it with `Ctrl-Enter` (or `Cmd-Enter`), and results and inserted inline below each expression. 
 
-For example, typing `(apply vector (map square (iota 3)))` in the editor and then evaluating it with `Ctrl-Enter` (or `Cmd-Enter`) will print the commented result `#(0 1 4)` below. 
+![evaluation](https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/a.gif)
+
+... Graphics devices appear as HTML5 Canvases...
+
+![graphics](https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/b.gif)
+
+... we can derrive the motion of an ellipse...
+
+![ellipse](https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/c.gif)
+
+... or the mechanics of a harmonic oscillator...
+
+![oscillator](https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/d.gif)
+
+... and there's even a primitive debugger...
+
+![debug](https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/e.gif)
 
 The help panel summarizes the available keyboard shortcuts and commands - if you're already used to Emacs or Sublime, most of the existing commands should work here as well. And if you're not, great! You don't really need them anyway - just click on the commands in the help panel instead.
 
@@ -34,6 +50,7 @@ npm link mit-scheme
 npm install
 npm run build
 npm start
+
 > server listening on port 3000
 ```
 
@@ -41,8 +58,13 @@ npm start
 
 ## Notes
 
+### Configuration
+Ozymandias uses [dotenv](https://www.npmjs.com/package/dotenv) for a few configuration options:
+- `PORT` (default 3000): TCP port that the server listens on
+- `SCMUTILS` (default true): run Scheme with the scmutils library
+
 ### Permissions & Security
-Each Scheme subprocess is sandboxed in a chroot jail, but it's not that secure and you should expect Scheme to be able to execute arbitrary code on your computer. Don't run this publicly on a machine you really care about. Or, better yet, propose a better security model!
+Each Scheme subprocess is sandboxed in a chroot jail, but it's not that secure and you should expect Scheme to be able to execute arbitrary code on your computer. Don't run this publicly on a machine you really care about.
 
 ### Authentication
 Ozymandias is designed to support user accounts. There are two authentication modules in `server/authentication/` for [MIT Touchstone](https://ist.mit.edu/touchstone) and [GitHub](https://developer.github.com/v3/), but it's designed to be extensible. Any scheme (ha) you want to implement just has to attach the appropriate routing middleware to the express app, and pass the appropriate username into every new `Connection`. The default is the `null` user, which is a public directory, readable and writable by everyone.
