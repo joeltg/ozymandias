@@ -23,6 +23,7 @@ import 'codemirror/theme/monokai.css';
 
 import './css/main.css';
 import './css/hint.css';
+import './css/graphics.css';
 
 import './editor/sublime';
 import './editor/scheme';

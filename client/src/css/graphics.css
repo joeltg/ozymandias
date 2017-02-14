@@ -1,0 +1,38 @@
+.graphics-frame {
+    display: inline-table;
+}
+
+.graphics-frame > tr > td > span {
+    float: left;
+}
+
+.graphics-frame > tr > td > span + span {
+    float: right;
+}
+
+
+.graphics-frame > tr + tr > td + td {
+    position: relative;
+}
+
+.graphics-frame > tr + tr > td {
+    position: static;
+    width: inherit;
+}
+
+.graphics-frame > tr + tr > td + td > span {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.graphics-frame > tr + tr > td + td > span + span {
+    top: auto;
+    right: auto;
+    left: 0;
+    bottom: 0;
+}
+
+canvas {
+    background: white;
+}
