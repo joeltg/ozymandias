@@ -5,9 +5,9 @@ This project is a modern MIT Scheme environment for the browser that tries its b
 - [Demo](http://ozymandias.xyz/files/Demo.scm)
 - [This page, but with worse CSS](http://joelgustafson.com/ozymandias)
 
-## Overview
-
 ![diagram](https://rawgit.com/joeltg/ozymandias/master/docs/images/diagram.svg)
+
+## Overview
 
 Ozymandias is more similar to [LightTable](http://lighttable.com/) or the [Hydrogen plugin](https://atom.io/packages/hydrogen) for Atom than traditional editors. 
 Expressions are evaluated with `Ctrl-Enter` (or `Cmd-Enter`), and results are inlined below each expression. 
