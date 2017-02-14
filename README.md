@@ -3,7 +3,7 @@ Scheme is a beautiful language, but for those afraid of Emacs it can be difficul
 This project is a modern MIT Scheme environment in the browser that tries its best to be friendly and usable.
 
 ## Usage
-The editor is a little different than the usual editor/repl split, and is more similar to [LightTable](http://lighttable.com/) or the [Hydrogen plugin](https://atom.io/packages/hydrogen) for Atom than traditional editors. Expressions are evaluated it with `Ctrl-Enter` (or `Cmd-Enter`), and results and inserted inline below each expression. 
+Ozymandias is a little different than the usual editor/repl split, and is more similar to [LightTable](http://lighttable.com/) or the [Hydrogen plugin](https://atom.io/packages/hydrogen) for Atom than traditional editors. Expressions are evaluated with `Ctrl-Enter` (or `Cmd-Enter`), and results are inlined below each expression. 
 
 ![evaluation](https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/a.gif)
 
@@ -11,19 +11,19 @@ The editor is a little different than the usual editor/repl split, and is more s
 
 ![graphics](https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/b.gif)
 
-... we can derrive the motion of an ellipse...
+... we can derrive the motion of ellipses...
 
 ![ellipse](https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/c.gif)
 
-... or the mechanics of a harmonic oscillator...
+... or the mechanics of harmonic oscillators...
 
 ![oscillator](https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/d.gif)
 
-... and there's even a primitive debugger...
+... and there's even a primitive debugger!
 
 ![debug](https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/e.gif)
 
-The help panel summarizes the available keyboard shortcuts and commands - if you're already used to Emacs or Sublime, most of the existing commands should work here as well. And if you're not, great! You don't really need them anyway - just click on the commands in the help panel instead.
+The help panel summarizes the available keyboard shortcuts and commands - if you're already used to Emacs or Sublime, most of the existing commands should work here as well. Safari won't let clients override some shortcuts (like `Cmd-O` for opening files), so either use Chrome/FF or just click on the entry in the help panel. 
 
 ## Installation
 Things you need to run your own server:
@@ -67,7 +67,7 @@ Ozymandias uses [dotenv](https://www.npmjs.com/package/dotenv) for a few configu
 Each Scheme subprocess is sandboxed in a chroot jail, but it's not that secure and you should expect Scheme to be able to execute arbitrary code on your computer. Don't run this publicly on a machine you really care about.
 
 ### Authentication
-Ozymandias is designed to support user accounts. There are two authentication modules in `server/authentication/` for [MIT Touchstone](https://ist.mit.edu/touchstone) and [GitHub](https://developer.github.com/v3/), but it's designed to be extensible. Any scheme (ha) you want to implement just has to attach the appropriate routing middleware to the express app, and pass the appropriate username into every new `Connection`. The default is the `null` user, which is a public directory, readable and writable by everyone.
+Ozymandias is designed to support user accounts, but I'm scared to document them because I don't know what I'm doing. You can peek in `server/authentication/` if you're really curious.
 
 ## Credits
 
