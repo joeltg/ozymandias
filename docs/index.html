@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ozymandias</title>
+    <link rel="stylesheet" href="/styles/tufte.css">
+</head>
+<body>
+<article>
+    <h1 id="ozymandias">Ozymandias</h1>
+    <p><a href="/">Joel Gustafson</a></p>
+    <p>
+        <a href="https://github.com/joeltg/ozymandias">GitHub</a>, <a href="http://ozymandias.xyz">Demo</a>
+    </p>
+    <p>
+        Scheme is a beautiful language, but for those afraid of Emacs it can be difficult to use, and things that are difficult to use are difficult to learn.
+        This project is a modern MIT Scheme environment in the browser that tries its best to be friendly and usable.
+    </p>
+
+    <section id="usage">
+        <h2>Usage</h2>
+        <p>
+            Ozymandias is a little different than the usual editor/repl split, and is more similar to <a href="http://lighttable.com/">LightTable</a> or the <a href="https://atom.io/packages/hydrogen">Hydrogen plugin</a> for Atom than traditional editors.
+            Expressions are evaluated inline and results are printed below each expression.
+            Expressions are evaluated with <code>Ctrl-Enter</code> (or <code>Cmd-Enter</code>), and results are inlined below each expression.
+        </p>
+
+        <figure>
+            <img src="https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/a.gif">
+        </figure>
+
+        <p>
+            ... Graphics devices appear as HTML5 Canvases...
+        </p>
+
+        <figure>
+            <img src="https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/b.gif">
+        </figure>
+
+        <p>
+            ... we can derrive the motion of ellipses...
+        </p>
+
+        <figure>
+            <img src="https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/c.gif">
+        </figure>
+
+        <p>
+            ... or the mechanics of harmonic oscillators...
+        </p>
+
+        <figure>
+            <img src="https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/d.gif">
+        </figure>
+
+        <p>
+            ... and there's even a primitive debugger!
+        </p>
+
+        <figure>
+            <img src="https://raw.githubusercontent.com/joeltg/ozymandias/master/docs/images/e.gif">
+        </figure>
+
+        <p>
+            The help panel summarizes the available keyboard shortcuts and commands - if you're already used to Emacs or Sublime, most of the existing commands should work here as well.
+            Safari won't let clients override some shortcuts (like <code>Cmd-O</code> for opening files), so either use Chrome/FF or just click on the entry in the help panel.
+        </p>
+
+    </section>
+
+    <section id="installation">
+        <h2>Installation</h2>
+        <p>Things you need:</p>
+
+        <ul>
+            <li><a href="https://nodejs.org/en/">Node.js</a> v6+</li>
+            <li><a href="https://github.com/joeltg/mit-scheme"><code>mit-scheme</code></a></li>
+            <li><a href="https://wiki.debian.org/Schroot">schroot</a></li>
+            <li>Ubuntu 14.04+ / Debian 8+</li>
+        </ul>
+
+        <p>
+            It probably works with earlier versions, other *nixes, and maybe even macOS, but it’s never been tried.
+            If you try to run it on Windows, Gerry Sussman will hunt you down and throw chalk at you.
+        </p>
+
+        <p>
+            The <code>mit-scheme</code> npm package is a sister project; it wraps a native MIT Scheme instance in a NodeJS Duplex Stream that is easier to interface with.
+            Since it needs to write config files to <code>/etc/schroot</code>, you'll need to install it globally and with permissions.
+        </p>
+
+        <p>Things you do:</p>
+
+        <figure>
+            <pre>
+                <code>
+                    sudo apt-get install schroot
+                    sudo npm install -g mit-scheme --unsafe-perm
+
+                    git clone https://github.com/joeltg/ozymandias.git
+                    cd ozymandias
+
+                    npm link mit-scheme
+                    npm install
+                    npm run build
+                    npm start
+
+                    &gt; server listening on port 3000
+                </code>
+            </pre>
+        </figure>
+
+        <p>... and it’s live on <code>http://localhost:3000</code>. Amazing.</p>
+    </section>
+
+    <section>
+        <h2 id="notes">Notes</h2>
+
+        <h3 id="configuration">Configuration</h3>
+        <p>
+            Ozymandias uses <a href="https://www.npmjs.com/package/dotenv">dotenv</a> for a few configuration options:
+        </p>
+        <ul>
+            <li><code>PORT</code> (default 3000): TCP port that the server listens on</li>
+            <li><code>SCMUTILS</code> (default true): run Scheme with the <a href="https://groups.csail.mit.edu/mac/users/gjs/6946/refman.txt">scmutils</a> library for symbolic computing fun</li>
+        </ul>
+
+        <h3 id="permissions--security">Permissions &amp; Security</h3>
+        <p>
+            Each Scheme subprocess is sandboxed in a chroot jail, but it's not that secure and you should expect Scheme to be able to execute arbitrary code on your computer.
+            Don't run this publicly on a machine you really care about.
+        </p>
+
+        <h3 id="authentication">Authentication</h3>
+        <p>
+            Ozymandias is designed to support user accounts, but I'm scared to document them because I don't know what I'm doing.
+            You can peek in <code>server/authentication/</code> if you're really curious.
+        </p>
+
+        <h3 id="credits">Credits</h3>
+        <p>None of this would be possible without the incredible work of many free and open-source projects, and none of them get enough thanks:</p>
+
+        <ul>
+            <li><a href="https://groups.csail.mit.edu/mac/users/gjs/6946/">scmutils</a></li>
+            <li><a href="https://github.com/codemirror/CodeMirror">CodeMirror</a></li>
+            <li><a href="https://github.com/d3/d3">D3.js</a></li>
+            <li><a href="https://github.com/Khan/KaTeX">Katex</a></li>
+        </ul>
+
+        <p>And obligatory thanks to Professor Sussman for his indispensable insight and guidance.</p>
+    </section>
+</article>
+</body>
+</html>
