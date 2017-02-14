@@ -8,6 +8,9 @@ import {Expression} from '../graphics/expression';
 import {send} from '../connect';
 import {keywords} from './keywords';
 
+let id = 0;
+const get = () => id++;
+const handles = {};
 const prefix = '#; ';
 let highlight = null;
 
@@ -40,10 +43,15 @@ CodeMirror.commands['eval-document']= eval_document;
 CodeMirror.commands['eval-expression'] = eval_expression;
 CodeMirror.registerHelper('hintWords', 'scheme', keywords.sort());
 
+function find(line) {
+    return Object.keys(handles).find(i => handles[i].lineNo() === line);
+}
+
 function cm_view(cm, delta) {
-    const mark = cm.findMarksAt(cm.getCursor())[0];
-    if (mark) {
-        const {expression} = mark;
+    const {line} = cm.getCursor();
+    const i = find((cm.getLine(line) || !line) ? line : line - 1);
+    if (i) {
+        const {expression, mark} = handles[i];
         const radix = expression.modes.length;
         const index = (expression.index + delta + radix) % radix;
         mark.expression.update(index);
@@ -182,7 +190,7 @@ function thing(cm) {
     }
 }
 
-editor.on('cursorActivity', thing);
+// editor.on('cursorActivity', thing);
 
 function eval_expression(cm) {
     state.forward = false;
@@ -254,28 +262,10 @@ function eval_forward(cm, position) {
 }
 
 function value({text, pretty, latex}) {
+    print({text, pretty, latex});
     const {position, forward} = state;
-    const {line} = position;
-
-    const newline = editor.getLine(line) ? '\n' : '';
-    // const lastline = editor.getLine(line + 1) ? '\n' : '';
-    editor.replaceRange(newline + prefix + text.trim() + '\n', position);
-
-    state.position = editor.getCursor();
-
-    if (pretty && pretty.trim() !== text) {
-        const expression = new Expression(text, pretty, latex);
-        const mark = editor.addLineWidget(state.position.line -1, expression.node);
-
-        editor.addLineClass(mark.line, 'background', 'cm-e');
-        expression.mark = mark;
-        mark.expression = expression;
-    }
-
-    editor.scrollIntoView();
-
     if (forward) {
-        eval_forward(editor, state.position);
+        eval_forward(editor, position);
     }
 }
 
@@ -290,11 +280,16 @@ function print({text, pretty, latex}) {
 
     if (pretty && pretty.trim() !== text) {
         const expression = new Expression(text, pretty, latex);
-        const mark = editor.addLineWidget(state.position.line -1, expression.node);
-
-        editor.addLineClass(mark.line, 'background', 'cm-e');
+        const mark = editor.addLineWidget(state.position.line - 1, expression.node);
+        const i = get();
+        const handle = editor.addLineClass(mark.line, 'background', 'cm-e');
+        handle.mark = mark;
+        handle.expression = expression;
         expression.mark = mark;
         mark.expression = expression;
+
+        handles[i] = handle;
+        handle.on('delete', () => delete handles[i]);
     }
 
     editor.scrollIntoView();
