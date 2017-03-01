@@ -2,8 +2,8 @@
 Scheme is a beautiful language, but for those afraid of Emacs it can be difficult to use. 
 This project is a modern MIT Scheme environment for the browser that tries its best to be friendly and usable.
 
-- [Demo](http://ozymandias.xyz/files/Demo.scm)
 - [This page, but with worse CSS](http://joelgustafson.com/ozymandias)
+- [This page, but with worse CSS and an intermediate redirect](http://ozymandias.xyz)
 
 ![diagram](https://rawgit.com/joeltg/ozymandias/master/docs/images/diagram.svg)
 
