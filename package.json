@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodejs server/server.js",
+    "fake": "nodejs server/fake-server.js true",
     "build": "./node_modules/webpack/bin/webpack.js webpack.config.js"
   },
   "repository": {

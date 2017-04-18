@@ -35,7 +35,7 @@ function render(req, res) {
         delete connections[uuid];
     }
     connections[uuid] = new Connection(user, file, exit, scmutils);
-    res.render('index.html', {uuid, user, file, auth, port});
+    res.render('index.html', {uuid, user, file, auth, port, host: null});
 }
 
 function please(req, res) {
