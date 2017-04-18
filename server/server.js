@@ -38,8 +38,20 @@ function render(req, res) {
     res.render('index.html', {uuid, user, file, auth, port});
 }
 
+function please(req, res) {
+    const uuid = uuidV4();
+    const {user, file} = req.params;
+    function exit(connected, open) {
+        delete connections[uuid];
+    }
+    connections[uuid] = new Connection(user, file, exit, scmutils);
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify(uuid));
+}
+
 app.get('/', render);
 app.get('/files/:file', render);
+app.get('/please', please);
 
 if (auth === 'mit') {
     require('./authentication/mit')(app, render);
