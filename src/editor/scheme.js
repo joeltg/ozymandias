@@ -2,17 +2,16 @@
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
 /**
- * Author: Koh Zi Han, based on implementation by Koh Zi Chun
- * extended 17 July 2016 by joelg
+ * Author: Joel Gustafson, based on implementation by Koh Zi Han, based on implementation by Koh Zi Chun
  */
 
 import CodeMirror from 'codemirror';
 import {keywords, indented_keywords} from './keywords';
 
-CodeMirror.defineMode('scheme', function() {
+CodeMirror.defineMode('mit-scheme', function() {
     const BUILTIN = 'builtin', COMMENT = 'comment', STRING = 'string', ATOM = 'atom', NUMBER = 'number', PAREN = 'paren', OBJECT = 'object';
     const INDENT_WORD_SKIP = 2;
-    
+
     const binaryMatcher = new RegExp(/^(?:[-+]i|[-+][01]+#*(?:\/[01]+#*)?i|[-+]?[01]+#*(?:\/[01]+#*)?@[-+]?[01]+#*(?:\/[01]+#*)?|[-+]?[01]+#*(?:\/[01]+#*)?[-+](?:[01]+#*(?:\/[01]+#*)?)?i|[-+]?[01]+#*(?:\/[01]+#*)?)(?=[()\s;"]|$)/i);
     const octalMatcher = new RegExp(/^(?:[-+]i|[-+][0-7]+#*(?:\/[0-7]+#*)?i|[-+]?[0-7]+#*(?:\/[0-7]+#*)?@[-+]?[0-7]+#*(?:\/[0-7]+#*)?|[-+]?[0-7]+#*(?:\/[0-7]+#*)?[-+](?:[0-7]+#*(?:\/[0-7]+#*)?)?i|[-+]?[0-7]+#*(?:\/[0-7]+#*)?)(?=[()\s;"]|$)/i);
     const hexMatcher = new RegExp(/^(?:[-+]i|[-+][\da-f]+#*(?:\/[\da-f]+#*)?i|[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?@[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?|[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?[-+](?:[\da-f]+#*(?:\/[\da-f]+#*)?)?i|[-+]?[\da-f]+#*(?:\/[\da-f]+#*)?)(?=[()\s;"]|$)/i);
@@ -51,6 +50,75 @@ CodeMirror.defineMode('scheme', function() {
     function isHexNumber(stream) {
         return stream.match(hexMatcher);
     }
+
+    // function dispatchHash(stream, comment) {
+    //     if (stream.peek() === '[') {
+    //         stream.eatWhile(/[^\]]/);
+    //         stream.eat(']');
+    //     } else if (stream.peek() === '(') {
+    //         state.sExprComment = 0;
+    //         break;
+    //     } else {
+    //         stream.eatWhile(/[^\s]/);
+    //     }
+    //     returnType = COMMENT;
+    //
+    //     if (comment) {
+    //         if (stream.eat('|')) {
+    //            state.mode = 'comment';
+    //            return COMMENT;
+    //         } else if (stream.eat(';')) {
+    //            state.mode = 's-expr-comment';
+    //            return COMMENT;
+    //         }
+    //     }
+    //
+    //
+    //     if (comment && stream.eat('|')) {
+    //         // Multi-line comment
+    //         state.mode = 'comment';
+    //         return COMMENT;
+    //     } else if (comment && stream.eat(';')) {
+    //         // S-Expr comment
+    //         state.mode = 's-expr-comment';
+    //         return COMMENT;
+    //     } else if (stream.eat('[')) {
+    //         // Object literal
+    //         stream.eatWhile(/[^\]]/);
+    //         stream.eat(']');
+    //         return OBJECT;
+    //     } else if (stream.eat(/[tf]/i)) {
+    //         // Boolean literal
+    //         returnType = ATOM;
+    //     } else if (stream.eat('@')) {
+    //         // Object hash
+    //         stream.eatWhile(/[^\s]/);
+    //     } else if (stream.eat('*')) {
+    //         // Bitstring literal
+    //         stream.eatWhile(/[01]/);
+    //     } else if (stream.eat(/[\\!]/)) {
+    //         // Atomic literal
+    //         stream.eatWhile(/[\w_\-!$%&*+.\/:<=>?@\^~]/);
+    //         return ATOM;
+    //     } else {
+    //         let numTest = null, hasExactness = false, hasRadix = true;
+    //         if (stream.eat(/[ei]/i)) hasExactness = true;
+    //         else stream.backUp(1); // must be radix specifier
+    //         if (stream.match(/^#b/i)) numTest = isBinaryNumber;
+    //         else if (stream.match(/^#o/i)) numTest = isOctalNumber;
+    //         else if (stream.match(/^#x/i)) numTest = isHexNumber;
+    //         else if (stream.match(/^#d/i)) numTest = isDecimalNumber;
+    //         else if (stream.match(/^[-+0-9.]/, false)) {
+    //             hasRadix = false;
+    //             numTest = isDecimalNumber;
+    //         // re-consume the intial # if all matches failed
+    //         } else if (!hasExactness) stream.eat('#');
+    //         if (numTest !== null) { // consume optional exactness after radix
+    //             if (hasRadix && !hasExactness) stream.match(/^#[ei]/i);
+    //             if (numTest(stream)) returnType = NUMBER;
+    //         }
+    //     }
+    // }
 
     return {
         startState() {
@@ -140,7 +208,7 @@ CodeMirror.defineMode('scheme', function() {
                             escaped = !escaped && next === '\\';
                         }
                     } else if (ch === "'") {
-                        stream.eatWhile(/[\w_\-!$%&*+.\/:<=>?@\^~]/);
+                        stream.eatWhile(/[\w_\-!$%&*+.\/:<=>?@^~]/);
                         returnType = ATOM;
                     } else if (ch === '#') {
                         if (stream.eat('|')) {                    // Multi-line comment
@@ -153,12 +221,14 @@ CodeMirror.defineMode('scheme', function() {
                             stream.eatWhile(/[^\]]/);
                             stream.eat(']');
                             returnType = OBJECT;
-                        } else if (stream.eat(/[tf]/i)) {            // #t/#f (atom)
+                        } else if (stream.eat(/[tf]/i)) {            // boolean literal
                             returnType = ATOM;
-                        } else if (stream.eat('@')) {
+                        } else if (stream.eat('@')) {                // object hash
                             stream.eatWhile(/[^\s]/);
+                        } else if (stream.eat('*')) {                // bitstring literal
+                            stream.eatWhile(/[01]/);
                         } else if (stream.eat(/[\\!]/)) {
-                            stream.eatWhile(/[\w_\-!$%&*+.\/:<=>?@\^~]/);
+                            stream.eatWhile(/[\w_\-!$%&*+.\/:<=>?@^~]/);
                             returnType = ATOM;
                         } else {
                             let numTest = null, hasExactness = false, hasRadix = true;
@@ -222,7 +292,7 @@ CodeMirror.defineMode('scheme', function() {
                             }
                         }
                     } else {
-                        stream.eatWhile(/[\w_\-!$%&*+.\/:<=>?@\^~]/);
+                        stream.eatWhile(/[\w_\-!$%&*+.\/:<=>?@^~]/);
                         if (keys && keys.propertyIsEnumerable(stream.current())) returnType = BUILTIN;
                         else returnType = 'variable';
                     }

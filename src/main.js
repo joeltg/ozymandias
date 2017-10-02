@@ -1,7 +1,3 @@
-/**
- * Created by joel on 8/20/16.
- */
-
 import CodeMirror from 'codemirror';
 import 'codemirror/addon/comment/comment';
 import 'codemirror/addon/edit/matchbrackets';
@@ -29,14 +25,12 @@ import './editor/sublime';
 import './editor/scheme';
 import './editor/emacs';
 
-import {send, socket} from './connect';
+import {send} from './connect';
 import {cm_help} from './config';
 import {cm_open, cm_save} from './file';
 import {state, log} from './utils';
 
 import {cm_view} from './editor/editor';
-
-import {pipe} from './pipe';
 
 CodeMirror.commands.view = cm_view;
 CodeMirror.commands.help = cm_help;
@@ -48,8 +42,3 @@ CodeMirror.commands.interrupt = cm => {
 };
 
 log('connecting to server...\n');
-
-socket.onmessage = event => pipe(JSON.parse(event.data));
-socket.onerror   = event => console.error(event);
-socket.onopen    = event => log('connected.\n');
-socket.onclose   = event => log('\nlost connection to server. reload the page.\n');

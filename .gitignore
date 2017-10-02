@@ -1,3 +1,4 @@
+build
 # Certificates and Keys
 keys/
 certs/
@@ -9,12 +10,7 @@ logs
 
 *.~*~
 
-client/build
-
 .idea/
-users
-public
-jail
 
 # Runtime data
 pids

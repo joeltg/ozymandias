@@ -21,18 +21,6 @@ function get_title({user, file, clean}) {
 
 function set_filename() {
     state.clean = editor.isClean();
-    if (window.auth === '') {
-        login.href = '/';
-        login.textContent = '';
-        login.style.display = 'none';
-    } else if (window.user) {
-        login.href = '/logout';
-        login.textContent = 'Logout';
-    } else {
-        login.href = '/login';
-        login.textContent = window.auth + ' login';
-    }
-
     const title = get_title(state);
     filename.textContent = title;
     document.title = title;
@@ -122,16 +110,6 @@ function cm_open(cm) {
     send('open', true);
     dialog = cm.openNotification(open_dialog, {duration: 0});
 }
-
-const dialogText = 'Unsaved changes will be lost!';
-window.onbeforeunload = function(e) {
-    if (editor.isClean() || !state.file) {
-        return null;
-    } else {
-        e.returnValue = dialogText;
-        return dialogText;
-    }
-};
 
 editor.on('change', cm => state.file && (state.clean !== editor.isClean()) && set_filename());
 

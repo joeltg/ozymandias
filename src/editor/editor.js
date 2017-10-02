@@ -22,7 +22,7 @@ function tab(sign) {
 
 const editor_element = document.getElementById('editor');
 const editor = CodeMirror(editor_element, {
-    mode: 'scheme',
+    mode: 'mit-scheme',
     theme: defaults.theme,
     autoCloseBrackets: true,
     autoMatchParens: true,

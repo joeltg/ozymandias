@@ -5,7 +5,7 @@
 import {editor, editor_element} from './editor/editor';
 import {state, defaults} from './utils';
 import CodeMirror from 'codemirror';
-const mac = CodeMirror.keyMap["default"] == CodeMirror.keyMap.macDefault;
+const mac = CodeMirror.keyMap.default === CodeMirror.keyMap.macDefault;
 const ctrl = mac ? "Cmd-" : "Ctrl-";
 
 const icon_elements = [];

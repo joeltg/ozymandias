@@ -2,11 +2,7 @@
  * Created by joel on 8/28/16.
  */
 
-// const log_element = document.getElementById('log');
-
 function log(text) {
-    // log_element.innerText += text;
-    // log_element.scrollTop = log_element.scrollHeight;
     console.log(text);
 }
 
